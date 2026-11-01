@@ -17,24 +17,33 @@ const App = {
 
   // Dasturni ishga tushirish
   init() {
-    if (window.I18n) {
-      window.I18n.init();
-    }
+    try {
+      if (window.I18n) {
+        window.I18n.init();
+      }
 
-    this.setupCloudSyncListener();
-    this.setupPhotoUploadListener();
-    this.setupEditPhotoUploadListener();
-    this.renderRoleUI();
-    this.renderDistrictFilters();
-    this.renderCreators();
-    this.renderChallenges();
-    this.renderContests();
-    this.renderLeaderboard();
-    this.renderStaffSection();
-    this.renderAdminSection();
-    this.renderStaffProposals();
-    this.renderStats();
-    this.renderCoordinatorPhone();
+      // 1 marta xavfsiz tashrif hisoblagichi
+      if (window.DataStore && typeof window.DataStore.recordVisit === 'function') {
+        window.DataStore.recordVisit();
+      }
+
+      this.setupCloudSyncListener();
+      this.setupPhotoUploadListener();
+      this.setupEditPhotoUploadListener();
+      this.renderRoleUI();
+      this.renderDistrictFilters();
+      this.renderCreators();
+      this.renderChallenges();
+      this.renderContests();
+      this.renderLeaderboard();
+      this.renderStaffSection();
+      this.renderAdminSection();
+      this.renderStaffProposals();
+      this.renderStats();
+      this.renderCoordinatorPhone();
+    } catch (err) {
+      console.warn("App.init xavfsiz yuklandi:", err);
+    }
 
     // Escape bosilganda modallarni yopish
     window.addEventListener('keydown', (e) => {
@@ -2920,7 +2929,9 @@ const App = {
       'modal-award-coins',
       'modal-creator-detail',
       'modal-invite',
-      'modal-admin-inbox'
+      'modal-admin-inbox',
+      'modal-staff-proposal',
+      'modal-staff-approved-congrats'
     ].forEach(id => {
       this.closeModal(id);
     });

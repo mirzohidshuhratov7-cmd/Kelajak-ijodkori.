@@ -247,9 +247,8 @@ const CloudSync = {
           const val = snapshot.val();
           if (val && typeof val.total === 'number') {
             localStorage.setItem(STORAGE_KEY_VISITORS, JSON.stringify(val));
-            if (window.App && typeof window.App.renderStats === 'function') {
-              window.App.renderStats();
-            }
+            const totalEl = document.getElementById('stat-total-visitors');
+            if (totalEl) totalEl.textContent = val.total;
           }
         });
 
@@ -282,15 +281,10 @@ const CloudSync = {
           }
         });
 
-        // Dastlabki sinxronlash
+        // Dastlabki sinxronlash (1 marta fon rejimida)
         setTimeout(() => {
           this.pullAndSync();
-        }, 1000);
-
-        // Har 4 soniyada fonda REST orqali ham yangilab turish (100% kafolat)
-        setInterval(() => {
-          this.pullFromRest();
-        }, 4000);
+        }, 1500);
 
       } catch (err) {
         console.warn('Firebase SDK xatosi, REST rejimga o\'tildi:', err);
@@ -304,9 +298,10 @@ const CloudSync = {
   initRestFallback() {
     this.notify({ status: 'connected', text: 'Server: Google Firebase (REST)', mode: 'REST' });
     this.pullFromRest();
+    // Fonda oraliq bilan yangilab turish (resursni tejash)
     setInterval(() => {
       this.pullFromRest();
-    }, 8000);
+    }, 25000);
   },
 
   async pullFromRest() {
@@ -631,7 +626,12 @@ const CloudSync = {
 
 // Data Layer funksiyalari
 const DataStore = {
+  _initialized: false,
+
   init() {
+    if (this._initialized) return;
+    this._initialized = true;
+
     // 0. To'liq tozalash migratsiyasi: eski namuna ma'lumotlar va hisoblagichlarni batamom tozalash
     try {
       if (localStorage.getItem('ijodkor_clean_v3_fresh') !== 'done') {
@@ -707,11 +707,17 @@ const DataStore = {
     if (!localStorage.getItem(STORAGE_KEY_STAFF)) {
       localStorage.setItem(STORAGE_KEY_STAFF, JSON.stringify([]));
     }
-    this.recordVisit();
   },
 
   // 1. OYLIK TASHRIF VA QIZIQIB BORUVCHILAR STATISTIKASI (HAQIQIY HISOB)
   recordVisit() {
+    try {
+      if (sessionStorage.getItem('ijodkor_session_visit_counted')) {
+        return this.getVisitorStats();
+      }
+      sessionStorage.setItem('ijodkor_session_visit_counted', 'true');
+    } catch (e) {}
+
     const currentMonthKey = new Date().toISOString().slice(0, 7); // e.g. "2026-10"
     let stats = {};
     try {

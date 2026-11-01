@@ -45,13 +45,13 @@
     }
   </script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans w-full max-w-full overflow-x-hidden">
 
   <!-- =========================================================================
        1-KO'RINISH: BOSHLANG'ICH EKRAN (GATEWAY)
        Agar profilga kirmagan bo'lsa: Ekran markazida FAQAT 3 TA KATTA TUGMA!
        ========================================================================= -->
-  <div id="view-gateway" class="flex-1 flex flex-col justify-between items-center px-4 py-8 relative bg-cultural-gradient min-h-screen">
+  <div id="view-gateway" class="flex-1 flex flex-col justify-between items-center px-4 py-8 relative bg-cultural-gradient min-h-screen w-full max-w-full overflow-x-hidden text-slate-100">
     
     <!-- Gateway Tepasidagi Til Tanlash -->
     <div class="absolute top-4 right-4 z-20" id="gateway-lang-switcher">
@@ -149,22 +149,22 @@
   <!-- =========================================================================
        2-KO'RINISH: ASOSIY ILOVA (PROFILGA KIRILGANDA KO'RINADI)
        ========================================================================= -->
-  <div id="view-app" class="hidden flex-1 flex-col bg-slate-50 text-slate-800 min-h-screen">
+  <div id="view-app" class="hidden flex-1 flex-col bg-slate-50 text-slate-800 min-h-screen w-full max-w-full overflow-x-hidden">
 
     <!-- Profil Header -->
-    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm max-w-full overflow-hidden">
-      <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16 sm:h-20 gap-1.5 sm:gap-4">
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm w-full max-w-full overflow-hidden">
+      <div class="w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-14 sm:h-20 gap-1 sm:gap-4 w-full">
           
           <!-- Logo & Server Sinxronlash indikatori -->
-          <div class="flex items-center gap-2 sm:gap-4 shrink-0 min-w-0">
-            <div class="flex items-center gap-2 sm:gap-3 cursor-pointer" onclick="App.switchTab('creators')">
-              <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-emerald-700 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-700/20 shrink-0">
-                <i class="fa-solid fa-masks-theater text-lg sm:text-2xl"></i>
+          <div class="flex items-center gap-1.5 sm:gap-4 min-w-0">
+            <div class="flex items-center gap-1.5 sm:gap-3 cursor-pointer min-w-0" onclick="App.switchTab('creators')">
+              <div class="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-emerald-700 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-700/20 shrink-0">
+                <i class="fa-solid fa-masks-theater text-sm sm:text-xl"></i>
               </div>
               <div class="min-w-0">
                 <div class="flex items-center gap-1">
-                  <span class="text-base sm:text-2xl font-black tracking-tight text-slate-900 truncate">
+                  <span class="text-sm sm:text-2xl font-black tracking-tight text-slate-900 truncate">
                     <span data-i18n="app_title">Kelajak</span> <span class="text-emerald-600" data-i18n="app_title_highlight">ijodkori</span>
                   </span>
                 </div>
@@ -212,7 +212,7 @@
             
             <!-- TILNI TANLASH TUGMASI (UZ / RU / EN) -->
             <div class="relative" id="lang-switcher-container">
-              <button type="button" onclick="App.toggleLangDropdown('app')" class="px-2 py-1.5 sm:px-2.5 sm:py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs border border-slate-300 transition flex items-center gap-1" title="Tilni tanlash / Выбрать язык / Choose language">
+              <button type="button" onclick="App.toggleLangDropdown('app')" class="px-2 py-1 sm:px-2.5 sm:py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs border border-slate-300 transition flex items-center gap-1" title="Tilni tanlash / Выбрать язык / Choose language">
                 <span class="current-lang-flag text-xs sm:text-sm">🇺🇿</span>
                 <span class="current-lang-code text-[10px] sm:text-xs font-black uppercase">UZ</span>
                 <i class="fa-solid fa-chevron-down text-[8px] text-slate-500"></i>
@@ -231,30 +231,30 @@
             </div>
 
             <!-- Profil Nishoni -->
-            <div id="user-profile-badge" class="flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl border bg-slate-100 text-[11px] sm:text-xs font-black text-slate-800 shrink-0">
+            <div id="user-profile-badge" class="flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl border bg-slate-100 text-[11px] sm:text-xs font-black text-slate-800 shrink-0">
               <!-- JS to'ldiradi -->
             </div>
 
             <!-- O'quvchi uchun Profilni Tahrirlash Tugmasi -->
-            <button id="btn-edit-my-profile" onclick="App.openEditProfileModal()" class="hidden px-2 py-1.5 sm:px-2.5 sm:py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-bold transition items-center gap-1 shrink-0" title="Profilimni tahrirlash">
+            <button id="btn-edit-my-profile" onclick="App.openEditProfileModal()" class="hidden px-2 py-1 sm:px-2.5 sm:py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-bold transition items-center gap-1 shrink-0" title="Profilimni tahrirlash">
               <i class="fa-solid fa-pen-to-square"></i>
               <span class="hidden md:inline" data-i18n="btn_edit">Tahrirlash</span>
             </button>
 
             <!-- Madaniyat xodimi uchun Taklif Yuborish Tugmasi -->
-            <button id="btn-staff-proposal" onclick="App.openStaffProposalModal()" class="hidden px-2 py-1.5 sm:px-3 sm:py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black rounded-xl sm:rounded-2xl text-[11px] sm:text-xs shadow transition items-center gap-1 shrink-0" title="Bosh Koordinatorga taklif yuborish">
+            <button id="btn-staff-proposal" onclick="App.openStaffProposalModal()" class="hidden px-2 py-1 sm:px-3 sm:py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black rounded-xl sm:rounded-2xl text-[11px] sm:text-xs shadow transition items-center gap-1 shrink-0" title="Bosh Koordinatorga taklif yuborish">
               <i class="fa-solid fa-lightbulb text-amber-300"></i>
               <span class="hidden md:inline" data-i18n="btn_proposal">Taklif Yuborish</span>
             </button>
 
             <!-- Admin uchun Kodlar Qutisi Tugmasi -->
-            <button id="btn-admin-inbox" onclick="App.openAdminInboxModal()" class="hidden p-2 sm:px-3 sm:py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl sm:rounded-2xl text-[11px] sm:text-xs shadow transition items-center gap-1 shrink-0" title="Tasdiq kodlari">
+            <button id="btn-admin-inbox" onclick="App.openAdminInboxModal()" class="hidden p-1.5 sm:px-3 sm:py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl sm:rounded-2xl text-[11px] sm:text-xs shadow transition items-center gap-1 shrink-0" title="Tasdiq kodlari">
               <i class="fa-solid fa-bell"></i>
               <span id="admin-inbox-badge" class="bg-red-600 text-white rounded-full px-1.5 py-0.2 text-[9px] sm:text-[10px] font-black">0</span>
             </button>
 
             <!-- ESHIKCHA TUGMASI (Profildan Chiqish) - HECH QACHON QIRILMAYDI VA EKRANDAN CHIQMAYDI -->
-            <button onclick="App.handleLogout()" class="px-2.5 py-1.5 sm:px-3.5 sm:py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black shadow-md transition flex items-center gap-1 shrink-0" title="Profildan chiqish">
+            <button onclick="App.handleLogout()" class="px-2 py-1 sm:px-3.5 sm:py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black shadow-md transition flex items-center gap-1 shrink-0" title="Profildan chiqish">
               <i class="fa-solid fa-door-open text-xs sm:text-sm"></i>
               <span class="hidden md:inline" data-i18n="btn_exit">Chiqish</span>
             </button>
