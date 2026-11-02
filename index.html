@@ -98,8 +98,8 @@
             <i class="fa-solid fa-earth-asia"></i>
           </div>
           <div class="text-left">
-            <span class="block leading-tight text-white font-black">Admin (Respublika koordinatori)</span>
-            <span class="text-[11px] text-rose-100 font-semibold opacity-95">Respublika bo'yicha viloyatlar tahlili va hisobotlari</span>
+            <span class="block leading-tight text-white font-black" data-i18n="gateway_btn_republic_admin">Admin (Respublika koordinatori)</span>
+            <span class="text-[11px] text-rose-100 font-semibold opacity-95" data-i18n="gateway_btn_republic_admin_sub">Respublika bo'yicha viloyatlar tahlili va hisobotlari</span>
           </div>
         </div>
         <i class="fa-solid fa-arrow-right text-white text-base group-hover:translate-x-1.5 transition-transform"></i>
@@ -112,8 +112,8 @@
             <i class="fa-solid fa-chart-column"></i>
           </div>
           <div class="text-left">
-            <span class="block leading-tight text-white font-black">Admin (Viloyat koordinatorlari)</span>
-            <span class="text-[11px] text-purple-200 font-semibold opacity-95">Viloyatdagi tumanlar o'sish tendensiyasi va hisobotlar</span>
+            <span class="block leading-tight text-white font-black" data-i18n="gateway_btn_region_admin">Admin (Viloyat koordinatorlari)</span>
+            <span class="text-[11px] text-purple-200 font-semibold opacity-95" data-i18n="gateway_btn_region_admin_sub">Viloyatdagi tumanlar o'sish tendensiyasi va hisobotlar</span>
           </div>
         </div>
         <i class="fa-solid fa-arrow-right text-white text-base group-hover:translate-x-1.5 transition-transform"></i>
@@ -179,76 +179,73 @@
        ========================================================================= -->
   <div id="view-app" class="hidden flex-1 flex-col bg-slate-50 text-slate-800 min-h-screen">
 
-    <!-- Profil Header -->
-    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm max-w-full overflow-hidden">
-      <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16 sm:h-20 gap-1.5 sm:gap-4">
+    <!-- Profil Header (Ixcham va barcha tugmalar ekranga 100% sig'adigan dizayn) -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm w-full">
+      <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+        <div class="flex items-center justify-between min-h-[60px] py-2 gap-1.5 sm:gap-2 flex-wrap lg:flex-nowrap">
           
           <!-- Logo & Server Sinxronlash indikatori -->
-          <div class="flex items-center gap-2 sm:gap-4 shrink-0 min-w-0">
-            <div class="flex items-center gap-2 sm:gap-3 cursor-pointer" onclick="App.switchTab('creators')">
-              <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-emerald-700 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-700/20 shrink-0">
-                <i class="fa-solid fa-masks-theater text-lg sm:text-2xl"></i>
+          <div class="flex items-center gap-2 shrink-0">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="App.switchTab('creators')">
+              <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-700 to-teal-500 flex items-center justify-center text-white shadow-sm shrink-0">
+                <i class="fa-solid fa-masks-theater text-sm sm:text-lg"></i>
               </div>
-              <div class="min-w-0">
-                <div class="flex items-center gap-1">
-                  <span class="text-base sm:text-2xl font-black tracking-tight text-slate-900 truncate">
-                    <span data-i18n="app_title">Kelajak</span> <span class="text-emerald-600" data-i18n="app_title_highlight">ijodkori</span>
-                  </span>
-                </div>
-                <p class="text-[10px] sm:text-xs text-slate-500 font-medium hidden md:block" data-i18n="app_subtitle">Iqtidorli Yoshlar & Chellenjlar Portali</p>
+              <div class="leading-tight">
+                <span class="text-sm sm:text-lg font-black tracking-tight text-slate-900 block whitespace-nowrap">
+                  <span data-i18n="app_title">Kelajak</span> <span class="text-emerald-600" data-i18n="app_title_highlight">ijodkori</span>
+                </span>
+                <p class="text-[9px] text-slate-500 font-medium hidden 2xl:block" data-i18n="app_subtitle">Iqtidorli Yoshlar Portali</p>
               </div>
             </div>
 
-            <!-- Bulutli Server Sinxronlash Nishoni & Tugmasi -->
-            <div class="hidden xl:flex items-center gap-2 pl-2 border-l border-slate-200">
-              <div id="cloud-sync-status-badge" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5" title="Bulutli Server Holati">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span id="cloud-sync-text" data-i18n="server_connected">Server: Ulangan</span>
+            <!-- Bulutli Server Sinxronlash Tugmasi (Ixcham) -->
+            <div class="hidden 2xl:flex items-center gap-1.5 pl-2 border-l border-slate-200">
+              <div id="cloud-sync-status-badge" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1" title="Bulutli Server Holati">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span id="cloud-sync-text" data-i18n="server_connected">Ulangan</span>
               </div>
-              <button onclick="App.handleManualSync()" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1" title="Serverdan yangilash">
-                <i class="fa-solid fa-rotate" id="sync-icon"></i>
-                <span data-i18n="server_sync">Sinxronlash</span>
-              </button>
             </div>
+            <button onclick="App.handleManualSync()" class="hidden sm:flex p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-xs font-bold transition items-center justify-center" title="Serverdan yangilash (Sinxronlash)">
+              <i class="fa-solid fa-rotate text-xs" id="sync-icon"></i>
+            </button>
           </div>
 
-          <!-- Asosiy Navigatsiya Menyusi (Desktop uchun) -->
-          <nav class="hidden lg:flex items-center gap-1 bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
-            <button id="nav-btn-creators" onclick="App.switchTab('creators')" class="nav-tab active px-3 py-2 rounded-xl text-xs font-bold transition-all">
-              <i class="fa-solid fa-users mr-1"></i> <span data-i18n="nav_creators">O'quvchilar</span>
+          <!-- Asosiy Navigatsiya Menyusi (Desktop uchun ixcham) -->
+          <nav class="hidden lg:flex items-center gap-0.5 bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0">
+            <button id="nav-btn-creators" onclick="App.switchTab('creators')" class="nav-tab active px-2.5 py-1.5 rounded-lg text-[11px] xl:text-xs font-bold transition-all whitespace-nowrap">
+              <i class="fa-solid fa-users mr-1"></i><span data-i18n="nav_creators">O'quvchilar</span>
             </button>
-            <button id="nav-btn-challenges" onclick="App.switchTab('challenges')" class="nav-tab px-3 py-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
-              <i class="fa-solid fa-video mr-1 text-red-500"></i> <span data-i18n="nav_challenges">Chellenjlar 🔥</span>
+            <button id="nav-btn-challenges" onclick="App.switchTab('challenges')" class="nav-tab px-2.5 py-1.5 rounded-lg text-[11px] xl:text-xs font-bold transition-all text-slate-600 hover:text-slate-900 whitespace-nowrap">
+              <i class="fa-solid fa-video mr-1 text-red-500"></i><span data-i18n="nav_challenges">Chellenjlar</span>
             </button>
-            <button id="nav-btn-contests" onclick="App.switchTab('contests')" class="nav-tab px-3 py-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
-              <i class="fa-solid fa-bullhorn mr-1 text-emerald-600"></i> <span data-i18n="nav_contests">Tanlovlar</span>
+            <button id="nav-btn-contests" onclick="App.switchTab('contests')" class="nav-tab px-2.5 py-1.5 rounded-lg text-[11px] xl:text-xs font-bold transition-all text-slate-600 hover:text-slate-900 whitespace-nowrap">
+              <i class="fa-solid fa-bullhorn mr-1 text-emerald-600"></i><span data-i18n="nav_contests">Tanlovlar</span>
             </button>
-            <button id="nav-btn-leaderboard" onclick="App.switchTab('leaderboard')" class="nav-tab px-3 py-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
-              <i class="fa-solid fa-trophy mr-1 text-amber-500"></i> <span data-i18n="nav_leaderboard">Reyting</span>
+            <button id="nav-btn-leaderboard" onclick="App.switchTab('leaderboard')" class="nav-tab px-2.5 py-1.5 rounded-lg text-[11px] xl:text-xs font-bold transition-all text-slate-600 hover:text-slate-900 whitespace-nowrap">
+              <i class="fa-solid fa-trophy mr-1 text-amber-500"></i><span data-i18n="nav_leaderboard">Reyting</span>
             </button>
-            <button id="nav-btn-staff" onclick="App.switchTab('staff')" class="nav-tab px-3 py-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
-              <i class="fa-solid fa-id-badge mr-1 text-blue-500"></i> <span data-i18n="nav_staff">Xodimlar</span>
+            <button id="nav-btn-staff" onclick="App.switchTab('staff')" class="nav-tab px-2.5 py-1.5 rounded-lg text-[11px] xl:text-xs font-bold transition-all text-slate-600 hover:text-slate-900 whitespace-nowrap">
+              <i class="fa-solid fa-id-badge mr-1 text-blue-500"></i><span data-i18n="nav_staff">Xodimlar</span>
             </button>
-            <button id="nav-btn-admin" onclick="App.switchTab('admin')" class="nav-tab hidden px-3 py-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
-              <i class="fa-solid fa-shield-halved mr-1 text-amber-600"></i> <span data-i18n="nav_admin">Tuman Koordinatori</span>
+            <button id="nav-btn-admin" onclick="App.switchTab('admin')" class="nav-tab hidden px-2.5 py-1.5 rounded-lg text-[11px] xl:text-xs font-bold transition-all text-slate-600 hover:text-slate-900 whitespace-nowrap">
+              <i class="fa-solid fa-shield-halved mr-1 text-amber-600"></i><span data-i18n="nav_admin">Tuman Admin</span>
             </button>
-            <button id="nav-btn-region-admin" onclick="App.switchTab('region_admin')" class="nav-tab hidden px-3 py-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
-              <i class="fa-solid fa-chart-column mr-1 text-purple-600"></i> <span>Viloyat Koordinatori</span>
+            <button id="nav-btn-region-admin" onclick="App.switchTab('region_admin')" class="nav-tab hidden px-2.5 py-1.5 rounded-lg text-[11px] xl:text-xs font-bold transition-all text-slate-600 hover:text-slate-900 whitespace-nowrap">
+              <i class="fa-solid fa-chart-column mr-1 text-purple-600"></i><span>Viloyat</span>
             </button>
-            <button id="nav-btn-republic-admin" onclick="App.switchTab('republic_admin')" class="nav-tab hidden px-3 py-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
-              <i class="fa-solid fa-earth-asia mr-1 text-rose-600"></i> <span>Respublika Koordinatori</span>
+            <button id="nav-btn-republic-admin" onclick="App.switchTab('republic_admin')" class="nav-tab hidden px-2.5 py-1.5 rounded-lg text-[11px] xl:text-xs font-bold transition-all text-slate-600 hover:text-slate-900 whitespace-nowrap">
+              <i class="fa-solid fa-earth-asia mr-1 text-rose-600"></i><span>Respublika</span>
             </button>
           </nav>
 
-          <!-- Hozirgi Profil, Til Tanlash va Amallar -->
-          <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+          <!-- Hozirgi Profil, Til Tanlash, Tahrirlash va Chiqish (Ixcham) -->
+          <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
             
             <!-- TILNI TANLASH TUGMASI (UZ / RU / EN) -->
             <div class="relative" id="lang-switcher-container">
-              <button type="button" onclick="App.toggleLangDropdown('app')" class="px-2 py-1.5 sm:px-2.5 sm:py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs border border-slate-300 transition flex items-center gap-1" title="Tilni tanlash / Выбрать язык / Choose language">
-                <span class="current-lang-flag text-xs sm:text-sm">🇺🇿</span>
-                <span class="current-lang-code text-[10px] sm:text-xs font-black uppercase">UZ</span>
+              <button type="button" onclick="App.toggleLangDropdown('app')" class="px-2 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-[11px] border border-slate-300 transition flex items-center gap-1" title="Tilni tanlash / Выбрать язык / Choose language">
+                <span class="current-lang-flag text-xs">🇺🇿</span>
+                <span class="current-lang-code text-[10px] font-black uppercase">UZ</span>
                 <i class="fa-solid fa-chevron-down text-[8px] text-slate-500"></i>
               </button>
               <div id="lang-dropdown-menu" class="hidden absolute right-0 top-full mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 py-1.5 w-36 text-xs font-bold text-slate-800">
@@ -264,39 +261,39 @@
               </div>
             </div>
 
-            <!-- Profil Nishoni -->
-            <div id="user-profile-badge" class="flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl border bg-slate-100 text-[11px] sm:text-xs font-black text-slate-800 shrink-0">
+            <!-- Profil Nishoni (Ixcham) -->
+            <div id="user-profile-badge" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border bg-slate-100 text-[11px] font-black text-slate-800 max-w-[170px] sm:max-w-[200px] truncate shrink-0">
               <!-- JS to'ldiradi -->
             </div>
 
-            <!-- O'quvchi uchun Profilni Tahrirlash Tugmasi -->
-            <button id="btn-edit-my-profile" onclick="App.openEditProfileModal()" class="hidden px-2 py-1.5 sm:px-2.5 sm:py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-bold transition items-center gap-1 shrink-0" title="Profilimni tahrirlash">
+            <!-- O'quvchi / Xodim uchun Profilni Tahrirlash Tugmasi -->
+            <button id="btn-edit-my-profile" onclick="App.openEditProfileModal()" class="hidden px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-[11px] font-bold transition items-center gap-1 shrink-0 whitespace-nowrap" title="Profilimni tahrirlash">
               <i class="fa-solid fa-pen-to-square"></i>
-              <span class="hidden md:inline" data-i18n="btn_edit">Tahrirlash</span>
+              <span data-i18n="btn_edit">Tahrirlash</span>
             </button>
 
-            <!-- O'quvchi uchun Adminga Shikoyat Tugmasi -->
-            <button id="btn-student-complaint" onclick="App.openStudentComplaintModal()" class="hidden px-2.5 py-1.5 sm:px-3 sm:py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black shadow transition items-center gap-1 shrink-0" title="Tuman koordinatoriga shikoyat yuborish">
+            <!-- O'quvchi uchun Adminga Shikoyat Tugmasi (Ixcham) -->
+            <button id="btn-student-complaint" onclick="App.openStudentComplaintModal()" class="hidden px-2 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-[11px] font-black shadow transition items-center gap-1 shrink-0 whitespace-nowrap" title="Tuman koordinatoriga shikoyat yuborish">
               <i class="fa-solid fa-triangle-exclamation text-amber-300"></i>
-              <span class="hidden md:inline">Adminga Shikoyat</span>
+              <span class="hidden xl:inline">Shikoyat</span>
             </button>
 
             <!-- Madaniyat xodimi uchun Taklif Yuborish Tugmasi -->
-            <button id="btn-staff-proposal" onclick="App.openStaffProposalModal()" class="hidden px-2 py-1.5 sm:px-3 sm:py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black rounded-xl sm:rounded-2xl text-[11px] sm:text-xs shadow transition items-center gap-1 shrink-0" title="Bosh Koordinatorga taklif yuborish">
+            <button id="btn-staff-proposal" onclick="App.openStaffProposalModal()" class="hidden px-2.5 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black rounded-xl text-[11px] shadow transition items-center gap-1 shrink-0 whitespace-nowrap" title="Bosh Koordinatorga taklif yuborish">
               <i class="fa-solid fa-lightbulb text-amber-300"></i>
-              <span class="hidden md:inline" data-i18n="btn_proposal">Taklif Yuborish</span>
+              <span class="hidden sm:inline" data-i18n="btn_proposal">Taklif</span>
             </button>
 
             <!-- Admin uchun Kodlar Qutisi Tugmasi -->
-            <button id="btn-admin-inbox" onclick="App.openAdminInboxModal()" class="hidden p-2 sm:px-3 sm:py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl sm:rounded-2xl text-[11px] sm:text-xs shadow transition items-center gap-1 shrink-0" title="Tasdiq kodlari">
+            <button id="btn-admin-inbox" onclick="App.openAdminInboxModal()" class="hidden px-2 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-[11px] shadow transition items-center gap-1 shrink-0" title="Tasdiq kodlari">
               <i class="fa-solid fa-bell"></i>
-              <span id="admin-inbox-badge" class="bg-red-600 text-white rounded-full px-1.5 py-0.2 text-[9px] sm:text-[10px] font-black">0</span>
+              <span id="admin-inbox-badge" class="bg-red-600 text-white rounded-full px-1.5 py-0.2 text-[9px] font-black">0</span>
             </button>
 
-            <!-- ESHIKCHA TUGMASI (Profildan Chiqish) - HECH QACHON QIRILMAYDI VA EKRANDAN CHIQMAYDI -->
-            <button onclick="App.handleLogout()" class="px-2.5 py-1.5 sm:px-3.5 sm:py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black shadow-md transition flex items-center gap-1 shrink-0" title="Profildan chiqish">
-              <i class="fa-solid fa-door-open text-xs sm:text-sm"></i>
-              <span class="hidden md:inline" data-i18n="btn_exit">Chiqish</span>
+            <!-- CHIQISH TUGMASI (Doim to'liq ko'rinadi) -->
+            <button onclick="App.handleLogout()" class="px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-[11px] font-black shadow-sm transition flex items-center gap-1 shrink-0 whitespace-nowrap" title="Profildan chiqish">
+              <i class="fa-solid fa-door-open text-xs"></i>
+              <span data-i18n="btn_exit">Chiqish</span>
             </button>
 
           </div>
@@ -1233,7 +1230,7 @@
             <label class="block text-xs font-bold text-slate-700 mb-1.5">
               <i class="fa-solid fa-location-dot text-amber-600 mr-1"></i> 2. Qaysi Tumansiz? (Tumaningizni bosing yoki yozing) *
             </label>
-            <input list="tumanlar-datalist" id="admin-login-district" required oninput="App.updateDistrictCoordinatorPreview()" onchange="App.updateDistrictCoordinatorPreview()" placeholder="Masalan: Jondor tumani" class="w-full px-4 py-2.5 text-sm font-bold bg-slate-50 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-amber-500 focus:bg-white focus:outline-none">
+            <input list="tumanlar-datalist" id="admin-login-district" required onfocus="App.filterDatalistByRegion(document.getElementById('admin-login-region-select')?.value, 'admin-login-district')" oninput="App.updateDistrictCoordinatorPreview()" onchange="App.updateDistrictCoordinatorPreview()" placeholder="Masalan: Jondor tumani" class="w-full px-4 py-2.5 text-sm font-bold bg-slate-50 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-amber-500 focus:bg-white focus:outline-none">
             <!-- Tumanlarni bitta bosishda tanlash tugmachalari -->
             <div id="admin-login-district-chips" class="flex flex-wrap gap-1.5 mt-2 max-h-28 overflow-y-auto p-1">
               <!-- JS to'ldiradi -->
@@ -1431,11 +1428,11 @@
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">Qaysi Viloyatda Ishlaysiz? *</label>
-              <input list="viloyatlar-datalist" id="staff-region" required value="Buxoro viloyati" placeholder="Masalan: Buxoro viloyati" class="w-full px-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+              <input list="viloyatlar-datalist" id="staff-region" required value="Buxoro viloyati" oninput="App.filterDatalistByRegion(this.value, 'staff-district')" onchange="App.filterDatalistByRegion(this.value, 'staff-district')" placeholder="Masalan: Buxoro viloyati" class="w-full px-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">Qaysi Tumanda Ishlaysiz? *</label>
-              <input list="tumanlar-datalist" id="staff-district" required placeholder="Masalan: Jondor tumani" class="w-full px-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+              <input list="tumanlar-datalist" id="staff-district" required onfocus="App.filterDatalistByRegion(document.getElementById('staff-region')?.value, 'staff-district')" placeholder="Masalan: Jondor tumani" class="w-full px-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
             </div>
           </div>
 
@@ -1686,11 +1683,11 @@
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">Viloyatingiz *</label>
-              <input list="viloyatlar-datalist" id="std-region" required value="Buxoro viloyati" placeholder="Masalan: Buxoro viloyati" class="w-full px-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+              <input list="viloyatlar-datalist" id="std-region" required value="Buxoro viloyati" oninput="App.filterDatalistByRegion(this.value, 'std-district')" onchange="App.filterDatalistByRegion(this.value, 'std-district')" placeholder="Masalan: Buxoro viloyati" class="w-full px-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">Qaysi Tumansiz? (Tuman/Shahar) *</label>
-              <input list="tumanlar-datalist" id="std-district" required placeholder="Masalan: Jondor tumani" class="w-full px-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+              <input list="tumanlar-datalist" id="std-district" required onfocus="App.filterDatalistByRegion(document.getElementById('std-region')?.value, 'std-district')" placeholder="Masalan: Jondor tumani" class="w-full px-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">Maktabingiz *</label>
@@ -2743,7 +2740,7 @@
     <option value="Qoraqalpog'iston Respublikasi"></option>
   </datalist>
 
-  <!-- Tuman va shaharlar ro'yxati (Datalist) -->
+  <!-- Tuman va shaharlar ro'yxati (Datalist — Tanlangan viloyatga qarab dinamik yangilanadi) -->
   <datalist id="tumanlar-datalist">
     <option value="Jondor tumani"></option>
     <option value="Qorako'l tumani"></option>
@@ -2759,37 +2756,6 @@
     <option value="Kogon shahri"></option>
     <option value="Qorovulbozor tumani"></option>
     <option value="Gazli shahri"></option>
-    <option value="Chilonzor tumani"></option>
-    <option value="Yunusobod tumani"></option>
-    <option value="Mirzo Ulug'bek tumani"></option>
-    <option value="Shayxontohur tumani"></option>
-    <option value="Yakkasaroy tumani"></option>
-    <option value="Yashnobod tumani"></option>
-    <option value="Olmazor tumani"></option>
-    <option value="Uchtepa tumani"></option>
-    <option value="Sergeli tumani"></option>
-    <option value="Yangihayot tumani"></option>
-    <option value="Mirobod tumani"></option>
-    <option value="Bektemir tumani"></option>
-    <option value="Samarqand shahri"></option>
-    <option value="Urgut tumani"></option>
-    <option value="Farg'ona shahri"></option>
-    <option value="Qo'qon shahri"></option>
-    <option value="Marg'ilon shahri"></option>
-    <option value="Andijon shahri"></option>
-    <option value="Asaka tumani"></option>
-    <option value="Namangan shahri"></option>
-    <option value="Chust tumani"></option>
-    <option value="Urganch shahri"></option>
-    <option value="Xiva shahri"></option>
-    <option value="Qarshi shahri"></option>
-    <option value="Shahrisabz shahri"></option>
-    <option value="Termiz shahri"></option>
-    <option value="Denov tumani"></option>
-    <option value="Nukus shahri"></option>
-    <option value="Jizzax shahri"></option>
-    <option value="Guliston shahri"></option>
-    <option value="Navoiy shahri"></option>
   </datalist>
 
   <!-- Toast Bildirishnomalar Idishi -->

@@ -405,8 +405,8 @@ const App = {
       if (republicAdminNavBtn) republicAdminNavBtn.classList.remove('hidden');
       if (mobileRepublicAdminNav) mobileRepublicAdminNav.classList.remove('hidden');
 
-      profileBadge.innerHTML = `<i class="fa-solid fa-earth-asia text-rose-600 text-xs sm:text-sm"></i> <span class="hidden sm:inline">Respublika Koordinatori (${user.fullName})</span><span class="sm:hidden text-[10px]">Respublika</span>`;
-      profileBadge.className = "flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl border border-rose-300 bg-rose-50 text-[11px] sm:text-xs font-black text-rose-950 shrink-0";
+      profileBadge.innerHTML = `<i class="fa-solid fa-earth-asia text-rose-600 text-xs"></i> <span class="truncate">${user.fullName.split(' ')[0]}</span>`;
+      profileBadge.className = "flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-rose-300 bg-rose-50 text-[11px] font-black text-rose-950 shrink-0 max-w-[160px]";
       if (editProfileBtn) editProfileBtn.classList.add('hidden');
       if (staffProposalBtn) staffProposalBtn.classList.add('hidden');
       if (adminInboxBtn) adminInboxBtn.classList.add('hidden');
@@ -429,8 +429,8 @@ const App = {
       }
       if (mobileRegionAdminNav) mobileRegionAdminNav.classList.remove('hidden');
 
-      profileBadge.innerHTML = `<i class="fa-solid fa-chart-column text-purple-600 text-xs sm:text-sm"></i> <span class="hidden sm:inline">${regInfo.regionLabel} Koordinatori (${user.fullName})</span><span class="sm:hidden text-[10px]">${regInfo.regionLabel}</span>`;
-      profileBadge.className = "flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl border border-purple-300 bg-purple-50 text-[11px] sm:text-xs font-black text-purple-950 shrink-0";
+      profileBadge.innerHTML = `<i class="fa-solid fa-chart-column text-purple-600 text-xs"></i> <span class="truncate">${user.fullName.split(' ')[0]}</span>`;
+      profileBadge.className = "flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-purple-300 bg-purple-50 text-[11px] font-black text-purple-950 shrink-0 max-w-[160px]";
       if (editProfileBtn) editProfileBtn.classList.add('hidden');
       if (staffProposalBtn) staffProposalBtn.classList.add('hidden');
       if (adminInboxBtn) adminInboxBtn.classList.add('hidden');
@@ -439,9 +439,9 @@ const App = {
         this.switchTab('region_admin');
       }
     } else if (Auth.isAdmin()) {
-      const distBadge = userDist.districtLabel ? ` • ${userDist.districtLabel}` : '';
-      profileBadge.innerHTML = `<i class="fa-solid fa-crown text-amber-500 text-xs sm:text-sm"></i> <span class="hidden sm:inline">Tuman Admini${distBadge}</span><span class="sm:hidden text-[10px]">Admin${distBadge}</span>`;
-      profileBadge.className = "flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl border border-amber-300 bg-amber-50 text-[11px] sm:text-xs font-black text-amber-950 shrink-0";
+      const shortDist = (userDist.districtLabel || '').replace(' tumani', '').replace(' shahri', '');
+      profileBadge.innerHTML = `<i class="fa-solid fa-crown text-amber-500 text-xs"></i> <span class="truncate">${shortDist || 'Admin'}</span>`;
+      profileBadge.className = "flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-[11px] font-black text-amber-950 shrink-0 max-w-[140px]";
       
       if (adminNavBtn) adminNavBtn.classList.remove('hidden');
       if (mobileAdminNav) mobileAdminNav.classList.remove('hidden');
@@ -456,9 +456,8 @@ const App = {
         document.getElementById('admin-inbox-badge').textContent = inboxItems.length;
       }
     } else if (Auth.isStaff()) {
-      const distBadge = userDist.districtLabel ? ` • ${userDist.districtLabel}` : '';
-      profileBadge.innerHTML = `<i class="fa-solid fa-id-badge text-blue-500 text-xs sm:text-sm"></i> <span class="hidden sm:inline">${user.fullName}${distBadge}</span><span class="sm:hidden text-[10px]">${user.fullName.split(' ')[0]}${distBadge}</span>`;
-      profileBadge.className = "flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl border border-blue-300 bg-blue-50 text-[11px] sm:text-xs font-bold text-blue-950 shrink-0";
+      profileBadge.innerHTML = `<i class="fa-solid fa-id-badge text-blue-500 text-xs"></i> <span class="truncate">${user.fullName.split(' ')[0]}</span>`;
+      profileBadge.className = "flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-blue-300 bg-blue-50 text-[11px] font-bold text-blue-950 shrink-0 max-w-[140px]";
       
       if (staffProposalBtn) {
         staffProposalBtn.classList.remove('hidden');
@@ -467,7 +466,7 @@ const App = {
       if (editProfileBtn) {
         editProfileBtn.classList.remove('hidden');
         editProfileBtn.classList.add('inline-flex');
-        editProfileBtn.className = "px-2 py-1.5 sm:px-2.5 sm:py-2 bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-300 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-bold transition inline-flex items-center gap-1 shrink-0";
+        editProfileBtn.className = "px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-300 rounded-xl text-[11px] font-bold transition inline-flex items-center gap-1 shrink-0 whitespace-nowrap";
         editProfileBtn.onclick = () => this.openEditStaffProfileModal();
         editProfileBtn.title = "Xodim profilimni tahrirlash";
       }
@@ -475,14 +474,12 @@ const App = {
     } else if (Auth.isStudent()) {
       const creator = DataStore.getCreatorById(user.creatorId) || user;
       const distLabel = userDist.districtLabel || creator.districtLabel || 'Jondor tumani';
-      const distBadge = distLabel ? ` • ${distLabel}` : '';
-      profileBadge.innerHTML = `<i class="fa-solid fa-user-graduate text-emerald-600 text-xs sm:text-sm"></i> <span class="hidden sm:inline">${creator.fullName.split(' ')[0]}${distBadge}</span> <span>(🪙 ${creator.coins || 10})</span>`;
-      profileBadge.className = "flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl border border-emerald-300 bg-emerald-50 text-[11px] sm:text-xs font-bold text-emerald-950 shrink-0";
+      profileBadge.innerHTML = `<i class="fa-solid fa-user-graduate text-emerald-600 text-xs"></i> <span class="truncate">${creator.fullName.split(' ')[0]}</span> <span class="shrink-0">(🪙 ${creator.coins || 10})</span>`;
+      profileBadge.className = "flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-[11px] font-bold text-emerald-950 shrink-0 max-w-[165px]";
       
       if (staffProposalBtn) staffProposalBtn.classList.add('hidden');
       if (studentComplaintBtn) {
-        studentComplaintBtn.classList.remove('hidden');
-        studentComplaintBtn.classList.add('inline-flex');
+        studentComplaintBtn.classList.add('hidden');
       }
       if (studentComplaintBanner) {
         studentComplaintBanner.classList.remove('hidden');
@@ -494,7 +491,7 @@ const App = {
       if (editProfileBtn) {
         editProfileBtn.classList.remove('hidden');
         editProfileBtn.classList.add('inline-flex');
-        editProfileBtn.className = "px-2 py-1.5 sm:px-2.5 sm:py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-bold transition inline-flex items-center gap-1 shrink-0";
+        editProfileBtn.className = "px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-[11px] font-bold transition inline-flex items-center gap-1 shrink-0 whitespace-nowrap";
         editProfileBtn.onclick = () => this.openEditProfileModal();
         editProfileBtn.title = "Profilimni tahrirlash";
       }
@@ -750,13 +747,38 @@ const App = {
     }
   },
 
+  filterDatalistByRegion(regionValue, targetDistrictInputId = '') {
+    const datalist = document.getElementById('tumanlar-datalist');
+    const districts = DataStore.getDistrictsByRegion(regionValue || 'Buxoro viloyati');
+    if (datalist && districts.length > 0) {
+      datalist.innerHTML = districts.map(d => `<option value="${d.name.replace(/"/g, '&quot;')}"></option>`).join('');
+    }
+    if (targetDistrictInputId) {
+      const distInput = document.getElementById(targetDistrictInputId);
+      if (distInput && districts.length > 0) {
+        distInput.placeholder = `Masalan: ${districts[0].name}`;
+        if (distInput.value) {
+          const currentNorm = DataStore.normalizeDistrict(distInput.value);
+          const belongs = districts.some(d => d.id === currentNorm.id);
+          if (!belongs) {
+            distInput.value = '';
+          }
+        }
+      }
+    }
+  },
+
   onDistrictModalRegionChange(regionValue) {
     const chipsContainer = document.getElementById('admin-login-district-chips');
     const distInput = document.getElementById('admin-login-district');
+
+    this.filterDatalistByRegion(regionValue || 'Buxoro viloyati', 'admin-login-district');
+
     if (!chipsContainer) return;
 
     const districts = DataStore.getDistrictsByRegion(regionValue || 'Buxoro viloyati');
     if (distInput && districts.length > 0) {
+      distInput.placeholder = `Masalan: ${districts[0].name}`;
       const currentNorm = DataStore.normalizeDistrict(distInput.value);
       const belongs = districts.some(d => d.id === currentNorm.id);
       if (!belongs) {

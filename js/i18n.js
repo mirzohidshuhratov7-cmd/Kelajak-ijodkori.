@@ -17,7 +17,7 @@ const I18n = {
       btn_exit: "Chiqish",
       btn_edit: "Tahrirlash",
       btn_proposal: "Taklif Yuborish",
-      role_admin: "Bosh Koordinator (Admin)",
+      role_admin: "Admin (Tuman koordinatori)",
       role_staff: "Xodim",
       role_student: "O'quvchi",
 
@@ -28,8 +28,12 @@ const I18n = {
       gateway_btn_student_sub: "Video roliklar topshirish, tangalar yig'ish va reytingda ko'tarilish",
       gateway_btn_staff: "Madaniyat Xodimi",
       gateway_btn_staff_sub: "O'quvchilar kontaktlarini ko'rish, tadbirlarga taklif etish va taklif kiritish",
-      gateway_btn_admin: "Bosh Koordinator (Admin)",
-      gateway_btn_admin_sub: "Tangalar taqdim etish, videolarni baholash va takliflarni tasdiqlash",
+      gateway_btn_admin: "Admin (Tuman koordinatorlari)",
+      gateway_btn_admin_sub: "Tuman vazifalari, tangalar, videolarni baholash va shikoyatlarni ko'rib chiqish",
+      gateway_btn_region_admin: "Admin (Viloyat koordinatorlari)",
+      gateway_btn_region_admin_sub: "Viloyatdagi tumanlar o'sish tendensiyasi va hisobotlar",
+      gateway_btn_republic_admin: "Admin (Respublika koordinatori)",
+      gateway_btn_republic_admin_sub: "Respublika bo'yicha viloyatlar tahlili va hisobotlari",
       gateway_footer: "© 2026 Kelajak ijodkori. Barcha huquqlar himoyalangan.",
 
       // Navigatsiya
@@ -129,8 +133,12 @@ const I18n = {
       gateway_btn_student_sub: "Сдавать видеоролики, собирать монеты и расти в рейтинге",
       gateway_btn_staff: "Сотрудник культуры",
       gateway_btn_staff_sub: "Просмотр контактов школьников, приглашение на мероприятия и подача предложений",
-      gateway_btn_admin: "Главный координатор (Админ)",
-      gateway_btn_admin_sub: "Начисление монет, оценка видео и утверждение предложений",
+      gateway_btn_admin: "Админ (Районные координаторы)",
+      gateway_btn_admin_sub: "Задания района, начисление монет, оценка видео и жалобы",
+      gateway_btn_region_admin: "Админ (Областные координаторы)",
+      gateway_btn_region_admin_sub: "Тенденция роста районов области и сезонные отчеты",
+      gateway_btn_republic_admin: "Админ (Республиканский координатор)",
+      gateway_btn_republic_admin_sub: "Анализ областей по республике и сезонные отчеты",
       gateway_footer: "© 2026 Будущий творец. Все права защищены.",
 
       // Навигация
@@ -230,8 +238,12 @@ const I18n = {
       gateway_btn_student_sub: "Submit videos, collect coins, and climb the leaderboard",
       gateway_btn_staff: "Culture Staff",
       gateway_btn_staff_sub: "Access student contacts, invite to concerts, and submit initiatives",
-      gateway_btn_admin: "Head Coordinator (Admin)",
-      gateway_btn_admin_sub: "Award coins, evaluate challenge submissions, and approve initiatives",
+      gateway_btn_admin: "Admin (District Coordinators)",
+      gateway_btn_admin_sub: "District tasks, coins, video evaluation and complaints",
+      gateway_btn_region_admin: "Admin (Regional Coordinators)",
+      gateway_btn_region_admin_sub: "Regional district growth trends and seasonal reports",
+      gateway_btn_republic_admin: "Admin (National Coordinator)",
+      gateway_btn_republic_admin_sub: "Nationwide regional analytics and seasonal reports",
       gateway_footer: "© 2026 Future Creator. All rights reserved.",
 
       // Navigation
