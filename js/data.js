@@ -27,108 +27,107 @@ const STORAGE_KEY_CLOUD_ID = 'ijodkor_cloud_id';
 const STORAGE_KEY_VISITORS = 'ijodkor_visitors_stats';
 const STORAGE_KEY_ADMIN_PHONE = 'ijodkor_admin_phone';
 const STORAGE_KEY_PROPOSALS = 'ijodkor_staff_proposals';
+const STORAGE_KEY_ADMINS = 'ijodkor_admins_data';
+const STORAGE_KEY_REGION_ADMINS = 'ijodkor_region_admins_data';
+const STORAGE_KEY_REPUBLIC_ADMIN = 'ijodkor_republic_admin_data';
+const STORAGE_KEY_COMPLAINTS = 'ijodkor_student_complaints';
+const STORAGE_KEY_SEASON_REPORTS = 'ijodkor_season_reports';
 
 // Bosh koordinatorning rasmiy telefon raqami
 const COORDINATOR_PHONE = '+998 99 674 14 40';
 
-// TUMANLAR VA SHAHARLAR RO'YXATI
+// VILOYATLAR RO'YXATI (O'ZBEKISTON RESPUBLIKASI HUDUDLARI)
+const VILOYATLAR = [
+  { id: 'buxoro_vil', name: 'Buxoro viloyati', icon: '🕌' },
+  { id: 'samarqand_vil', name: 'Samarqand viloyati', icon: '🏛️' },
+  { id: 'toshkent_sh', name: 'Toshkent shahri', icon: '🏢' },
+  { id: 'toshkent_vil', name: 'Toshkent viloyati', icon: '⛰️' },
+  { id: 'fargona_vil', name: "Farg'ona viloyati", icon: '🌿' },
+  { id: 'andijon_vil', name: 'Andijon viloyati', icon: '🌸' },
+  { id: 'namangan_vil', name: 'Namangan viloyati', icon: '🌹' },
+  { id: 'xorazm_vil', name: 'Xorazm viloyati', icon: '🧱' },
+  { id: 'qashqadaryo_vil', name: 'Qashqadaryo viloyati', icon: '☀️' },
+  { id: 'surxondaryo_vil', name: 'Surxondaryo viloyati', icon: '🌴' },
+  { id: 'navoiy_vil', name: 'Navoiy viloyati', icon: '⚡' },
+  { id: 'jizzax_vil', name: 'Jizzax viloyati', icon: '🌾' },
+  { id: 'sirdaryo_vil', name: 'Sirdaryo viloyati', icon: '🌱' },
+  { id: 'qoraqalpogiston', name: "Qoraqalpog'iston Respublikasi", icon: '🏜️' }
+];
+
+// TUMANLAR VA SHAHARLAR RO'YXATI (VILOYATLARGA BIRIKTIRILGAN)
 const TUMANLAR = [
-  { id: 'all', name: 'Barcha tumanlar', icon: '📍' },
+  { id: 'all', name: 'Barcha tumanlar', icon: '📍', regionId: 'all', regionName: 'Barcha viloyatlar' },
+  // Buxoro viloyati (14 ta tuman va shaharlari)
+  { id: 'jondor', name: 'Jondor tumani', icon: '🏛️', regionId: 'buxoro_vil', regionName: 'Buxoro viloyati' },
+  { id: 'qorakol', name: "Qorako'l tumani", icon: '🏛️', regionId: 'buxoro_vil', regionName: 'Buxoro viloyati' },
+  { id: 'buxoro', name: 'Buxoro shahri', icon: '🕌', regionId: 'buxoro_vil', regionName: 'Buxoro viloyati' },
+  { id: 'buxoro-tumani', name: 'Buxoro tumani', icon: '🏛️', regionId: 'buxoro_vil', regionName: 'Buxoro viloyati' },
+  { id: 'gijduvon', name: "G'ijduvon tumani", icon: '🏺', regionId: 'buxoro_vil', regionName: 'Buxoro viloyati' },
+  { id: 'olot', name: 'Olot tumani', icon: '🏛️', regionId: 'buxoro_vil', regionName: 'Buxoro viloyati' },
+  { id: 'vobkent', name: 'Vobkent tumani', icon: '🗼', regionId: 'buxoro_vil', regionName: 'Buxoro viloyati' },
+  { id: 'romitan', name: 'Romitan tumani', icon: '🏛️', regionId: 'buxoro_vil', regionName: 'Buxoro viloyati' },
+  { id: 'shofirkon', name: 'Shofirkon tumani', icon: '🏛️', regionId: 'buxoro_vil', regionName: 'Buxoro viloyati' },
+  { id: 'peshku', name: 'Peshku tumani', icon: '🏛️', regionId: 'buxoro_vil', regionName: 'Buxoro viloyati' },
+  { id: 'kogon', name: 'Kogon tumani', icon: '🚂', regionId: 'buxoro_vil', regionName: 'Buxoro viloyati' },
+  { id: 'kogon-shahri', name: 'Kogon shahri', icon: '🏢', regionId: 'buxoro_vil', regionName: 'Buxoro viloyati' },
+  { id: 'qorovulbozor', name: 'Qorovulbozor tumani', icon: '🏛️', regionId: 'buxoro_vil', regionName: 'Buxoro viloyati' },
+  { id: 'gazli', name: 'Gazli shahri', icon: '🏙️', regionId: 'buxoro_vil', regionName: 'Buxoro viloyati' },
   // Toshkent shahri tumanlari
-  { id: 'chilonzor', name: 'Chilonzor tumani', icon: '🏢' },
-  { id: 'yunusobod', name: 'Yunusobod tumani', icon: '🏢' },
-  { id: 'mirzo-ulugbek', name: "Mirzo Ulug'bek tumani", icon: '🏢' },
-  { id: 'shayxontohur', name: 'Shayxontohur tumani', icon: '🏢' },
-  { id: 'yakkasaroy', name: 'Yakkasaroy tumani', icon: '🏢' },
-  { id: 'yashnobod', name: 'Yashnobod tumani', icon: '🏢' },
-  { id: 'olmazor', name: 'Olmazor tumani', icon: '🏢' },
-  { id: 'uchtepa', name: 'Uchtepa tumani', icon: '🏢' },
-  { id: 'sergeli', name: 'Sergeli tumani', icon: '🏢' },
-  { id: 'yangihayot', name: 'Yangihayot tumani', icon: '🏢' },
-  { id: 'mirobod', name: 'Mirobod tumani', icon: '🏢' },
-  { id: 'bektemir', name: 'Bektemir tumani', icon: '🏢' },
-  // Viloyatlar va yirik shaharlar
-  { id: 'samarqand', name: 'Samarqand shahri', icon: '🏛️' },
-  { id: 'urgut', name: 'Urgut tumani', icon: '⛰️' },
-  { id: 'fargona', name: "Farg'ona shahri", icon: '🌿' },
-  { id: 'qoqon', name: "Qo'qon shahri", icon: '🏰' },
-  { id: 'margilon', name: "Marg'ilon shahri", icon: '🧵' },
-  { id: 'buxoro', name: 'Buxoro shahri', icon: '🕌' },
-  { id: 'gijduvon', name: "G'ijduvon tumani", icon: '🏺' },
-  { id: 'andijon', name: 'Andijon shahri', icon: '🌸' },
-  { id: 'asaka', name: 'Asaka tumani', icon: '🏭' },
-  { id: 'namangan', name: 'Namangan shahri', icon: '🌹' },
-  { id: 'chust', name: 'Chust tumani', icon: '🔪' },
-  { id: 'urganch', name: 'Urganch shahri', icon: '🌊' },
-  { id: 'xiva', name: 'Xiva shahri', icon: '🧱' },
-  { id: 'qarshi', name: 'Qarshi shahri', icon: '☀️' },
-  { id: 'shahrisabz', name: 'Shahrisabz shahri', icon: '🌲' },
-  { id: 'termiz', name: 'Termiz shahri', icon: '🌴' },
-  { id: 'denov', name: 'Denov tumani', icon: '🍇' },
-  { id: 'nukus', name: 'Nukus shahri', icon: '🏜️' },
-  { id: 'jizzax', name: 'Jizzax shahri', icon: '🌾' },
-  { id: 'guliston', name: 'Guliston shahri', icon: '🌱' },
-  { id: 'navoiy', name: 'Navoiy shahri', icon: '⚡' }
+  { id: 'chilonzor', name: 'Chilonzor tumani', icon: '🏢', regionId: 'toshkent_sh', regionName: 'Toshkent shahri' },
+  { id: 'yunusobod', name: 'Yunusobod tumani', icon: '🏢', regionId: 'toshkent_sh', regionName: 'Toshkent shahri' },
+  { id: 'mirzo-ulugbek', name: "Mirzo Ulug'bek tumani", icon: '🏢', regionId: 'toshkent_sh', regionName: 'Toshkent shahri' },
+  { id: 'shayxontohur', name: 'Shayxontohur tumani', icon: '🏢', regionId: 'toshkent_sh', regionName: 'Toshkent shahri' },
+  { id: 'yakkasaroy', name: 'Yakkasaroy tumani', icon: '🏢', regionId: 'toshkent_sh', regionName: 'Toshkent shahri' },
+  { id: 'yashnobod', name: 'Yashnobod tumani', icon: '🏢', regionId: 'toshkent_sh', regionName: 'Toshkent shahri' },
+  { id: 'olmazor', name: 'Olmazor tumani', icon: '🏢', regionId: 'toshkent_sh', regionName: 'Toshkent shahri' },
+  { id: 'uchtepa', name: 'Uchtepa tumani', icon: '🏢', regionId: 'toshkent_sh', regionName: 'Toshkent shahri' },
+  { id: 'sergeli', name: 'Sergeli tumani', icon: '🏢', regionId: 'toshkent_sh', regionName: 'Toshkent shahri' },
+  { id: 'yangihayot', name: 'Yangihayot tumani', icon: '🏢', regionId: 'toshkent_sh', regionName: 'Toshkent shahri' },
+  { id: 'mirobod', name: 'Mirobod tumani', icon: '🏢', regionId: 'toshkent_sh', regionName: 'Toshkent shahri' },
+  { id: 'bektemir', name: 'Bektemir tumani', icon: '🏢', regionId: 'toshkent_sh', regionName: 'Toshkent shahri' },
+  // Toshkent viloyati
+  { id: 'chirchiq', name: 'Chirchiq shahri', icon: '⛰️', regionId: 'toshkent_vil', regionName: 'Toshkent viloyati' },
+  { id: 'olmaliq', name: 'Olmaliq shahri', icon: '⛰️', regionId: 'toshkent_vil', regionName: 'Toshkent viloyati' },
+  { id: 'zangiota', name: 'Zangiota tumani', icon: '⛰️', regionId: 'toshkent_vil', regionName: 'Toshkent viloyati' },
+  { id: 'qibray', name: 'Qibray tumani', icon: '⛰️', regionId: 'toshkent_vil', regionName: 'Toshkent viloyati' },
+  // Samarqand viloyati
+  { id: 'samarqand', name: 'Samarqand shahri', icon: '🏛️', regionId: 'samarqand_vil', regionName: 'Samarqand viloyati' },
+  { id: 'urgut', name: 'Urgut tumani', icon: '⛰️', regionId: 'samarqand_vil', regionName: 'Samarqand viloyati' },
+  { id: 'kattaqorgon', name: "Kattaqo'rg'on shahri", icon: '🏛️', regionId: 'samarqand_vil', regionName: 'Samarqand viloyati' },
+  // Farg'ona viloyati
+  { id: 'fargona', name: "Farg'ona shahri", icon: '🌿', regionId: 'fargona_vil', regionName: "Farg'ona viloyati" },
+  { id: 'qoqon', name: "Qo'qon shahri", icon: '🏰', regionId: 'fargona_vil', regionName: "Farg'ona viloyati" },
+  { id: 'margilon', name: "Marg'ilon shahri", icon: '🧵', regionId: 'fargona_vil', regionName: "Farg'ona viloyati" },
+  // Andijon viloyati
+  { id: 'andijon', name: 'Andijon shahri', icon: '🌸', regionId: 'andijon_vil', regionName: 'Andijon viloyati' },
+  { id: 'asaka', name: 'Asaka tumani', icon: '🏭', regionId: 'andijon_vil', regionName: 'Andijon viloyati' },
+  // Namangan viloyati
+  { id: 'namangan', name: 'Namangan shahri', icon: '🌹', regionId: 'namangan_vil', regionName: 'Namangan viloyati' },
+  { id: 'chust', name: 'Chust tumani', icon: '🔪', regionId: 'namangan_vil', regionName: 'Namangan viloyati' },
+  // Xorazm viloyati
+  { id: 'urganch', name: 'Urganch shahri', icon: '🌊', regionId: 'xorazm_vil', regionName: 'Xorazm viloyati' },
+  { id: 'xiva', name: 'Xiva shahri', icon: '🧱', regionId: 'xorazm_vil', regionName: 'Xorazm viloyati' },
+  // Qashqadaryo viloyati
+  { id: 'qarshi', name: 'Qarshi shahri', icon: '☀️', regionId: 'qashqadaryo_vil', regionName: 'Qashqadaryo viloyati' },
+  { id: 'shahrisabz', name: 'Shahrisabz shahri', icon: '🌲', regionId: 'qashqadaryo_vil', regionName: 'Qashqadaryo viloyati' },
+  // Surxondaryo viloyati
+  { id: 'termiz', name: 'Termiz shahri', icon: '🌴', regionId: 'surxondaryo_vil', regionName: 'Surxondaryo viloyati' },
+  { id: 'denov', name: 'Denov tumani', icon: '🍇', regionId: 'surxondaryo_vil', regionName: 'Surxondaryo viloyati' },
+  // Qoraqalpog'iston Respublikasi
+  { id: 'nukus', name: 'Nukus shahri', icon: '🏜️', regionId: 'qoraqalpogiston', regionName: "Qoraqalpog'iston Respublikasi" },
+  // Jizzax, Sirdaryo, Navoiy
+  { id: 'jizzax', name: 'Jizzax shahri', icon: '🌾', regionId: 'jizzax_vil', regionName: 'Jizzax viloyati' },
+  { id: 'guliston', name: 'Guliston shahri', icon: '🌱', regionId: 'sirdaryo_vil', regionName: 'Sirdaryo viloyati' },
+  { id: 'navoiy', name: 'Navoiy shahri', icon: '⚡', regionId: 'navoiy_vil', regionName: 'Navoiy viloyati' },
+  { id: 'karmana', name: 'Karmana tumani', icon: '⚡', regionId: 'navoiy_vil', regionName: 'Navoiy viloyati' }
 ];
 
 // Dastlabki namunaviy umumiy o'rta ta'lim maktab o'quvchilari
-// Baza toza va yangi: dastlabki namuna o'quvchilar yo'q
 const INITIAL_CREATORS = [];
 
-// Admin tomonidan e'lon qilinadigan tanlovlar
-const INITIAL_CONTESTS = [
-  {
-    id: 'cnt-1',
-    title: "Navro'z umumxalq sayli - Maktab o'quvchilari ko'rik-tanlovi",
-    awardCoins: 50,
-    eventDate: '2026-03-21',
-    location: "Markaziy madaniyat maydoni",
-    description: "Barcha umumta'lim maktab o'quvchilari uchun saralash bosqichi. Qatnashgan har bir iqtidor egasiga 50 tanga taqdim etiladi.",
-    status: 'active',
-    createdAt: '2026-02-01'
-  },
-  {
-    id: 'cnt-2',
-    title: "Yosh iqtidorlar shahar festivali",
-    awardCoins: 40,
-    eventDate: '2026-04-15',
-    location: "Yoshlar markazi bosh zali",
-    description: "Tuman va shahar maktablarining faol va iqtidorli o'quvchilari o'rtasidagi ijodiy bellashuv.",
-    status: 'active',
-    createdAt: '2026-02-10'
-  }
-];
-
-// Dastlabki Ijodiy Chellenjlar (Muddatli video rolik vazifalari)
-// 7 va 12 kundan keyingi sanalar avtomatik hisoblanadi
-const getFutureDate = (days) => {
-  const d = new Date();
-  d.setDate(d.getDate() + days);
-  return d.toISOString().split('T')[0];
-};
-
-const INITIAL_CHALLENGES = [
-  {
-    id: 'chl-1',
-    title: "Vatanparvarlik va Ona Yurtim Mavzusida Video Rolik Chellenji",
-    description: "Maktabingiz jamoasi yoki do'stlaringiz bilan birgalikda Vatan madhi, ifodali she'r yoki sahna ko'rinishi aks etgan 1-3 daqiqalik video rolik tayyorlang va havolasini yuboring. Pastiga rolikda qatnashgan barcha o'quvchilarni yozing!",
-    awardCoins: 60,
-    deadline: getFutureDate(7), // 7 kun qoldi
-    totalDays: 7,
-    status: 'active',
-    createdAt: new Date().toISOString().split('T')[0]
-  },
-  {
-    id: 'chl-2',
-    title: "Maktabimiz Yosh Iqtidorlari va Quvnoq Sahnalar Chellenji",
-    description: "Maktabingiz hayoti, iqtidorli o'quvchilar chiqishlari yoki qiziqarli ijodiy intermediyalarni videoga olib jo'nating. Admin videoni ko'rib chiqib, barcha qatnashuvchilarga tangalar taqdim etadi!",
-    awardCoins: 45,
-    deadline: getFutureDate(12), // 12 kun qoldi
-    totalDays: 12,
-    status: 'active',
-    createdAt: new Date().toISOString().split('T')[0]
-  }
-];
+// Har bir tuman admini o'z tumani uchun tanlov va chellenjlarni alohida e'lon qiladi
+const INITIAL_CONTESTS = [];
+const INITIAL_CHALLENGES = [];
 
 // Chellenjlarga topshirilgan dastlabki namunaviy video roliklar
 // Namunaviy video roliklar tozalandi
@@ -184,7 +183,7 @@ const CloudSync = {
         this.db.ref('creators').on('value', snapshot => {
           const val = snapshot.val();
           if (val) {
-            const list = Object.values(val).filter(c => c && !c._deleted);
+            const list = this.mergeListWithLocal(STORAGE_KEY_CREATORS, val);
             localStorage.setItem(STORAGE_KEY_CREATORS, JSON.stringify(list));
             if (window.App && typeof window.App.renderCreators === 'function') {
               window.App.renderCreators();
@@ -198,7 +197,7 @@ const CloudSync = {
         this.db.ref('submissions').on('value', snapshot => {
           const val = snapshot.val();
           if (val) {
-            const list = Object.values(val).filter(s => s && !s._deleted);
+            const list = this.mergeListWithLocal(STORAGE_KEY_CHALLENGE_SUBMISSIONS, val);
             localStorage.setItem(STORAGE_KEY_CHALLENGE_SUBMISSIONS, JSON.stringify(list));
             if (window.App && typeof window.App.renderChallenges === 'function') {
               window.App.renderChallenges();
@@ -211,7 +210,7 @@ const CloudSync = {
         this.db.ref('staff').on('value', snapshot => {
           const val = snapshot.val();
           if (val) {
-            const list = Object.values(val).filter(s => s && !s._deleted);
+            const list = this.mergeListWithLocal(STORAGE_KEY_STAFF, val);
             localStorage.setItem(STORAGE_KEY_STAFF, JSON.stringify(list));
             if (window.App && typeof window.App.renderStaffSection === 'function') {
               window.App.renderStaffSection();
@@ -224,7 +223,8 @@ const CloudSync = {
         this.db.ref('contests').on('value', snapshot => {
           const val = snapshot.val();
           if (val) {
-            localStorage.setItem(STORAGE_KEY_CONTESTS, JSON.stringify(Object.values(val)));
+            const list = this.mergeListWithLocal(STORAGE_KEY_CONTESTS, val).filter(c => c && c.id !== 'cnt-1' && c.id !== 'cnt-2');
+            localStorage.setItem(STORAGE_KEY_CONTESTS, JSON.stringify(list));
             if (window.App && typeof window.App.renderContests === 'function') {
               window.App.renderContests();
             }
@@ -235,9 +235,69 @@ const CloudSync = {
         this.db.ref('challenges').on('value', snapshot => {
           const val = snapshot.val();
           if (val) {
-            localStorage.setItem(STORAGE_KEY_CHALLENGES, JSON.stringify(Object.values(val)));
+            const list = this.mergeListWithLocal(STORAGE_KEY_CHALLENGES, val).filter(c => c && c.id !== 'chl-1' && c.id !== 'chl-2');
+            localStorage.setItem(STORAGE_KEY_CHALLENGES, JSON.stringify(list));
             if (window.App && typeof window.App.renderChallenges === 'function') {
               window.App.renderChallenges();
+            }
+          }
+        });
+
+        // 5b. Tuman Adminlarini eshitish
+        this.db.ref('admins').on('value', snapshot => {
+          const val = snapshot.val();
+          if (val) {
+            const list = this.mergeListWithLocal(STORAGE_KEY_ADMINS, val);
+            localStorage.setItem(STORAGE_KEY_ADMINS, JSON.stringify(list));
+            if (window.App) {
+              if (typeof window.App.renderRegionAdminSection === 'function') window.App.renderRegionAdminSection();
+              if (typeof window.App.updateDistrictCoordinatorPreview === 'function') window.App.updateDistrictCoordinatorPreview();
+            }
+          }
+        });
+
+        // 5c. Viloyat Adminlarini eshitish
+        this.db.ref('regionAdmins').on('value', snapshot => {
+          const val = snapshot.val();
+          if (val) {
+            const list = this.mergeListWithLocal(STORAGE_KEY_REGION_ADMINS, val);
+            localStorage.setItem(STORAGE_KEY_REGION_ADMINS, JSON.stringify(list));
+            if (window.App) {
+              if (typeof window.App.renderRepublicAdminSection === 'function') window.App.renderRepublicAdminSection();
+              if (typeof window.App.updateRegionCoordinatorPreview === 'function') window.App.updateRegionCoordinatorPreview();
+            }
+          }
+        });
+
+        // 5d. Respublika Adminini eshitish
+        this.db.ref('republicAdmin').on('value', snapshot => {
+          const val = snapshot.val();
+          if (val && typeof val === 'object') {
+            localStorage.setItem(STORAGE_KEY_REPUBLIC_ADMIN, JSON.stringify(val));
+          }
+        });
+
+        // 5e. O'quvchilar Shikoyatlarini eshitish
+        this.db.ref('complaints').on('value', snapshot => {
+          const val = snapshot.val();
+          if (val) {
+            const list = this.mergeListWithLocal(STORAGE_KEY_COMPLAINTS, val);
+            localStorage.setItem(STORAGE_KEY_COMPLAINTS, JSON.stringify(list));
+            if (window.App && typeof window.App.renderAdminSection === 'function') {
+              window.App.renderAdminSection();
+            }
+          }
+        });
+
+        // 5f. Mavsumiy Hisobotlarni eshitish
+        this.db.ref('seasonReports').on('value', snapshot => {
+          const val = snapshot.val();
+          if (val) {
+            const list = this.mergeListWithLocal(STORAGE_KEY_SEASON_REPORTS, val);
+            localStorage.setItem(STORAGE_KEY_SEASON_REPORTS, JSON.stringify(list));
+            if (window.App && typeof window.App.renderRegionAdminSection === 'function') {
+              window.App.renderRegionAdminSection();
+              window.App.renderRepublicAdminSection();
             }
           }
         });
@@ -247,8 +307,9 @@ const CloudSync = {
           const val = snapshot.val();
           if (val && typeof val.total === 'number') {
             localStorage.setItem(STORAGE_KEY_VISITORS, JSON.stringify(val));
-            const totalEl = document.getElementById('stat-total-visitors');
-            if (totalEl) totalEl.textContent = val.total;
+            if (window.App && typeof window.App.renderStats === 'function') {
+              window.App.renderStats();
+            }
           }
         });
 
@@ -267,7 +328,7 @@ const CloudSync = {
         this.db.ref('proposals').on('value', snapshot => {
           const val = snapshot.val();
           if (val) {
-            const list = Object.values(val).filter(p => p && !p._deleted);
+            const list = this.mergeListWithLocal(STORAGE_KEY_PROPOSALS, val);
             localStorage.setItem(STORAGE_KEY_PROPOSALS, JSON.stringify(list));
             if (window.App && typeof window.App.renderStaffProposals === 'function') {
               window.App.renderStaffProposals();
@@ -281,10 +342,15 @@ const CloudSync = {
           }
         });
 
-        // Dastlabki sinxronlash (1 marta fon rejimida)
+        // Dastlabki sinxronlash
         setTimeout(() => {
           this.pullAndSync();
-        }, 1500);
+        }, 1000);
+
+        // Har 4 soniyada fonda REST orqali ham yangilab turish (100% kafolat)
+        setInterval(() => {
+          this.pullFromRest();
+        }, 4000);
 
       } catch (err) {
         console.warn('Firebase SDK xatosi, REST rejimga o\'tildi:', err);
@@ -298,10 +364,46 @@ const CloudSync = {
   initRestFallback() {
     this.notify({ status: 'connected', text: 'Server: Google Firebase (REST)', mode: 'REST' });
     this.pullFromRest();
-    // Fonda oraliq bilan yangilab turish (resursni tejash)
     setInterval(() => {
       this.pullFromRest();
-    }, 25000);
+    }, 8000);
+  },
+
+  mergeListWithLocal(localKey, remoteObj) {
+    const remoteList = Object.values(remoteObj || {}).filter(item => item && !item._deleted);
+    let localList = [];
+    try {
+      localList = JSON.parse(localStorage.getItem(localKey) || '[]');
+      if (!Array.isArray(localList)) localList = [];
+    } catch (e) {
+      localList = [];
+    }
+
+    const mergedMap = new Map();
+    remoteList.forEach(item => {
+      if (item && item.id) mergedMap.set(item.id, item);
+    });
+
+    const now = Date.now();
+    localList.forEach(localItem => {
+      if (!localItem || !localItem.id || localItem._deleted) return;
+      const remoteItem = mergedMap.get(localItem.id);
+      if (!remoteItem) {
+        // Agar lokal element oxirgi 30 soniya ichida yaratilgan/yangilangan bo'lsa (hali serverga yetib bormagan bo'lsa), uni saqlab qolamiz
+        const localTime = new Date(localItem.updatedAt || localItem.createdAt || localItem.registeredAt || 0).getTime();
+        if (now - localTime < 30000) {
+          mergedMap.set(localItem.id, localItem);
+        }
+      } else {
+        const localTime = new Date(localItem.updatedAt || 0).getTime();
+        const remoteTime = new Date(remoteItem.updatedAt || 0).getTime();
+        if (localTime > remoteTime) {
+          mergedMap.set(localItem.id, { ...remoteItem, ...localItem });
+        }
+      }
+    });
+
+    return Array.from(mergedMap.values());
   },
 
   async pullFromRest() {
@@ -310,14 +412,19 @@ const CloudSync = {
       if (res.ok) {
         const root = await res.json();
         if (root) {
-          if (root.creators) localStorage.setItem(STORAGE_KEY_CREATORS, JSON.stringify(Object.values(root.creators).filter(c => c && !c._deleted)));
-          if (root.submissions) localStorage.setItem(STORAGE_KEY_CHALLENGE_SUBMISSIONS, JSON.stringify(Object.values(root.submissions).filter(s => s && !s._deleted)));
-          if (root.staff) localStorage.setItem(STORAGE_KEY_STAFF, JSON.stringify(Object.values(root.staff).filter(s => s && !s._deleted)));
-          if (root.contests) localStorage.setItem(STORAGE_KEY_CONTESTS, JSON.stringify(Object.values(root.contests)));
-          if (root.challenges) localStorage.setItem(STORAGE_KEY_CHALLENGES, JSON.stringify(Object.values(root.challenges)));
+          if (root.creators) localStorage.setItem(STORAGE_KEY_CREATORS, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_CREATORS, root.creators)));
+          if (root.submissions) localStorage.setItem(STORAGE_KEY_CHALLENGE_SUBMISSIONS, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_CHALLENGE_SUBMISSIONS, root.submissions)));
+          if (root.staff) localStorage.setItem(STORAGE_KEY_STAFF, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_STAFF, root.staff)));
+          if (root.contests) localStorage.setItem(STORAGE_KEY_CONTESTS, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_CONTESTS, root.contests).filter(c => c && c.id !== 'cnt-1' && c.id !== 'cnt-2')));
+          if (root.challenges) localStorage.setItem(STORAGE_KEY_CHALLENGES, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_CHALLENGES, root.challenges).filter(c => c && c.id !== 'chl-1' && c.id !== 'chl-2')));
+          if (root.admins) localStorage.setItem(STORAGE_KEY_ADMINS, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_ADMINS, root.admins)));
+          if (root.regionAdmins) localStorage.setItem(STORAGE_KEY_REGION_ADMINS, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_REGION_ADMINS, root.regionAdmins)));
+          if (root.republicAdmin) localStorage.setItem(STORAGE_KEY_REPUBLIC_ADMIN, JSON.stringify(root.republicAdmin));
+          if (root.complaints) localStorage.setItem(STORAGE_KEY_COMPLAINTS, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_COMPLAINTS, root.complaints)));
+          if (root.seasonReports) localStorage.setItem(STORAGE_KEY_SEASON_REPORTS, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_SEASON_REPORTS, root.seasonReports)));
           if (root.visitors) localStorage.setItem(STORAGE_KEY_VISITORS, JSON.stringify(root.visitors));
-          if (root.adminInbox) localStorage.setItem(STORAGE_KEY_ADMIN_INBOX, JSON.stringify(Object.values(root.adminInbox)));
-          if (root.proposals) localStorage.setItem(STORAGE_KEY_PROPOSALS, JSON.stringify(Object.values(root.proposals).filter(p => p && !p._deleted)));
+          if (root.adminInbox) localStorage.setItem(STORAGE_KEY_ADMIN_INBOX, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_ADMIN_INBOX, root.adminInbox)));
+          if (root.proposals) localStorage.setItem(STORAGE_KEY_PROPOSALS, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_PROPOSALS, root.proposals)));
           if (root.settings) {
             if (root.settings.adminPhone) localStorage.setItem(STORAGE_KEY_ADMIN_PHONE, root.settings.adminPhone);
             if (root.settings.adminName) localStorage.setItem(STORAGE_KEY_ADMIN_NAME, root.settings.adminName);
@@ -338,14 +445,19 @@ const CloudSync = {
         const snap = await this.db.ref('/').once('value');
         const root = snap.val();
         if (root) {
-          if (root.creators) localStorage.setItem(STORAGE_KEY_CREATORS, JSON.stringify(Object.values(root.creators).filter(c => c && !c._deleted)));
-          if (root.submissions) localStorage.setItem(STORAGE_KEY_CHALLENGE_SUBMISSIONS, JSON.stringify(Object.values(root.submissions).filter(s => s && !s._deleted)));
-          if (root.staff) localStorage.setItem(STORAGE_KEY_STAFF, JSON.stringify(Object.values(root.staff).filter(s => s && !s._deleted)));
-          if (root.contests) localStorage.setItem(STORAGE_KEY_CONTESTS, JSON.stringify(Object.values(root.contests)));
-          if (root.challenges) localStorage.setItem(STORAGE_KEY_CHALLENGES, JSON.stringify(Object.values(root.challenges)));
+          if (root.creators) localStorage.setItem(STORAGE_KEY_CREATORS, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_CREATORS, root.creators)));
+          if (root.submissions) localStorage.setItem(STORAGE_KEY_CHALLENGE_SUBMISSIONS, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_CHALLENGE_SUBMISSIONS, root.submissions)));
+          if (root.staff) localStorage.setItem(STORAGE_KEY_STAFF, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_STAFF, root.staff)));
+          if (root.contests) localStorage.setItem(STORAGE_KEY_CONTESTS, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_CONTESTS, root.contests).filter(c => c && c.id !== 'cnt-1' && c.id !== 'cnt-2')));
+          if (root.challenges) localStorage.setItem(STORAGE_KEY_CHALLENGES, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_CHALLENGES, root.challenges).filter(c => c && c.id !== 'chl-1' && c.id !== 'chl-2')));
+          if (root.admins) localStorage.setItem(STORAGE_KEY_ADMINS, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_ADMINS, root.admins)));
+          if (root.regionAdmins) localStorage.setItem(STORAGE_KEY_REGION_ADMINS, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_REGION_ADMINS, root.regionAdmins)));
+          if (root.republicAdmin) localStorage.setItem(STORAGE_KEY_REPUBLIC_ADMIN, JSON.stringify(root.republicAdmin));
+          if (root.complaints) localStorage.setItem(STORAGE_KEY_COMPLAINTS, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_COMPLAINTS, root.complaints)));
+          if (root.seasonReports) localStorage.setItem(STORAGE_KEY_SEASON_REPORTS, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_SEASON_REPORTS, root.seasonReports)));
           if (root.visitors) localStorage.setItem(STORAGE_KEY_VISITORS, JSON.stringify(root.visitors));
-          if (root.adminInbox) localStorage.setItem(STORAGE_KEY_ADMIN_INBOX, JSON.stringify(Object.values(root.adminInbox)));
-          if (root.proposals) localStorage.setItem(STORAGE_KEY_PROPOSALS, JSON.stringify(Object.values(root.proposals).filter(p => p && !p._deleted)));
+          if (root.adminInbox) localStorage.setItem(STORAGE_KEY_ADMIN_INBOX, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_ADMIN_INBOX, root.adminInbox)));
+          if (root.proposals) localStorage.setItem(STORAGE_KEY_PROPOSALS, JSON.stringify(this.mergeListWithLocal(STORAGE_KEY_PROPOSALS, root.proposals)));
           if (root.settings) {
             if (root.settings.adminPhone) localStorage.setItem(STORAGE_KEY_ADMIN_PHONE, root.settings.adminPhone);
             if (root.settings.adminName) localStorage.setItem(STORAGE_KEY_ADMIN_NAME, root.settings.adminName);
@@ -399,6 +511,24 @@ const CloudSync = {
       const proposalsObj = {};
       proposals.forEach(p => { if (p && p.id) proposalsObj[p.id] = p; });
 
+      const admins = DataStore.getDistrictAdmins();
+      const adminsObj = {};
+      admins.forEach(a => { if (a && a.id) adminsObj[a.id] = a; });
+
+      const regionAdmins = DataStore.getRegionAdmins();
+      const regionAdminsObj = {};
+      regionAdmins.forEach(ra => { if (ra && ra.id) regionAdminsObj[ra.id] = ra; });
+
+      const republicAdmin = DataStore.getRepublicAdmin();
+
+      const complaints = DataStore.getComplaints();
+      const complaintsObj = {};
+      complaints.forEach(cm => { if (cm && cm.id) complaintsObj[cm.id] = cm; });
+
+      const seasonReports = DataStore.getSeasonReports();
+      const seasonReportsObj = {};
+      seasonReports.forEach(sr => { if (sr && sr.id) seasonReportsObj[sr.id] = sr; });
+
       if (this.db) {
         if (Object.keys(creatorsObj).length > 0) this.db.ref('creators').update(creatorsObj);
         if (Object.keys(submissionsObj).length > 0) this.db.ref('submissions').update(submissionsObj);
@@ -406,24 +536,35 @@ const CloudSync = {
         if (Object.keys(contestsObj).length > 0) this.db.ref('contests').update(contestsObj);
         if (Object.keys(challengesObj).length > 0) this.db.ref('challenges').update(challengesObj);
         if (Object.keys(proposalsObj).length > 0) this.db.ref('proposals').update(proposalsObj);
+        if (Object.keys(adminsObj).length > 0) this.db.ref('admins').update(adminsObj);
+        if (Object.keys(regionAdminsObj).length > 0) this.db.ref('regionAdmins').update(regionAdminsObj);
+        if (republicAdmin && republicAdmin.pin) this.db.ref('republicAdmin').set(republicAdmin);
+        if (Object.keys(complaintsObj).length > 0) this.db.ref('complaints').update(complaintsObj);
+        if (Object.keys(seasonReportsObj).length > 0) this.db.ref('seasonReports').update(seasonReportsObj);
         if (visitors && visitors.total) this.db.ref('visitors').set(visitors);
         if (Object.keys(inboxObj).length > 0) this.db.ref('adminInbox').update(inboxObj);
-      } else {
-        fetch(`${this.dbUrl}/.json`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            creators: creatorsObj,
-            submissions: submissionsObj,
-            staff: staffObj,
-            contests: contestsObj,
-            challenges: challengesObj,
-            proposals: proposalsObj,
-            visitors: visitors,
-            adminInbox: inboxObj
-          })
-        }).catch(console.warn);
       }
+
+      // REST orqali ham kafolatli yuborish (barcha qurilmalarda sinxron bo'lishi uchun)
+      fetch(`${this.dbUrl}/.json`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          creators: creatorsObj,
+          submissions: submissionsObj,
+          staff: staffObj,
+          contests: contestsObj,
+          challenges: challengesObj,
+          proposals: proposalsObj,
+          admins: adminsObj,
+          regionAdmins: regionAdminsObj,
+          republicAdmin: republicAdmin,
+          complaints: complaintsObj,
+          seasonReports: seasonReportsObj,
+          visitors: visitors,
+          adminInbox: inboxObj
+        })
+      }).catch(console.warn);
     } catch (e) {
       console.warn('Firebase push xatosi:', e);
     }
@@ -507,11 +648,15 @@ const CloudSync = {
   broadcastContest(contest) {
     if (!contest || !contest.id) return;
     try {
+      contest.updatedAt = new Date().toISOString();
       if (this.db) {
         this.db.ref('contests/' + contest.id).set(contest);
-      } else {
-        fetch(`${this.dbUrl}/contests/${contest.id}.json`, { method: 'PUT', body: JSON.stringify(contest) }).catch(console.warn);
       }
+      fetch(`${this.dbUrl}/contests/${contest.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(contest)
+      }).catch(console.warn);
     } catch (e) {}
   },
 
@@ -520,9 +665,8 @@ const CloudSync = {
     try {
       if (this.db) {
         this.db.ref('contests/' + contestId).remove();
-      } else {
-        fetch(`${this.dbUrl}/contests/${contestId}.json`, { method: 'DELETE' }).catch(console.warn);
       }
+      fetch(`${this.dbUrl}/contests/${contestId}.json`, { method: 'DELETE' }).catch(console.warn);
     } catch (e) {}
   },
 
@@ -554,11 +698,15 @@ const CloudSync = {
   broadcastChallenge(challenge) {
     if (!challenge || !challenge.id) return;
     try {
+      challenge.updatedAt = new Date().toISOString();
       if (this.db) {
         this.db.ref('challenges/' + challenge.id).set(challenge);
-      } else {
-        fetch(`${this.dbUrl}/challenges/${challenge.id}.json`, { method: 'PUT', body: JSON.stringify(challenge) }).catch(console.warn);
       }
+      fetch(`${this.dbUrl}/challenges/${challenge.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(challenge)
+      }).catch(console.warn);
     } catch (e) {}
   },
 
@@ -567,9 +715,8 @@ const CloudSync = {
     try {
       if (this.db) {
         this.db.ref('challenges/' + challengeId).remove();
-      } else {
-        fetch(`${this.dbUrl}/challenges/${challengeId}.json`, { method: 'DELETE' }).catch(console.warn);
       }
+      fetch(`${this.dbUrl}/challenges/${challengeId}.json`, { method: 'DELETE' }).catch(console.warn);
     } catch (e) {}
   },
 
@@ -578,9 +725,72 @@ const CloudSync = {
     try {
       if (this.db) {
         this.db.ref('adminInbox/' + smsItem.id).set(smsItem);
-      } else {
-        fetch(`${this.dbUrl}/adminInbox/${smsItem.id}.json`, { method: 'PUT', body: JSON.stringify(smsItem) }).catch(console.warn);
       }
+      fetch(`${this.dbUrl}/adminInbox/${smsItem.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(smsItem)
+      }).catch(console.warn);
+    } catch (e) {}
+  },
+
+  broadcastAdmin(adminObj) {
+    if (!adminObj || !adminObj.id) return;
+    try {
+      adminObj.updatedAt = new Date().toISOString();
+      if (this.db) {
+        this.db.ref('admins/' + adminObj.id).set(adminObj);
+      }
+      fetch(`${this.dbUrl}/admins/${adminObj.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(adminObj)
+      }).catch(console.warn);
+    } catch (e) {}
+  },
+
+  broadcastRegionAdmin(adminObj) {
+    if (!adminObj || !adminObj.id) return;
+    try {
+      adminObj.updatedAt = new Date().toISOString();
+      if (this.db) {
+        this.db.ref('regionAdmins/' + adminObj.id).set(adminObj);
+      }
+      fetch(`${this.dbUrl}/regionAdmins/${adminObj.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(adminObj)
+      }).catch(console.warn);
+    } catch (e) {}
+  },
+
+  broadcastComplaint(complaintObj) {
+    if (!complaintObj || !complaintObj.id) return;
+    try {
+      complaintObj.updatedAt = new Date().toISOString();
+      if (this.db) {
+        this.db.ref('complaints/' + complaintObj.id).set(complaintObj);
+      }
+      fetch(`${this.dbUrl}/complaints/${complaintObj.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(complaintObj)
+      }).catch(console.warn);
+    } catch (e) {}
+  },
+
+  broadcastSeasonReport(reportObj) {
+    if (!reportObj || !reportObj.id) return;
+    try {
+      reportObj.updatedAt = new Date().toISOString();
+      if (this.db) {
+        this.db.ref('seasonReports/' + reportObj.id).set(reportObj);
+      }
+      fetch(`${this.dbUrl}/seasonReports/${reportObj.id}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reportObj)
+      }).catch(console.warn);
     } catch (e) {}
   },
 
@@ -626,12 +836,7 @@ const CloudSync = {
 
 // Data Layer funksiyalari
 const DataStore = {
-  _initialized: false,
-
   init() {
-    if (this._initialized) return;
-    this._initialized = true;
-
     // 0. To'liq tozalash migratsiyasi: eski namuna ma'lumotlar va hisoblagichlarni batamom tozalash
     try {
       if (localStorage.getItem('ijodkor_clean_v3_fresh') !== 'done') {
@@ -691,9 +896,25 @@ const DataStore = {
     }
     if (!localStorage.getItem(STORAGE_KEY_CONTESTS)) {
       localStorage.setItem(STORAGE_KEY_CONTESTS, JSON.stringify(INITIAL_CONTESTS));
+    } else {
+      try {
+        const cList = JSON.parse(localStorage.getItem(STORAGE_KEY_CONTESTS) || '[]');
+        if (Array.isArray(cList)) {
+          const filteredC = cList.filter(c => c && c.id !== 'cnt-1' && c.id !== 'cnt-2');
+          if (filteredC.length !== cList.length) localStorage.setItem(STORAGE_KEY_CONTESTS, JSON.stringify(filteredC));
+        }
+      } catch (e) {}
     }
     if (!localStorage.getItem(STORAGE_KEY_CHALLENGES)) {
       localStorage.setItem(STORAGE_KEY_CHALLENGES, JSON.stringify(INITIAL_CHALLENGES));
+    } else {
+      try {
+        const chList = JSON.parse(localStorage.getItem(STORAGE_KEY_CHALLENGES) || '[]');
+        if (Array.isArray(chList)) {
+          const filteredCh = chList.filter(c => c && c.id !== 'chl-1' && c.id !== 'chl-2');
+          if (filteredCh.length !== chList.length) localStorage.setItem(STORAGE_KEY_CHALLENGES, JSON.stringify(filteredCh));
+        }
+      } catch (e) {}
     }
     if (!localStorage.getItem(STORAGE_KEY_CHALLENGE_SUBMISSIONS)) {
       localStorage.setItem(STORAGE_KEY_CHALLENGE_SUBMISSIONS, JSON.stringify([]));
@@ -707,17 +928,176 @@ const DataStore = {
     if (!localStorage.getItem(STORAGE_KEY_STAFF)) {
       localStorage.setItem(STORAGE_KEY_STAFF, JSON.stringify([]));
     }
+    if (!localStorage.getItem(STORAGE_KEY_ADMINS)) {
+      localStorage.setItem(STORAGE_KEY_ADMINS, JSON.stringify([]));
+    }
+    if (!localStorage.getItem(STORAGE_KEY_REGION_ADMINS)) {
+      localStorage.setItem(STORAGE_KEY_REGION_ADMINS, JSON.stringify([]));
+    }
+    if (!localStorage.getItem(STORAGE_KEY_COMPLAINTS)) {
+      localStorage.setItem(STORAGE_KEY_COMPLAINTS, JSON.stringify([]));
+    }
+    if (!localStorage.getItem(STORAGE_KEY_SEASON_REPORTS)) {
+      localStorage.setItem(STORAGE_KEY_SEASON_REPORTS, JSON.stringify([]));
+    }
+    this.recordVisit();
+  },
+
+  // VILOYAT NOMINI STANDART ID VA NOMGA KELTIRISH (masalan: "Buxoro", "Buxoro viloyati" -> { id: 'buxoro_vil', label: 'Buxoro viloyati' })
+  normalizeRegion(rawRegion) {
+    if (!rawRegion || typeof rawRegion !== 'string') {
+      return { id: '', label: '' };
+    }
+    const clean = rawRegion.trim();
+    if (!clean || clean.toLowerCase() === 'all') {
+      return { id: 'all', label: 'Barcha viloyatlar' };
+    }
+    const lower = clean.toLowerCase()
+      .replace(/['`‘’ʼ]/g, "'")
+      .replace(/\s+/g, ' ');
+
+    const baseReg = lower
+      .replace(/\b(viloyati|viloyat|respublikasi|respublika|shahri|shahar)\b/g, '')
+      .trim();
+
+    for (const v of VILOYATLAR) {
+      const vNameLower = v.name.toLowerCase().replace(/['`‘’ʼ]/g, "'");
+      const vBase = vNameLower.replace(/\b(viloyati|viloyat|respublikasi|respublika|shahri|shahar)\b/g, '').trim();
+      if (v.id === lower || vNameLower === lower || (baseReg && vBase === baseReg)) {
+        return { id: v.id, label: v.name };
+      }
+    }
+
+    const slug = (baseReg || lower)
+      .replace(/[^a-z0-9\u0400-\u04FF']/g, '_')
+      .replace(/'/g, '')
+      .replace(/_+/g, '_')
+      .replace(/^_|_$/g, '');
+
+    let formattedLabel = clean.charAt(0).toUpperCase() + clean.slice(1);
+    if (!/\b(viloyati|viloyat|respublikasi|shahri)\b/i.test(formattedLabel)) {
+      formattedLabel += ' viloyati';
+    }
+    return { id: slug || lower, label: formattedLabel };
+  },
+
+  regionsMatch(regA, regB) {
+    if (!regA || !regB) return false;
+    const normA = this.normalizeRegion(regA);
+    const normB = this.normalizeRegion(regB);
+    if (!normA.id || !normB.id) return false;
+    if (normA.id === 'all' || normB.id === 'all') return true;
+    return normA.id === normB.id;
+  },
+
+  // TUMAN NOMINI STANDART ID, NOM VA VILOYATGA KELTIRISH
+  normalizeDistrict(rawInput, rawRegionInput = '') {
+    const explicitReg = rawRegionInput ? this.normalizeRegion(rawRegionInput) : { id: '', label: '' };
+
+    if (!rawInput || typeof rawInput !== 'string') {
+      return { id: '', label: '', regionId: explicitReg.id || 'buxoro_vil', regionLabel: explicitReg.label || 'Buxoro viloyati' };
+    }
+    let clean = rawInput.trim();
+    if (!clean || clean.toLowerCase() === 'all') {
+      return { id: 'all', label: 'Barcha tumanlar', regionId: explicitReg.id || 'all', regionLabel: explicitReg.label || 'Barcha viloyatlar' };
+    }
+
+    // Agar "Jondor tumani, Buxoro viloyati" kabi vergul bilan yozilgan bo'lsa, viloyatni ajratib olamiz
+    let inferredReg = explicitReg;
+    if (clean.includes(',')) {
+      const parts = clean.split(',').map(s => s.trim()).filter(Boolean);
+      if (parts.length >= 2) {
+        clean = parts[0];
+        if (!inferredReg.id) {
+          inferredReg = this.normalizeRegion(parts.slice(1).join(' '));
+        }
+      }
+    }
+
+    const lower = clean.toLowerCase()
+      .replace(/['`‘’ʼ]/g, "'")
+      .replace(/\s+/g, ' ');
+
+    // 1. TUMANLAR ro'yxatidan aniq yoki qisman moslikni qidirish
+    const baseInput = lower
+      .replace(/\b(tumani|tuman|shahri|shahar|sh\.)\b/g, '')
+      .trim();
+
+    for (const t of TUMANLAR) {
+      if (t.id === 'all') continue;
+      const tNameLower = t.name.toLowerCase().replace(/['`‘’ʼ]/g, "'");
+      const tBase = tNameLower.replace(/\b(tumani|tuman|shahri|shahar)\b/g, '').trim();
+      if (t.id === lower || tNameLower === lower || (baseInput && tBase === baseInput)) {
+        return {
+          id: t.id,
+          label: t.name,
+          regionId: inferredReg.id || t.regionId || 'buxoro_vil',
+          regionLabel: inferredReg.label || t.regionName || 'Buxoro viloyati'
+        };
+      }
+    }
+
+    // 2. Agar ro'yxatda yo'q yangi tuman kiritilgan bo'lsa, uni ham chiroyli standart holatga keltiramiz
+    const slug = (baseInput || lower)
+      .replace(/[^a-z0-9\u0400-\u04FF']/g, '-')
+      .replace(/'/g, '')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+
+    let formattedLabel = clean.charAt(0).toUpperCase() + clean.slice(1);
+    if (!/\b(tumani|tuman|shahri|shahar)\b/i.test(formattedLabel)) {
+      formattedLabel += ' tumani';
+    }
+    return {
+      id: slug || lower,
+      label: formattedLabel,
+      regionId: inferredReg.id || 'buxoro_vil',
+      regionLabel: inferredReg.label || 'Buxoro viloyati'
+    };
+  },
+
+  districtsMatch(distA, distB) {
+    if (!distA || !distB) return false;
+    const normA = this.normalizeDistrict(distA);
+    const normB = this.normalizeDistrict(distB);
+    if (!normA.id || !normB.id) return false;
+    if (normA.id === 'all' || normB.id === 'all') return true;
+    return normA.id === normB.id;
+  },
+
+  // Viloyatga tegishli barcha tumanlarni olish (TUMANLAR ro'yxatidan + ro'yxatdan o'tgan o'quvchi/admin tumanlaridan)
+  getDistrictsByRegion(regionInput) {
+    const normReg = this.normalizeRegion(regionInput);
+    if (!normReg.id || normReg.id === 'all') {
+      return TUMANLAR.filter(t => t.id !== 'all');
+    }
+    const map = new Map();
+    TUMANLAR.forEach(t => {
+      if (t.id !== 'all' && t.regionId === normReg.id) {
+        map.set(t.id, { id: t.id, name: t.name, icon: t.icon || '🏛️', regionId: normReg.id, regionName: normReg.label });
+      }
+    });
+    // Bazadagi o'quvchi va tuman adminlaridan ham shu viloyatga tegishli yangi tumanlarni qo'shamiz
+    this.getCreators().forEach(c => {
+      if (!c || !c.district) return;
+      const cReg = c.regionId ? { id: c.regionId, label: c.regionLabel } : this.normalizeDistrict(c.districtLabel || c.district);
+      const rId = cReg.id || cReg.regionId;
+      if (rId === normReg.id && !map.has(c.district)) {
+        map.set(c.district, { id: c.district, name: c.districtLabel || c.district, icon: '🏛️', regionId: normReg.id, regionName: normReg.label });
+      }
+    });
+    this.getDistrictAdmins().forEach(a => {
+      if (!a || !a.district) return;
+      const aRegId = a.regionId || this.normalizeDistrict(a.districtLabel || a.district).regionId;
+      if (aRegId === normReg.id && !map.has(a.district)) {
+        map.set(a.district, { id: a.district, name: a.districtLabel || a.district, icon: '🏛️', regionId: normReg.id, regionName: normReg.label });
+      }
+    });
+    return Array.from(map.values());
   },
 
   // 1. OYLIK TASHRIF VA QIZIQIB BORUVCHILAR STATISTIKASI (HAQIQIY HISOB)
   recordVisit() {
-    try {
-      if (sessionStorage.getItem('ijodkor_session_visit_counted')) {
-        return this.getVisitorStats();
-      }
-      sessionStorage.setItem('ijodkor_session_visit_counted', 'true');
-    } catch (e) {}
-
     const currentMonthKey = new Date().toISOString().slice(0, 7); // e.g. "2026-10"
     let stats = {};
     try {
@@ -756,42 +1136,392 @@ const DataStore = {
     }
   },
 
-  // 2. ADMIN PIN VA SOZLAMALARI
-  getAdminPin() {
+  // 2. TUMAN ADMINLARI VA SOZLAMALARI (HAR BIR TUMAN UCHUN ALOHIDA ADMIN)
+  getDistrictAdmins() {
     this.init();
+    try {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY_ADMINS));
+      return Array.isArray(data) ? data : [];
+    } catch (e) {
+      return [];
+    }
+  },
+
+  getDistrictAdmin(districtInput) {
+    if (!districtInput) return null;
+    const norm = this.normalizeDistrict(districtInput);
+    if (!norm.id || norm.id === 'all') return null;
+    const admins = this.getDistrictAdmins();
+    return admins.find(a => a && (a.district === norm.id || this.districtsMatch(a.district || a.districtLabel, norm.id))) || null;
+  },
+
+  saveDistrictAdmin(adminData) {
+    const norm = this.normalizeDistrict(adminData.district || adminData.districtLabel, adminData.region || adminData.regionId || adminData.regionLabel || '');
+    if (!norm.id || norm.id === 'all') return null;
+
+    const admins = this.getDistrictAdmins();
+    const existingIdx = admins.findIndex(a => a && (a.district === norm.id || this.districtsMatch(a.district || a.districtLabel, norm.id)));
+    const nowIso = new Date().toISOString();
+
+    const adminRecord = {
+      id: 'adm-' + norm.id,
+      district: norm.id,
+      districtLabel: norm.label,
+      regionId: norm.regionId || (existingIdx >= 0 ? admins[existingIdx].regionId : 'buxoro_vil'),
+      regionLabel: norm.regionLabel || (existingIdx >= 0 ? admins[existingIdx].regionLabel : 'Buxoro viloyati'),
+      fullName: (adminData.fullName || (existingIdx >= 0 ? admins[existingIdx].fullName : '') || `${norm.label} Koordinatori`).trim(),
+      phone: (adminData.phone || (existingIdx >= 0 ? admins[existingIdx].phone : '') || COORDINATOR_PHONE).trim(),
+      pin: (adminData.pin || (existingIdx >= 0 ? admins[existingIdx].pin : '') || '7777').trim(),
+      updatedAt: nowIso
+    };
+
+    if (existingIdx >= 0) {
+      admins[existingIdx] = { ...admins[existingIdx], ...adminRecord };
+    } else {
+      admins.unshift(adminRecord);
+    }
+
+    localStorage.setItem(STORAGE_KEY_ADMINS, JSON.stringify(admins));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastAdmin) {
+        CloudSync.broadcastAdmin(adminRecord);
+      }
+    } catch (e) {}
+    CloudSync.push();
+    return adminRecord;
+  },
+
+  verifyDistrictAdminPin(districtInput, enteredPin) {
+    if (!enteredPin) return false;
+    const cleanPin = enteredPin.trim();
+    const dAdmin = this.getDistrictAdmin(districtInput);
+    if (dAdmin && dAdmin.pin) {
+      return dAdmin.pin.trim() === cleanPin;
+    }
+    return false;
+  },
+
+  // 2B. VILOYAT KOORDINATORLARI (VILOYAT ADMINLARI — MASALAN: BUXORO VILOYATI KOORDINATORI)
+  getRegionAdmins() {
+    this.init();
+    try {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY_REGION_ADMINS));
+      return Array.isArray(data) ? data : [];
+    } catch (e) {
+      return [];
+    }
+  },
+
+  getRegionAdmin(regionInput) {
+    if (!regionInput) return null;
+    const norm = this.normalizeRegion(regionInput);
+    if (!norm.id || norm.id === 'all') return null;
+    const rAdmins = this.getRegionAdmins();
+    return rAdmins.find(a => a && (a.regionId === norm.id || this.regionsMatch(a.regionId || a.regionLabel, norm.id))) || null;
+  },
+
+  saveRegionAdmin(adminData) {
+    const norm = this.normalizeRegion(adminData.region || adminData.regionId || adminData.regionLabel);
+    if (!norm.id || norm.id === 'all') return null;
+
+    const rAdmins = this.getRegionAdmins();
+    const existingIdx = rAdmins.findIndex(a => a && (a.regionId === norm.id || this.regionsMatch(a.regionId || a.regionLabel, norm.id)));
+    const nowIso = new Date().toISOString();
+
+    const adminRecord = {
+      id: 'regadm-' + norm.id,
+      regionId: norm.id,
+      regionLabel: norm.label,
+      fullName: (adminData.fullName || (existingIdx >= 0 ? rAdmins[existingIdx].fullName : '') || `${norm.label} Koordinatori`).trim(),
+      phone: (adminData.phone || (existingIdx >= 0 ? rAdmins[existingIdx].phone : '') || COORDINATOR_PHONE).trim(),
+      pin: (adminData.pin || (existingIdx >= 0 ? rAdmins[existingIdx].pin : '') || '7777').trim(),
+      updatedAt: nowIso
+    };
+
+    if (existingIdx >= 0) {
+      rAdmins[existingIdx] = { ...rAdmins[existingIdx], ...adminRecord };
+    } else {
+      rAdmins.unshift(adminRecord);
+    }
+
+    localStorage.setItem(STORAGE_KEY_REGION_ADMINS, JSON.stringify(rAdmins));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastRegionAdmin) {
+        CloudSync.broadcastRegionAdmin(adminRecord);
+      }
+    } catch (e) {}
+    CloudSync.push();
+    return adminRecord;
+  },
+
+  verifyRegionAdminPin(regionInput, enteredPin) {
+    if (!enteredPin) return false;
+    const cleanPin = enteredPin.trim();
+    const rAdmin = this.getRegionAdmin(regionInput);
+    if (rAdmin && rAdmin.pin) {
+      return rAdmin.pin.trim() === cleanPin;
+    }
+    return false;
+  },
+
+  // 2C. RESPUBLIKA KOORDINATORI (RESPUBLIKA ADMINI)
+  getRepublicAdmin() {
+    this.init();
+    try {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY_REPUBLIC_ADMIN));
+      if (data && typeof data === 'object' && data.pin) {
+        return data;
+      }
+    } catch (e) {}
+    return {
+      id: 'rep-admin-main',
+      fullName: 'Respublika Bosh Koordinatori',
+      phone: COORDINATOR_PHONE,
+      pin: localStorage.getItem(STORAGE_KEY_ADMIN_PIN) || '7777'
+    };
+  },
+
+  saveRepublicAdmin(adminData) {
+    const current = this.getRepublicAdmin();
+    const updated = {
+      id: 'rep-admin-main',
+      fullName: (adminData.fullName || current.fullName || 'Respublika Bosh Koordinatori').trim(),
+      phone: (adminData.phone || current.phone || COORDINATOR_PHONE).trim(),
+      pin: (adminData.pin || current.pin || '7777').trim(),
+      updatedAt: new Date().toISOString()
+    };
+    localStorage.setItem(STORAGE_KEY_REPUBLIC_ADMIN, JSON.stringify(updated));
+    CloudSync.push();
+    return updated;
+  },
+
+  verifyRepublicAdminPin(enteredPin) {
+    if (!enteredPin) return false;
+    const rep = this.getRepublicAdmin();
+    return (rep.pin || '7777').trim() === enteredPin.trim() || this.getAdminPin() === enteredPin.trim();
+  },
+
+  // 2D. O'QUVCHILAR SHIKOYATLARI (TANGA BERISHDA XATOLIK YUZASIDAN MUROJAATLAR)
+  getComplaints() {
+    this.init();
+    try {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY_COMPLAINTS));
+      return Array.isArray(data) ? data : [];
+    } catch (e) {
+      return [];
+    }
+  },
+
+  addComplaint(complaintData) {
+    const complaints = this.getComplaints();
+    const normDist = this.normalizeDistrict(
+      complaintData.districtLabel || complaintData.district || 'jondor',
+      complaintData.regionLabel || complaintData.regionId || ''
+    );
+    const nowIso = new Date().toISOString();
+
+    const newComplaint = {
+      id: 'cmp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+      creatorId: complaintData.creatorId || '',
+      creatorName: (complaintData.creatorName || "O'quvchi").trim(),
+      creatorSchool: (complaintData.creatorSchool || '').trim(),
+      creatorPhone: (complaintData.creatorPhone || '').trim(),
+      district: normDist.id || 'jondor',
+      districtLabel: normDist.label || 'Jondor tumani',
+      regionId: normDist.regionId || 'buxoro_vil',
+      regionLabel: normDist.regionLabel || 'Buxoro viloyati',
+      reasonCategory: complaintData.reasonCategory || 'missing_coins_video',
+      reasonTitle: (complaintData.reasonTitle || "Videorolikda qatnashdim, lekin tanga berilmadi").trim(),
+      eventOrChallengeName: (complaintData.eventOrChallengeName || '').trim(),
+      videoUrl: (complaintData.videoUrl || '').trim(),
+      description: (complaintData.description || '').trim(),
+      requestedCoins: parseInt(complaintData.requestedCoins) || 35,
+      status: 'pending', // 'pending' | 'approved' | 'rejected'
+      coinsAwarded: 0,
+      adminNote: '',
+      createdAt: nowIso.split('T')[0],
+      updatedAt: nowIso
+    };
+
+    complaints.unshift(newComplaint);
+    localStorage.setItem(STORAGE_KEY_COMPLAINTS, JSON.stringify(complaints));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastComplaint) {
+        CloudSync.broadcastComplaint(newComplaint);
+      }
+    } catch (e) {}
+    CloudSync.push();
+    return newComplaint;
+  },
+
+  resolveComplaint(complaintId, status, coinsAmount, adminNote) {
+    const complaints = this.getComplaints();
+    const idx = complaints.findIndex(c => c && c.id === complaintId);
+    if (idx === -1) return { success: false, message: "Shikoyat topilmadi!" };
+
+    const comp = complaints[idx];
+    const coinsNum = status === 'approved' ? (parseInt(coinsAmount) || comp.requestedCoins || 35) : 0;
+
+    comp.status = status; // 'approved' yoki 'rejected'
+    comp.coinsAwarded = coinsNum;
+    comp.adminNote = (adminNote || '').trim() || (status === 'approved'
+      ? `Shikoyatingiz o'rinli deb topildi va +${coinsNum} tanga taqdim etildi!`
+      : "Murojaatingiz ko'rib chiqildi.");
+    comp.updatedAt = new Date().toISOString();
+
+    complaints[idx] = comp;
+    localStorage.setItem(STORAGE_KEY_COMPLAINTS, JSON.stringify(complaints));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastComplaint) {
+        CloudSync.broadcastComplaint(comp);
+      }
+    } catch (e) {}
+
+    // Agar shikoyat o'rinli deb topilib ma'qullangan bo'lsa, o'quvchiga tanga taqdim etiladi!
+    if (status === 'approved' && coinsNum > 0 && comp.creatorId) {
+      this.awardCoins(
+        comp.creatorId,
+        `Shikoyat bo'yicha tanga tiklandi: ${comp.eventOrChallengeName || comp.reasonTitle}`,
+        coinsNum,
+        comp.adminNote
+      );
+    }
+
+    CloudSync.push();
+    return { success: true, complaint: comp };
+  },
+
+  deleteComplaint(complaintId) {
+    let complaints = this.getComplaints().filter(c => c && c.id !== complaintId);
+    localStorage.setItem(STORAGE_KEY_COMPLAINTS, JSON.stringify(complaints));
+    CloudSync.push();
+    return true;
+  },
+
+  // 2E. MAVSUMIY HISOBOTLAR (TUMAN -> VILOYAT VA VILOYAT -> RESPUBLIKA)
+  getSeasonReports() {
+    this.init();
+    try {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEY_SEASON_REPORTS));
+      return Array.isArray(data) ? data : [];
+    } catch (e) {
+      return [];
+    }
+  },
+
+  addSeasonReport(reportData) {
+    const reports = this.getSeasonReports();
+    const nowIso = new Date().toISOString();
+    const newReport = {
+      id: 'rep-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+      level: reportData.level || 'district_to_region', // 'district_to_region' yoki 'region_to_republic'
+      district: reportData.district || '',
+      districtLabel: reportData.districtLabel || '',
+      regionId: reportData.regionId || 'buxoro_vil',
+      regionLabel: reportData.regionLabel || 'Buxoro viloyati',
+      coordinatorName: (reportData.coordinatorName || 'Koordinator').trim(),
+      coordinatorPhone: (reportData.coordinatorPhone || '').trim(),
+      seasonTitle: (reportData.seasonTitle || '2026-yil Mavsumiy Hisoboti').trim(),
+      studentsCount: parseInt(reportData.studentsCount) || 0,
+      eventsCount: parseInt(reportData.eventsCount) || 0,
+      totalCoins: parseInt(reportData.totalCoins) || 0,
+      districtsCount: parseInt(reportData.districtsCount) || 1,
+      summary: (reportData.summary || '').trim(),
+      status: 'submitted', // 'submitted' | 'approved'
+      reviewerNote: '',
+      submittedAt: nowIso.split('T')[0],
+      updatedAt: nowIso
+    };
+
+    reports.unshift(newReport);
+    localStorage.setItem(STORAGE_KEY_SEASON_REPORTS, JSON.stringify(reports));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastSeasonReport) {
+        CloudSync.broadcastSeasonReport(newReport);
+      }
+    } catch (e) {}
+    CloudSync.push();
+    return newReport;
+  },
+
+  approveSeasonReport(reportId, reviewerNote = '') {
+    const reports = this.getSeasonReports();
+    const idx = reports.findIndex(r => r && r.id === reportId);
+    if (idx === -1) return null;
+    reports[idx].status = 'approved';
+    reports[idx].reviewerNote = reviewerNote || "Mavsumiy hisobot qabul qilindi va tasdiqlandi!";
+    reports[idx].updatedAt = new Date().toISOString();
+    localStorage.setItem(STORAGE_KEY_SEASON_REPORTS, JSON.stringify(reports));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastSeasonReport) {
+        CloudSync.broadcastSeasonReport(reports[idx]);
+      }
+    } catch (e) {}
+    CloudSync.push();
+    return reports[idx];
+  },
+
+  getAdminPin(districtInput) {
+    this.init();
+    if (districtInput) {
+      const dAdmin = this.getDistrictAdmin(districtInput);
+      if (dAdmin && dAdmin.pin) return dAdmin.pin;
+    }
     return localStorage.getItem(STORAGE_KEY_ADMIN_PIN) || '7777';
   },
 
-  setAdminPin(newPin) {
+  setAdminPin(newPin, districtInput) {
     if (!newPin || newPin.trim().length < 4) return false;
+    if (districtInput) {
+      this.saveDistrictAdmin({ district: districtInput, pin: newPin.trim() });
+    }
     localStorage.setItem(STORAGE_KEY_ADMIN_PIN, newPin.trim());
     return true;
   },
 
-  verifyAdminPin(enteredPin) {
+  verifyAdminPin(enteredPin, districtInput) {
     if (!enteredPin) return false;
+    if (districtInput) {
+      return this.verifyDistrictAdminPin(districtInput, enteredPin);
+    }
     return this.getAdminPin() === enteredPin.trim();
   },
 
-  getAdminName() {
+  getAdminName(districtInput) {
     this.init();
+    if (districtInput) {
+      const dAdmin = this.getDistrictAdmin(districtInput);
+      if (dAdmin && dAdmin.fullName) return dAdmin.fullName;
+      const norm = this.normalizeDistrict(districtInput);
+      if (norm.label && norm.id !== 'all') return `${norm.label} Madaniyat Koordinatori`;
+    }
     return localStorage.getItem(STORAGE_KEY_ADMIN_NAME) || 'Madaniyat Bosh Koordinatori';
   },
 
-  setAdminName(newName) {
+  setAdminName(newName, districtInput) {
     if (!newName || !newName.trim()) return false;
+    if (districtInput) {
+      this.saveDistrictAdmin({ district: districtInput, fullName: newName.trim() });
+    }
     localStorage.setItem(STORAGE_KEY_ADMIN_NAME, newName.trim());
     return true;
   },
 
-  getAdminPhone() {
+  getAdminPhone(districtInput) {
     this.init();
+    if (districtInput) {
+      const dAdmin = this.getDistrictAdmin(districtInput);
+      if (dAdmin && dAdmin.phone) return dAdmin.phone;
+    }
     return localStorage.getItem(STORAGE_KEY_ADMIN_PHONE) || COORDINATOR_PHONE;
   },
 
-  setAdminPhone(newPhone) {
+  setAdminPhone(newPhone, districtInput) {
     if (!newPhone || !newPhone.trim()) return false;
     const clean = newPhone.trim();
+    if (districtInput) {
+      this.saveDistrictAdmin({ district: districtInput, phone: clean });
+    }
     localStorage.setItem(STORAGE_KEY_ADMIN_PHONE, clean);
     try {
       if (typeof CloudSync !== 'undefined' && CloudSync.db) {
@@ -907,8 +1637,8 @@ const DataStore = {
 
   getDistrictLabel(districtId) {
     if (!districtId) return "Noma'lum tuman";
-    const found = TUMANLAR.find(t => t.id === districtId);
-    return found ? found.name : districtId;
+    const norm = this.normalizeDistrict(districtId);
+    return norm.label || districtId;
   },
 
   // Yangi o'quvchi qo'shish
@@ -931,8 +1661,14 @@ const DataStore = {
       videoType = 'telegram';
     }
 
-    const distId = (creatorData.district || 'chilonzor').toLowerCase();
-    const distLabel = creatorData.districtLabel || this.getDistrictLabel(distId);
+    const normDist = this.normalizeDistrict(
+      creatorData.districtLabel || creatorData.district || 'jondor',
+      creatorData.regionLabel || creatorData.region || ''
+    );
+    const distId = normDist.id || 'jondor';
+    const distLabel = normDist.label || 'Jondor tumani';
+    const regId = normDist.regionId || 'buxoro_vil';
+    const regLabel = normDist.regionLabel || 'Buxoro viloyati';
 
     const userPhoto = (creatorData.avatarUrl && creatorData.avatarUrl.trim().length > 20)
       ? creatorData.avatarUrl.trim()
@@ -949,6 +1685,8 @@ const DataStore = {
       age: parseInt(creatorData.age) || 16,
       district: distId,
       districtLabel: distLabel,
+      regionId: regId,
+      regionLabel: regLabel,
       school: (creatorData.school || '').trim() || "Umumiy o'rta ta'lim maktabi",
       bio: (creatorData.bio || '').trim() || "Maktabning iqtidorli o'quvchisi.",
       phone: (creatorData.phone || '').trim() || "+998 90 000 00 00",
@@ -993,9 +1731,15 @@ const DataStore = {
     if (updatedData.phone !== undefined && updatedData.phone.trim()) target.phone = updatedData.phone.trim();
     if (updatedData.pin !== undefined && updatedData.pin.trim().length >= 4) target.pin = updatedData.pin.trim();
     if (updatedData.age) target.age = parseInt(updatedData.age);
-    if (updatedData.district) {
-      target.district = updatedData.district.toLowerCase();
-      target.districtLabel = updatedData.districtLabel || this.getDistrictLabel(target.district);
+    if (updatedData.district || updatedData.districtLabel || updatedData.region || updatedData.regionLabel) {
+      const normDist = this.normalizeDistrict(
+        updatedData.districtLabel || updatedData.district || target.districtLabel || target.district,
+        updatedData.regionLabel || updatedData.region || target.regionLabel || target.regionId
+      );
+      target.district = normDist.id || target.district;
+      target.districtLabel = normDist.label || target.districtLabel;
+      target.regionId = normDist.regionId || target.regionId || 'buxoro_vil';
+      target.regionLabel = normDist.regionLabel || target.regionLabel || 'Buxoro viloyati';
     }
     if (updatedData.school) target.school = updatedData.school.trim();
     if (updatedData.bio !== undefined) target.bio = updatedData.bio.trim();
@@ -1091,17 +1835,27 @@ const DataStore = {
 
   addChallenge(challengeData) {
     const challenges = this.getChallenges();
+    const normDist = this.normalizeDistrict(challengeData.districtLabel || challengeData.district || '');
+    const nowIso = new Date().toISOString();
     const newChallenge = {
       id: 'chl-' + Date.now(),
       title: challengeData.title.trim(),
       description: challengeData.description.trim(),
       awardCoins: parseInt(challengeData.awardCoins) || 50,
       deadline: challengeData.deadline, // e.g. "2026-11-04"
+      district: normDist.id || '',
+      districtLabel: normDist.label || '',
       status: 'active',
-      createdAt: new Date().toISOString().split('T')[0]
+      createdAt: nowIso.split('T')[0],
+      updatedAt: nowIso
     };
     challenges.unshift(newChallenge);
     localStorage.setItem(STORAGE_KEY_CHALLENGES, JSON.stringify(challenges));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastChallenge) {
+        CloudSync.broadcastChallenge(newChallenge);
+      }
+    } catch (e) {}
     CloudSync.push();
     return newChallenge;
   },
@@ -1110,6 +1864,11 @@ const DataStore = {
     let challenges = this.getChallenges();
     challenges = challenges.filter(c => c.id !== id);
     localStorage.setItem(STORAGE_KEY_CHALLENGES, JSON.stringify(challenges));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastDeleteChallenge) {
+        CloudSync.broadcastDeleteChallenge(id);
+      }
+    } catch (e) {}
     CloudSync.push();
     return true;
   },
@@ -1154,6 +1913,9 @@ const DataStore = {
       }
     }
 
+    const normDist = this.normalizeDistrict(subData.district || subData.creatorDistrict || '');
+    const nowIso = new Date().toISOString();
+
     const newSub = {
       id: 'sub-' + Date.now(),
       challengeId: subData.challengeId,
@@ -1161,13 +1923,16 @@ const DataStore = {
       creatorId: subData.creatorId || '',
       creatorName: subData.creatorName.trim(),
       creatorSchool: subData.creatorSchool.trim(),
-      creatorDistrict: subData.creatorDistrict || '',
+      district: normDist.id || '',
+      districtLabel: normDist.label || (subData.creatorDistrict || ''),
+      creatorDistrict: normDist.label || (subData.creatorDistrict || ''),
       creatorPhone: subData.creatorPhone || '',
       videoUrl: rawV,
       videoType: (rawV.includes('t.me') || rawV.includes('telegram')) ? 'telegram' : 'youtube',
       participants: (subData.participants || '').trim(), // Rolikda kimlar qatnashgani!
       note: (subData.note || '').trim(),
-      submittedAt: new Date().toISOString().split('T')[0],
+      submittedAt: nowIso.split('T')[0],
+      updatedAt: nowIso,
       status: 'pending', // 'pending' yoki 'approved'
       coinsAwarded: 0,
       adminNote: ''
@@ -1175,6 +1940,11 @@ const DataStore = {
 
     submissions.unshift(newSub);
     localStorage.setItem(STORAGE_KEY_CHALLENGE_SUBMISSIONS, JSON.stringify(submissions));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastSubmission) {
+        CloudSync.broadcastSubmission(newSub);
+      }
+    } catch (e) {}
     CloudSync.push();
     return newSub;
   },
@@ -1189,8 +1959,14 @@ const DataStore = {
     sub.status = 'approved';
     sub.coinsAwarded = coinsNum;
     sub.adminNote = (adminNote || '').trim() || "Chellenj video vazifasi a'lo darajada bajarildi!";
+    sub.updatedAt = new Date().toISOString();
 
     localStorage.setItem(STORAGE_KEY_CHALLENGE_SUBMISSIONS, JSON.stringify(submissions));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastSubmission) {
+        CloudSync.broadcastSubmission(sub);
+      }
+    } catch (e) {}
 
     // Agar o'quvchi bazada bo'lsa tangasini oshirish
     if (sub.creatorId) {
@@ -1214,18 +1990,28 @@ const DataStore = {
 
   addContest(contestData) {
     const contests = this.getContests();
+    const normDist = this.normalizeDistrict(contestData.districtLabel || contestData.district || '');
+    const nowIso = new Date().toISOString();
     const newContest = {
       id: 'cnt-' + Date.now(),
       title: contestData.title.trim(),
       awardCoins: parseInt(contestData.awardCoins) || 50,
-      eventDate: contestData.eventDate || new Date().toISOString().split('T')[0],
+      eventDate: contestData.eventDate || nowIso.split('T')[0],
       location: (contestData.location || '').trim() || "Madaniyat saroyi",
       description: (contestData.description || '').trim() || "Madaniy tadbirda faol ishtirok eting.",
+      district: normDist.id || '',
+      districtLabel: normDist.label || '',
       status: 'active',
-      createdAt: new Date().toISOString().split('T')[0]
+      createdAt: nowIso.split('T')[0],
+      updatedAt: nowIso
     };
     contests.unshift(newContest);
     localStorage.setItem(STORAGE_KEY_CONTESTS, JSON.stringify(contests));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastContest) {
+        CloudSync.broadcastContest(newContest);
+      }
+    } catch (e) {}
     CloudSync.push();
     return newContest;
   },
@@ -1234,6 +2020,11 @@ const DataStore = {
     let contests = this.getContests();
     contests = contests.filter(c => c.id !== id);
     localStorage.setItem(STORAGE_KEY_CONTESTS, JSON.stringify(contests));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastDeleteContest) {
+        CloudSync.broadcastDeleteContest(id);
+      }
+    } catch (e) {}
     CloudSync.push();
     return true;
   },
@@ -1253,67 +2044,76 @@ const DataStore = {
     return '';
   },
 
+  normalizePhone9(phone) {
+    if (!phone) return '';
+    const digits = String(phone).replace(/\D/g, '');
+    return digits.length >= 9 ? digits.slice(-9) : '';
+  },
+
+  phonesMatch(phoneA, phoneB) {
+    const a = this.normalizePhone9(phoneA);
+    const b = this.normalizePhone9(phoneB);
+    return Boolean(a && b && a === b);
+  },
+
   isPhoneRegistered(phone) {
-    if (!phone) return false;
-    const cleanPhone = phone.replace(/\D/g, '');
-    if (cleanPhone.length < 9) return false;
+    const clean9 = this.normalizePhone9(phone);
+    if (!clean9) return false;
 
     const creators = this.getCreators();
-    return creators.some(c => {
-      const cPhone = (c.phone || '').replace(/\D/g, '');
-      return cPhone.endsWith(cleanPhone.slice(-9)) || cleanPhone.endsWith(cPhone.slice(-9));
-    });
+    return creators.some(c => this.phonesMatch(c.phone, phone));
   },
 
   findCreatorByPhone(phone) {
-    if (!phone) return null;
-    const cleanPhone = phone.replace(/\D/g, '');
-    if (cleanPhone.length < 7) return null;
+    const clean9 = this.normalizePhone9(phone);
+    if (!clean9) return null;
     const creators = this.getCreators();
-    return creators.find(c => {
-      const cPhone = (c.phone || '').replace(/\D/g, '');
-      return cPhone.endsWith(cleanPhone.slice(-9)) || cleanPhone.endsWith(cPhone.slice(-9));
-    }) || null;
+    return creators.find(c => this.phonesMatch(c.phone, phone)) || null;
   },
 
   findCreatorByCredentials(identifier, pin) {
     if (!identifier || !pin) return null;
     const cleanId = identifier.trim().toLowerCase();
-    const cleanPhone = cleanId.replace(/\D/g, '');
+    const cleanPhone9 = this.normalizePhone9(cleanId);
     const cleanPin = pin.trim();
 
     const creators = this.getCreators();
     return creators.find(c => {
-      // PIN tekshiruvi (agar avvalgi profilda pin bo'lmasa, har qanday 4+ xonali kod yoki 1234 qabul qilinadi)
+      if (!c) return false;
       const cPin = (c.pin || '').trim();
-      const pinMatches = cPin ? (cPin === cleanPin) : (cleanPin.length >= 4);
-      if (!pinMatches) return false;
+      if (!cPin || cPin !== cleanPin) return false;
 
-      // 1. Telefon raqam bo'yicha
-      if (cleanPhone.length >= 7) {
-        const cPhone = (c.phone || '').replace(/\D/g, '');
-        if (cPhone.endsWith(cleanPhone.slice(-9)) || cleanPhone.endsWith(cPhone.slice(-9))) {
-          return true;
-        }
+      // 1. Telefon raqam bo'yicha (kamida 9 ta raqam aniq mos kelsa)
+      if (cleanPhone9 && this.phonesMatch(c.phone, cleanId)) {
+        return true;
       }
 
       // 2. Nik bo'yicha
-      if (c.nickname && c.nickname.trim().toLowerCase() === cleanId) {
+      const cleanNick = cleanId.replace(/^@/, '');
+      if (c.nickname && c.nickname.trim().toLowerCase().replace(/^@/, '') === cleanNick) {
         return true;
       }
 
       // 3. To'liq ism bo'yicha
-      if (c.fullName && c.fullName.trim().toLowerCase() === cleanId) {
+      const cName = (c.fullName || '').trim().toLowerCase();
+      if (cName && cName === cleanId) {
         return true;
       }
-      if (c.fullName && c.fullName.trim().toLowerCase().replace(/\s+/g, '') === cleanId.replace(/\s+/g, '')) {
+      if (cName && cName.replace(/\s+/g, '') === cleanId.replace(/\s+/g, '')) {
         return true;
       }
 
-      // 4. Ismning birinchi qismi bo'yicha (masalan, "Azizbek")
-      const firstName = (c.fullName || '').trim().split(' ')[0].toLowerCase();
-      if (firstName && firstName === cleanId) {
-        return true;
+      // 4. Ism yoki familiya qismi bo'yicha (faqat shu parol va shu ismga ega yagona o'quvchi bo'lsagina)
+      const nameParts = cName.split(/\s+/).filter(Boolean);
+      if (nameParts.includes(cleanId)) {
+        const sameMatches = creators.filter(other => {
+          if (!other || (other.pin || '').trim() !== cleanPin) return false;
+          const otherParts = (other.fullName || '').trim().toLowerCase().split(/\s+/).filter(Boolean);
+          return otherParts.includes(cleanId);
+        });
+        if (sameMatches.length === 1) {
+          return true;
+        }
       }
 
       return false;
@@ -1346,21 +2146,45 @@ const DataStore = {
   addStaffMember(staffData) {
     const staffList = this.getStaffList();
     const cleanPhone = (staffData.phone || '').trim();
+    const cleanName = (staffData.fullName || '').trim().toLowerCase();
+
+    // Faqat aynan bir xil odam (ham telefoni, ham ism-familiyasi bir xil) qayta kirsa eski ID saqlanadi;
+    // Boshqa ism-familiyali xodim hech qachon mavjud xodimning profilini ustidan yozib yubormaydi!
     const existingIndex = staffList.findIndex(s => {
-      const sp = (s.phone || '').replace(/\D/g, '');
-      const cp = cleanPhone.replace(/\D/g, '');
-      return sp && cp && (sp.endsWith(cp.slice(-9)) || cp.endsWith(sp.slice(-9)));
+      if (!s) return false;
+      if (staffData.id && s.id === staffData.id) return true;
+      const samePhone = this.phonesMatch(s.phone, cleanPhone);
+      const sName = (s.fullName || '').trim().toLowerCase();
+      return samePhone && sName && cleanName && sName === cleanName;
     });
 
-    const id = existingIndex >= 0 ? staffList[existingIndex].id : ('stf-' + Date.now());
+    const uniqueId = 'stf-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
+    const id = existingIndex >= 0 ? staffList[existingIndex].id : (staffData.id || uniqueId);
+    const nowIso = new Date().toISOString();
+    const normDist = this.normalizeDistrict(
+      staffData.districtLabel ||
+      staffData.district ||
+      (existingIndex >= 0 ? (staffList[existingIndex].districtLabel || staffList[existingIndex].district) : '') ||
+      'jondor',
+      staffData.regionLabel ||
+      staffData.region ||
+      (existingIndex >= 0 ? (staffList[existingIndex].regionLabel || staffList[existingIndex].regionId) : '') ||
+      ''
+    );
+
     const newStaff = {
       id: id,
-      fullName: staffData.fullName.trim(),
+      fullName: (staffData.fullName || '').trim(),
       position: staffData.position ? staffData.position.trim() : 'Madaniyat Xodimi',
       organization: staffData.organization ? staffData.organization.trim() : 'Madaniyat Boshqarmasi',
+      district: normDist.id || 'jondor',
+      districtLabel: normDist.label || 'Jondor tumani',
+      regionId: normDist.regionId || 'buxoro_vil',
+      regionLabel: normDist.regionLabel || 'Buxoro viloyati',
       phone: cleanPhone,
       pin: (staffData.pin || '').trim() || (existingIndex >= 0 && staffList[existingIndex].pin ? staffList[existingIndex].pin : '1234'),
-      registeredAt: (existingIndex >= 0 && staffList[existingIndex].registeredAt) ? staffList[existingIndex].registeredAt : new Date().toISOString().split('T')[0]
+      registeredAt: (existingIndex >= 0 && staffList[existingIndex].registeredAt) ? staffList[existingIndex].registeredAt : nowIso.split('T')[0],
+      updatedAt: nowIso
     };
 
     if (existingIndex >= 0) {
@@ -1370,71 +2194,93 @@ const DataStore = {
     }
 
     localStorage.setItem(STORAGE_KEY_STAFF, JSON.stringify(staffList));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastStaff) {
+        CloudSync.broadcastStaff(newStaff);
+      }
+    } catch (e) {}
     CloudSync.push();
     return newStaff;
   },
 
   updateStaffMember(id, updatedData) {
     const staffList = this.getStaffList();
-    const index = staffList.findIndex(s => s.id === id);
+    const index = staffList.findIndex(s => s && s.id === id);
     if (index === -1) return null;
 
     let target = staffList[index];
     if (updatedData.fullName) target.fullName = updatedData.fullName.trim();
     if (updatedData.position) target.position = updatedData.position.trim();
     if (updatedData.organization) target.organization = updatedData.organization.trim();
+    if (updatedData.district || updatedData.districtLabel || updatedData.region || updatedData.regionLabel) {
+      const normDist = this.normalizeDistrict(
+        updatedData.districtLabel || updatedData.district || target.districtLabel || target.district,
+        updatedData.regionLabel || updatedData.region || target.regionLabel || target.regionId
+      );
+      target.district = normDist.id || target.district;
+      target.districtLabel = normDist.label || target.districtLabel;
+      target.regionId = normDist.regionId || target.regionId || 'buxoro_vil';
+      target.regionLabel = normDist.regionLabel || target.regionLabel || 'Buxoro viloyati';
+    }
     if (updatedData.phone && updatedData.phone.trim()) target.phone = updatedData.phone.trim();
     if (updatedData.pin && updatedData.pin.trim().length >= 4) target.pin = updatedData.pin.trim();
+    target.updatedAt = new Date().toISOString();
 
     staffList[index] = target;
     localStorage.setItem(STORAGE_KEY_STAFF, JSON.stringify(staffList));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastStaff) {
+        CloudSync.broadcastStaff(target);
+      }
+    } catch (e) {}
     CloudSync.push();
     return target;
   },
 
   findStaffByPhone(phone) {
-    if (!phone) return null;
-    const cleanPhone = phone.replace(/\D/g, '');
-    if (cleanPhone.length < 7) return null;
+    const clean9 = this.normalizePhone9(phone);
+    if (!clean9) return null;
     const staffList = this.getStaffList();
-    return staffList.find(s => {
-      const sPhone = (s.phone || '').replace(/\D/g, '');
-      return sPhone.endsWith(cleanPhone.slice(-9)) || cleanPhone.endsWith(sPhone.slice(-9));
-    }) || null;
+    return staffList.find(s => s && this.phonesMatch(s.phone, phone)) || null;
   },
 
   findStaffByCredentials(identifier, pin) {
     if (!identifier || !pin) return null;
     const cleanId = identifier.trim().toLowerCase();
-    const cleanPhone = cleanId.replace(/\D/g, '');
+    const cleanPhone9 = this.normalizePhone9(cleanId);
     const cleanPin = pin.trim();
 
     const staffList = this.getStaffList();
     return staffList.find(s => {
+      if (!s) return false;
       const sPin = (s.pin || '').trim();
-      const pinMatches = sPin ? (sPin === cleanPin) : (cleanPin.length >= 4);
-      if (!pinMatches) return false;
+      if (!sPin || sPin !== cleanPin) return false;
 
-      // 1. Telefon raqam bo'yicha
-      if (cleanPhone.length >= 7) {
-        const sPhone = (s.phone || '').replace(/\D/g, '');
-        if (sPhone.endsWith(cleanPhone.slice(-9)) || cleanPhone.endsWith(sPhone.slice(-9))) {
+      // 1. Telefon raqam bo'yicha (kamida 9 ta raqam aniq mos kelsa)
+      if (cleanPhone9 && this.phonesMatch(s.phone, cleanId)) {
+        return true;
+      }
+
+      // 2. To'liq ism-familiya bo'yicha
+      const sName = (s.fullName || '').trim().toLowerCase();
+      if (sName && sName === cleanId) {
+        return true;
+      }
+      if (sName && sName.replace(/\s+/g, '') === cleanId.replace(/\s+/g, '')) {
+        return true;
+      }
+
+      // 3. Ism yoki familiya qismi bo'yicha (faqat shu parol va shu ismga ega yagona xodim bo'lsagina)
+      const nameParts = sName.split(/\s+/).filter(Boolean);
+      if (nameParts.includes(cleanId)) {
+        const sameMatches = staffList.filter(other => {
+          if (!other || (other.pin || '').trim() !== cleanPin) return false;
+          const otherParts = (other.fullName || '').trim().toLowerCase().split(/\s+/).filter(Boolean);
+          return otherParts.includes(cleanId);
+        });
+        if (sameMatches.length === 1) {
           return true;
         }
-      }
-
-      // 2. To'liq ism bo'yicha
-      if (s.fullName && s.fullName.trim().toLowerCase() === cleanId) {
-        return true;
-      }
-      if (s.fullName && s.fullName.trim().toLowerCase().replace(/\s+/g, '') === cleanId.replace(/\s+/g, '')) {
-        return true;
-      }
-
-      // 3. Ismning birinchi qismi bo'yicha
-      const firstName = (s.fullName || '').trim().split(' ')[0].toLowerCase();
-      if (firstName && firstName === cleanId) {
-        return true;
       }
 
       return false;
@@ -1463,16 +2309,21 @@ const DataStore = {
       inbox = [];
     }
 
+    const normDist = this.normalizeDistrict(item.districtLabel || item.district || '');
+
     const newItem = {
-      id: 'inbox-' + Date.now(),
+      id: 'inbox-' + Date.now() + '-' + Math.random().toString(36).substring(2, 5),
       type: item.type || 'staff',
-      name: item.name,
-      phone: item.phone,
-      position: item.position || '',
+      name: item.name || item.recipientName || item.title || 'Foydalanuvchi',
+      phone: item.phone || '',
+      position: item.position || item.title || '',
       organization: item.organization || '',
-      code: item.code,
-      timestamp: new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' }),
+      district: normDist.id || '',
+      districtLabel: normDist.label || '',
+      code: item.code || 'Xabar',
+      timestamp: item.createdAt || new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' }),
       date: new Date().toISOString().split('T')[0],
+      updatedAt: new Date().toISOString(),
       isRead: false
     };
 
@@ -1483,6 +2334,10 @@ const DataStore = {
     }
     CloudSync.push();
     return newItem;
+  },
+
+  addAdminInboxItem(item) {
+    return this.sendToAdminInbox(item);
   },
 
   getAdminInbox() {
@@ -1516,23 +2371,39 @@ const DataStore = {
 
   addStaffProposal(proposalData) {
     const proposals = this.getStaffProposals();
+    const catId = proposalData.categoryId || proposalData.category || 'event';
+    const studentId = proposalData.targetStudentId || proposalData.recommendedStudentId || '';
+    const studentName = (proposalData.targetStudentName || proposalData.recommendedStudentName || '').trim();
+    const studentSchool = (proposalData.targetStudentSchool || '').trim();
+    const nowIso = new Date().toISOString();
+    const dateStr = nowIso.split('T')[0];
+
+    const normDist = this.normalizeDistrict(proposalData.districtLabel || proposalData.district || '');
+
     const newProposal = {
-      id: 'prp-' + Date.now(),
-      staffId: proposalData.staffId || '',
+      id: 'prp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+      staffId: (proposalData.staffId || '').trim(),
       staffName: (proposalData.staffName || 'Madaniyat Xodimi').trim(),
       staffPosition: (proposalData.staffPosition || '').trim(),
       staffOrg: (proposalData.staffOrg || '').trim(),
       staffPhone: (proposalData.staffPhone || '').trim(),
-      category: proposalData.category || 'event', // 'event', 'challenge', 'nomination', 'initiative'
+      district: normDist.id || '',
+      districtLabel: normDist.label || '',
+      category: catId,
+      categoryId: catId,
       categoryLabel: proposalData.categoryLabel || 'Madaniy Tadbir',
-      title: proposalData.title.trim(),
-      description: proposalData.description.trim(),
-      recommendedStudentId: proposalData.recommendedStudentId || '',
-      recommendedStudentName: (proposalData.recommendedStudentName || '').trim(),
+      title: (proposalData.title || '').trim(),
+      description: (proposalData.description || '').trim(),
+      recommendedStudentId: studentId,
+      recommendedStudentName: studentName,
+      targetStudentId: studentId,
+      targetStudentName: studentName,
+      targetStudentSchool: studentSchool,
       status: 'pending', // 'pending', 'approved', 'rejected'
       adminNote: '',
-      submittedAt: new Date().toISOString().split('T')[0],
-      createdAt: new Date().toISOString()
+      submittedAt: dateStr,
+      createdAt: dateStr,
+      updatedAt: nowIso
     };
 
     proposals.unshift(newProposal);
@@ -1627,5 +2498,7 @@ DataStore.init();
 if (typeof window !== 'undefined') {
   window.DataStore = DataStore;
   window.CloudSync = CloudSync;
+  window.VILOYATLAR = VILOYATLAR;
+  window.TUMANLAR = TUMANLAR;
   CloudSync.init();
 }

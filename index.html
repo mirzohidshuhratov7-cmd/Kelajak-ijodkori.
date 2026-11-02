@@ -45,13 +45,13 @@
     }
   </script>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans w-full max-w-full overflow-x-hidden">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans">
 
   <!-- =========================================================================
        1-KO'RINISH: BOSHLANG'ICH EKRAN (GATEWAY)
        Agar profilga kirmagan bo'lsa: Ekran markazida FAQAT 3 TA KATTA TUGMA!
        ========================================================================= -->
-  <div id="view-gateway" class="flex-1 flex flex-col justify-between items-center px-4 py-8 relative bg-cultural-gradient min-h-screen w-full max-w-full overflow-x-hidden text-slate-100">
+  <div id="view-gateway" class="flex-1 flex flex-col justify-between items-center px-4 py-8 relative bg-cultural-gradient min-h-screen">
     
     <!-- Gateway Tepasidagi Til Tanlash -->
     <div class="absolute top-4 right-4 z-20" id="gateway-lang-switcher">
@@ -88,49 +88,77 @@
       </p>
     </div>
 
-    <!-- EKRAN MARKAZI: FAQAT 3 TA KATTA TUGMA -->
-    <div class="w-full max-w-md my-auto py-8 space-y-4 relative z-10">
+    <!-- EKRAN MARKAZI: 5 TA HAR XIL RANGLI KIRISH TUGMALARI (Pastdan tepaga: O'quvchi -> Madaniyat xodimi -> Tuman Admin -> Viloyat Admin -> Respublika Admin) -->
+    <div class="w-full max-w-md my-auto py-5 space-y-3 relative z-10">
+
+      <!-- TEPADAGI 1-TUGMA (5): ADMIN (RESPUBLIKA KOORDINATORI) - QIZIL / PUSHTI (ROSE) -->
+      <button onclick="App.openRepublicAdminModal()" class="w-full py-4 px-5 rounded-3xl bg-gradient-to-r from-rose-600 via-red-600 to-pink-700 hover:from-rose-500 hover:to-pink-600 text-white font-black text-sm sm:text-base shadow-xl shadow-rose-600/30 border-2 border-rose-300/70 transition-all transform hover:-translate-y-1 hover:shadow-2xl flex items-center justify-between group">
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-white/20 text-amber-200 flex items-center justify-center text-lg shadow-inner backdrop-blur-sm shrink-0">
+            <i class="fa-solid fa-earth-asia"></i>
+          </div>
+          <div class="text-left">
+            <span class="block leading-tight text-white font-black">Admin (Respublika koordinatori)</span>
+            <span class="text-[11px] text-rose-100 font-semibold opacity-95">Respublika bo'yicha viloyatlar tahlili va hisobotlari</span>
+          </div>
+        </div>
+        <i class="fa-solid fa-arrow-right text-white text-base group-hover:translate-x-1.5 transition-transform"></i>
+      </button>
+
+      <!-- TEPADAN 2-TUGMA (4): ADMIN (VILOYAT KOORDINATORLARI) - BINAFSHA (PURPLE / VIOLET) -->
+      <button onclick="App.openRegionAdminModal()" class="w-full py-4 px-5 rounded-3xl bg-gradient-to-r from-purple-600 via-violet-700 to-indigo-800 hover:from-purple-500 hover:to-indigo-700 text-white font-black text-sm sm:text-base shadow-xl shadow-purple-600/30 border-2 border-purple-300/70 transition-all transform hover:-translate-y-1 hover:shadow-2xl flex items-center justify-between group">
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-white/20 text-purple-200 flex items-center justify-center text-lg shadow-inner backdrop-blur-sm shrink-0">
+            <i class="fa-solid fa-chart-column"></i>
+          </div>
+          <div class="text-left">
+            <span class="block leading-tight text-white font-black">Admin (Viloyat koordinatorlari)</span>
+            <span class="text-[11px] text-purple-200 font-semibold opacity-95">Viloyatdagi tumanlar o'sish tendensiyasi va hisobotlar</span>
+          </div>
+        </div>
+        <i class="fa-solid fa-arrow-right text-white text-base group-hover:translate-x-1.5 transition-transform"></i>
+      </button>
       
-      <!-- 1-TUGMA: ADMIN SIFATIDA KIRISH -->
-      <button onclick="App.openAdminLoginModal()" class="w-full py-5 px-6 rounded-3xl bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 font-black text-base sm:text-lg shadow-xl shadow-amber-500/25 border-2 border-amber-300 transition-all transform hover:-translate-y-1 hover:shadow-2xl flex items-center justify-between group">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-slate-950 text-amber-400 flex items-center justify-center text-xl shadow-inner">
+      <!-- O'RTADAGI TUGMA (3): ADMIN (TUMAN KOORDINATORLARI) - OLTIN / SARIQ (AMBER) -->
+      <button onclick="App.openAdminLoginModal()" class="w-full py-4 px-5 rounded-3xl bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 font-black text-sm sm:text-base shadow-xl shadow-amber-500/25 border-2 border-amber-300 transition-all transform hover:-translate-y-1 hover:shadow-2xl flex items-center justify-between group">
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-slate-950 text-amber-400 flex items-center justify-center text-lg shadow-inner shrink-0">
             <i class="fa-solid fa-crown"></i>
           </div>
           <div class="text-left">
-            <span class="block leading-tight text-slate-950 font-black" data-i18n="gateway_btn_admin">Admin sifatida kirish</span>
-            <span class="text-xs text-amber-950 font-semibold opacity-90" data-i18n="gateway_btn_admin_sub">Bosh Koordinator xonasi</span>
+            <span class="block leading-tight text-slate-950 font-black" data-i18n="gateway_btn_admin">Admin (Tuman koordinatorlari)</span>
+            <span class="text-[11px] text-amber-950 font-semibold opacity-90" data-i18n="gateway_btn_admin_sub">Tuman vazifalari, tangalar va shikoyatlarni boshqarish</span>
           </div>
         </div>
-        <i class="fa-solid fa-arrow-right text-slate-950 text-lg group-hover:translate-x-1.5 transition-transform"></i>
+        <i class="fa-solid fa-arrow-right text-slate-950 text-base group-hover:translate-x-1.5 transition-transform"></i>
       </button>
 
-      <!-- 2-TUGMA: MADANIYAT XODIMI SIFATIDA KIRISH -->
-      <button onclick="App.openStaffAuthModal()" class="w-full py-5 px-6 rounded-3xl bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 hover:from-blue-500 hover:to-indigo-700 text-white font-black text-base sm:text-lg shadow-xl shadow-blue-600/30 border-2 border-blue-400/50 transition-all transform hover:-translate-y-1 hover:shadow-2xl flex items-center justify-between group">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-white/20 text-white flex items-center justify-center text-xl shadow-inner backdrop-blur-sm">
+      <!-- PASTDAN 2-TUGMA (2): MADANIYAT XODIMI SIFATIDA KIRISH - KO'K (BLUE) -->
+      <button onclick="App.openStaffAuthModal()" class="w-full py-4 px-5 rounded-3xl bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 hover:from-blue-500 hover:to-indigo-700 text-white font-black text-sm sm:text-base shadow-xl shadow-blue-600/30 border-2 border-blue-400/50 transition-all transform hover:-translate-y-1 hover:shadow-2xl flex items-center justify-between group">
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-white/20 text-white flex items-center justify-center text-lg shadow-inner backdrop-blur-sm shrink-0">
             <i class="fa-solid fa-id-badge"></i>
           </div>
           <div class="text-left">
             <span class="block leading-tight text-white font-black" data-i18n="gateway_btn_staff">Madaniyat xodimi sifatida kirish</span>
-            <span class="text-xs text-blue-200 font-semibold" data-i18n="gateway_btn_staff_sub">Tadbirlarga o'quvchilarni tanlash</span>
+            <span class="text-[11px] text-blue-200 font-semibold" data-i18n="gateway_btn_staff_sub">O'z tumaningiz o'quvchilarini kuzatish va tadbirga taklif qilish</span>
           </div>
         </div>
-        <i class="fa-solid fa-arrow-right text-white text-lg group-hover:translate-x-1.5 transition-transform"></i>
+        <i class="fa-solid fa-arrow-right text-white text-base group-hover:translate-x-1.5 transition-transform"></i>
       </button>
 
-      <!-- 3-TUGMA: O'QUVCHI SIFATIDA KIRISH -->
-      <button onclick="App.openStudentAuthModal()" class="w-full py-5 px-6 rounded-3xl bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-800 hover:from-emerald-500 hover:to-teal-700 text-white font-black text-base sm:text-lg shadow-xl shadow-emerald-600/30 border-2 border-emerald-400/50 transition-all transform hover:-translate-y-1 hover:shadow-2xl flex items-center justify-between group">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-2xl bg-white/20 text-white flex items-center justify-center text-xl shadow-inner backdrop-blur-sm">
+      <!-- ENG PASTDAGI TUGMA (1): O'QUVCHI SIFATIDA KIRISH - YASHIL (EMERALD) -->
+      <button onclick="App.openStudentAuthModal()" class="w-full py-4 px-5 rounded-3xl bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-800 hover:from-emerald-500 hover:to-teal-700 text-white font-black text-sm sm:text-base shadow-xl shadow-emerald-600/30 border-2 border-emerald-400/50 transition-all transform hover:-translate-y-1 hover:shadow-2xl flex items-center justify-between group">
+        <div class="flex items-center gap-3.5">
+          <div class="w-11 h-11 rounded-2xl bg-white/20 text-white flex items-center justify-center text-lg shadow-inner backdrop-blur-sm shrink-0">
             <i class="fa-solid fa-user-graduate"></i>
           </div>
           <div class="text-left">
             <span class="block leading-tight text-white font-black" data-i18n="gateway_btn_student">O'quvchi sifatida kirish</span>
-            <span class="text-xs text-emerald-200 font-semibold" data-i18n="gateway_btn_student_sub">O'zingizni qo'shing va tangalar yuting</span>
+            <span class="text-[11px] text-emerald-200 font-semibold" data-i18n="gateway_btn_student_sub">O'z tumaningizdan ro'yxatdan o'ting va tangalar yuting</span>
           </div>
         </div>
-        <i class="fa-solid fa-arrow-right text-white text-lg group-hover:translate-x-1.5 transition-transform"></i>
+        <i class="fa-solid fa-arrow-right text-white text-base group-hover:translate-x-1.5 transition-transform"></i>
       </button>
 
     </div>
@@ -149,22 +177,22 @@
   <!-- =========================================================================
        2-KO'RINISH: ASOSIY ILOVA (PROFILGA KIRILGANDA KO'RINADI)
        ========================================================================= -->
-  <div id="view-app" class="hidden flex-1 flex-col bg-slate-50 text-slate-800 min-h-screen w-full max-w-full overflow-x-hidden">
+  <div id="view-app" class="hidden flex-1 flex-col bg-slate-50 text-slate-800 min-h-screen">
 
     <!-- Profil Header -->
-    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm w-full max-w-full overflow-hidden">
-      <div class="w-full max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-14 sm:h-20 gap-1 sm:gap-4 w-full">
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm max-w-full overflow-hidden">
+      <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16 sm:h-20 gap-1.5 sm:gap-4">
           
           <!-- Logo & Server Sinxronlash indikatori -->
-          <div class="flex items-center gap-1.5 sm:gap-4 min-w-0">
-            <div class="flex items-center gap-1.5 sm:gap-3 cursor-pointer min-w-0" onclick="App.switchTab('creators')">
-              <div class="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-emerald-700 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-700/20 shrink-0">
-                <i class="fa-solid fa-masks-theater text-sm sm:text-xl"></i>
+          <div class="flex items-center gap-2 sm:gap-4 shrink-0 min-w-0">
+            <div class="flex items-center gap-2 sm:gap-3 cursor-pointer" onclick="App.switchTab('creators')">
+              <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-emerald-700 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-700/20 shrink-0">
+                <i class="fa-solid fa-masks-theater text-lg sm:text-2xl"></i>
               </div>
               <div class="min-w-0">
                 <div class="flex items-center gap-1">
-                  <span class="text-sm sm:text-2xl font-black tracking-tight text-slate-900 truncate">
+                  <span class="text-base sm:text-2xl font-black tracking-tight text-slate-900 truncate">
                     <span data-i18n="app_title">Kelajak</span> <span class="text-emerald-600" data-i18n="app_title_highlight">ijodkori</span>
                   </span>
                 </div>
@@ -203,7 +231,13 @@
               <i class="fa-solid fa-id-badge mr-1 text-blue-500"></i> <span data-i18n="nav_staff">Xodimlar</span>
             </button>
             <button id="nav-btn-admin" onclick="App.switchTab('admin')" class="nav-tab hidden px-3 py-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
-              <i class="fa-solid fa-shield-halved mr-1 text-amber-600"></i> <span data-i18n="nav_admin">Admin Paneli</span>
+              <i class="fa-solid fa-shield-halved mr-1 text-amber-600"></i> <span data-i18n="nav_admin">Tuman Koordinatori</span>
+            </button>
+            <button id="nav-btn-region-admin" onclick="App.switchTab('region_admin')" class="nav-tab hidden px-3 py-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
+              <i class="fa-solid fa-chart-column mr-1 text-purple-600"></i> <span>Viloyat Koordinatori</span>
+            </button>
+            <button id="nav-btn-republic-admin" onclick="App.switchTab('republic_admin')" class="nav-tab hidden px-3 py-2 rounded-xl text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
+              <i class="fa-solid fa-earth-asia mr-1 text-rose-600"></i> <span>Respublika Koordinatori</span>
             </button>
           </nav>
 
@@ -212,7 +246,7 @@
             
             <!-- TILNI TANLASH TUGMASI (UZ / RU / EN) -->
             <div class="relative" id="lang-switcher-container">
-              <button type="button" onclick="App.toggleLangDropdown('app')" class="px-2 py-1 sm:px-2.5 sm:py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs border border-slate-300 transition flex items-center gap-1" title="Tilni tanlash / Выбрать язык / Choose language">
+              <button type="button" onclick="App.toggleLangDropdown('app')" class="px-2 py-1.5 sm:px-2.5 sm:py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs border border-slate-300 transition flex items-center gap-1" title="Tilni tanlash / Выбрать язык / Choose language">
                 <span class="current-lang-flag text-xs sm:text-sm">🇺🇿</span>
                 <span class="current-lang-code text-[10px] sm:text-xs font-black uppercase">UZ</span>
                 <i class="fa-solid fa-chevron-down text-[8px] text-slate-500"></i>
@@ -231,30 +265,36 @@
             </div>
 
             <!-- Profil Nishoni -->
-            <div id="user-profile-badge" class="flex items-center gap-1 sm:gap-1.5 px-2 py-1 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl border bg-slate-100 text-[11px] sm:text-xs font-black text-slate-800 shrink-0">
+            <div id="user-profile-badge" class="flex items-center gap-1 sm:gap-1.5 px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl sm:rounded-2xl border bg-slate-100 text-[11px] sm:text-xs font-black text-slate-800 shrink-0">
               <!-- JS to'ldiradi -->
             </div>
 
             <!-- O'quvchi uchun Profilni Tahrirlash Tugmasi -->
-            <button id="btn-edit-my-profile" onclick="App.openEditProfileModal()" class="hidden px-2 py-1 sm:px-2.5 sm:py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-bold transition items-center gap-1 shrink-0" title="Profilimni tahrirlash">
+            <button id="btn-edit-my-profile" onclick="App.openEditProfileModal()" class="hidden px-2 py-1.5 sm:px-2.5 sm:py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-bold transition items-center gap-1 shrink-0" title="Profilimni tahrirlash">
               <i class="fa-solid fa-pen-to-square"></i>
               <span class="hidden md:inline" data-i18n="btn_edit">Tahrirlash</span>
             </button>
 
+            <!-- O'quvchi uchun Adminga Shikoyat Tugmasi -->
+            <button id="btn-student-complaint" onclick="App.openStudentComplaintModal()" class="hidden px-2.5 py-1.5 sm:px-3 sm:py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black shadow transition items-center gap-1 shrink-0" title="Tuman koordinatoriga shikoyat yuborish">
+              <i class="fa-solid fa-triangle-exclamation text-amber-300"></i>
+              <span class="hidden md:inline">Adminga Shikoyat</span>
+            </button>
+
             <!-- Madaniyat xodimi uchun Taklif Yuborish Tugmasi -->
-            <button id="btn-staff-proposal" onclick="App.openStaffProposalModal()" class="hidden px-2 py-1 sm:px-3 sm:py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black rounded-xl sm:rounded-2xl text-[11px] sm:text-xs shadow transition items-center gap-1 shrink-0" title="Bosh Koordinatorga taklif yuborish">
+            <button id="btn-staff-proposal" onclick="App.openStaffProposalModal()" class="hidden px-2 py-1.5 sm:px-3 sm:py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black rounded-xl sm:rounded-2xl text-[11px] sm:text-xs shadow transition items-center gap-1 shrink-0" title="Bosh Koordinatorga taklif yuborish">
               <i class="fa-solid fa-lightbulb text-amber-300"></i>
               <span class="hidden md:inline" data-i18n="btn_proposal">Taklif Yuborish</span>
             </button>
 
             <!-- Admin uchun Kodlar Qutisi Tugmasi -->
-            <button id="btn-admin-inbox" onclick="App.openAdminInboxModal()" class="hidden p-1.5 sm:px-3 sm:py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl sm:rounded-2xl text-[11px] sm:text-xs shadow transition items-center gap-1 shrink-0" title="Tasdiq kodlari">
+            <button id="btn-admin-inbox" onclick="App.openAdminInboxModal()" class="hidden p-2 sm:px-3 sm:py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl sm:rounded-2xl text-[11px] sm:text-xs shadow transition items-center gap-1 shrink-0" title="Tasdiq kodlari">
               <i class="fa-solid fa-bell"></i>
               <span id="admin-inbox-badge" class="bg-red-600 text-white rounded-full px-1.5 py-0.2 text-[9px] sm:text-[10px] font-black">0</span>
             </button>
 
             <!-- ESHIKCHA TUGMASI (Profildan Chiqish) - HECH QACHON QIRILMAYDI VA EKRANDAN CHIQMAYDI -->
-            <button onclick="App.handleLogout()" class="px-2 py-1 sm:px-3.5 sm:py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black shadow-md transition flex items-center gap-1 shrink-0" title="Profildan chiqish">
+            <button onclick="App.handleLogout()" class="px-2.5 py-1.5 sm:px-3.5 sm:py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black shadow-md transition flex items-center gap-1 shrink-0" title="Profildan chiqish">
               <i class="fa-solid fa-door-open text-xs sm:text-sm"></i>
               <span class="hidden md:inline" data-i18n="btn_exit">Chiqish</span>
             </button>
@@ -270,6 +310,28 @@
 
       <!-- 1-BO'LIM: O'QUVCHILAR KATALOGI (Tab: creators) -->
       <section id="section-creators" class="tab-section block space-y-6">
+
+        <!-- O'QUVCHILAR UCHUN ADMINGA SHIKOYAT VA KAMCHILIK HAQIDA XABAR BERISH PANELI -->
+        <div id="student-complaint-banner" class="bg-gradient-to-r from-rose-50 via-amber-50 to-orange-50 border-2 border-rose-200 rounded-3xl p-4 sm:p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div class="flex items-start gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-rose-600 text-white flex items-center justify-center text-lg shadow shrink-0">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="text-sm sm:text-base font-black text-slate-900">Videorolik yoki tadbirda qatnashib, tanga olmadingizmi?</h3>
+                <span id="student-complaint-district-badge" class="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300 text-[11px] font-black">Tuman Koordinatoriga Murojaat</span>
+              </div>
+              <p class="text-xs text-slate-600 mt-1">
+                Agar tumaningizdagi videorolik, chellenj yoki madaniy tadbirda qatnashgan bo'lsangiz-u, tanga berishda kamchilik bo'lgan bo'lsa, o'z tumaningiz adminiga shikoyat qoldiring. Shikoyatingiz o'rinli bo'lsa, ma'qullanib tangangiz taqdim etiladi!
+              </p>
+            </div>
+          </div>
+          <button type="button" onclick="App.openStudentComplaintModal()" class="w-full md:w-auto px-5 py-3 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-black rounded-2xl text-xs sm:text-sm shadow-md shadow-rose-500/20 transition flex items-center justify-center gap-2 shrink-0">
+            <i class="fa-solid fa-paper-plane"></i>
+            <span>⚠️ Adminga Shikoyat Yuborish</span>
+          </button>
+        </div>
         
         <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -683,6 +745,79 @@
             </div>
           </div>
 
+          <!-- O'QUVCHILARDAN KELGAN SHIKOYATLAR (TANGA BERISHDA XATOLIK YOKI QATNASHGAN ROLIGI UCHUN MUROJAAT) -->
+          <div class="bg-white rounded-3xl border-2 border-rose-200 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-rose-100 bg-rose-50/50 flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <span class="text-xs font-black text-rose-700 bg-rose-100 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                  <i class="fa-solid fa-triangle-exclamation mr-1"></i> O'quvchilar Murojaati va Shikoyatlari
+                </span>
+                <h3 class="font-black text-slate-900 text-base mt-1.5 flex items-center gap-2">
+                  O'quvchilardan Kelgan Shikoyatlar (Tanga Taqdim Etilmaganlik Bo'yicha)
+                </h3>
+                <p class="text-xs text-slate-600">
+                  Videorolik yoki tadbirda qatnashib, tanga olmagan o'quvchilarning shikoyatlari. Shikoyat o'rinli bo'lsa, ma'qullab tanga taqdim eting!
+                </p>
+              </div>
+              <span id="admin-complaints-count-badge" class="px-3 py-1.5 bg-rose-600 text-white rounded-xl text-xs font-black shadow-sm">
+                0 ta shikoyat
+              </span>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm text-slate-700">
+                <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200">
+                  <tr>
+                    <th class="px-5 py-3">O'quvchi & Maktabi</th>
+                    <th class="px-5 py-3">Shikoyat Sababi & Tafsilot</th>
+                    <th class="px-5 py-3 text-center">So'ralgan Tanga</th>
+                    <th class="px-5 py-3">Sana</th>
+                    <th class="px-5 py-3 text-center">Holat</th>
+                    <th class="px-5 py-3 text-right">Ko'rib Chiqish (Tanga Berish)</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-complaints-table-body" class="divide-y divide-slate-100">
+                  <!-- JS to'ldiradi -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- TUMAN KOORDINATORINING VILOYAT KOORDINATORIGA MAVSUM OXIRIDA HISOBOT TOPSHIRISHI -->
+          <div class="bg-gradient-to-r from-purple-900 via-violet-900 to-indigo-950 text-white p-6 rounded-3xl border border-purple-700 shadow-lg space-y-5">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <span class="inline-block bg-purple-500/30 border border-purple-400/40 text-purple-200 text-xs font-black px-3 py-1 rounded-full mb-2">
+                  <i class="fa-solid fa-file-signature mr-1"></i> Mavsumiy Hisobot Tizimi
+                </span>
+                <h3 class="text-lg sm:text-xl font-black">Viloyat Koordinatoriga Mavsum Oxirida Hisobot Topshirish</h3>
+                <p class="text-xs text-purple-200 mt-1">
+                  Tumaningizdagi o'quvchilar faolligi, o'tkazilgan chellenjlar va berilgan tangalar bo'yicha o'z viloyatingiz koordinatoriga yakuniy hisobot yuboring.
+                </p>
+              </div>
+            </div>
+
+            <form id="form-district-season-report" onsubmit="App.handleSubmitDistrictReport(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15">
+              <div>
+                <label class="block text-xs font-bold text-purple-200 mb-1">Mavsum / Chorak Nomi *</label>
+                <input type="text" id="dist-report-season" required value="2026-yil Kuzgi Mavsum" placeholder="Masalan: 2026-yil 1-mavsum" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-purple-400/40 text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-400">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-purple-200 mb-1">Hisobot Qisqacha Mazmuni va Yutuqlar *</label>
+                <input type="text" id="dist-report-summary" required placeholder="Tumanda o'tkazilgan tadbirlar, faol maktablar va natijalar..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-purple-400/40 text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-400">
+              </div>
+              <div class="flex items-end">
+                <button type="submit" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-paper-plane"></i> Viloyat Koordinatoriga Hisobot Yuborish
+                </button>
+              </div>
+            </form>
+
+            <div id="district-submitted-reports-list" class="space-y-2">
+              <!-- JS to'ldiradi -->
+            </div>
+          </div>
+
           <!-- O'quvchilar boshqaruvi jadvali -->
           <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="p-5 border-b border-slate-100 flex items-center justify-between flex-wrap gap-3">
@@ -708,6 +843,286 @@
                 </tbody>
               </table>
             </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 7-BO'LIM: VILOYAT KOORDINATORI PANELI (Tab: region_admin) -->
+      <section id="section-region-admin" class="tab-section hidden space-y-6">
+        
+        <div class="bg-gradient-to-r from-purple-900 via-violet-900 to-indigo-950 text-white p-6 rounded-3xl shadow-xl border border-purple-700/60 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div>
+            <span id="region-admin-badge-title" class="inline-block bg-purple-500/30 text-purple-200 text-xs font-black px-3.5 py-1 rounded-full mb-2 border border-purple-400/40">
+              <i class="fa-solid fa-chart-column mr-1"></i> Viloyat Koordinatori Boshqaruv Xonasi
+            </span>
+            <h2 id="region-admin-main-heading" class="text-2xl sm:text-3xl font-black">Viloyatdagi Tuman Koordinatorlari Natijalari va O'sish Tendensiyasi</h2>
+            <p class="text-xs sm:text-sm text-purple-200 mt-1 max-w-2xl">
+              Siz faqat o'z viloyatingizdagi tuman koordinatorlari faoliyatini, veb-saytga qiziqayotgan o'quvchilar sonining o'sib borish diagrammasini (BarChart) va tumanlardan kelgan mavsumiy hisobotlarni kuzatasiz.
+            </p>
+          </div>
+          <div id="region-admin-summary-stats" class="grid grid-cols-2 gap-3 shrink-0 w-full md:w-auto">
+            <!-- JS to'ldiradi -->
+          </div>
+        </div>
+
+        <!-- VILOYATDAGI TUMANLAR O'SISH TENDENSIYASI BARCHART DIAGRAMMASI -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+            <div>
+              <span class="text-xs font-black text-purple-700 bg-purple-100 px-3 py-1 rounded-full uppercase tracking-wider">
+                <i class="fa-solid fa-chart-simple mr-1"></i> BarChart Tendensiya Tahlili
+              </span>
+              <h3 id="region-barchart-title" class="text-lg font-black text-slate-900 mt-2">
+                Tumanlar Kesimida Veb-saytga Qiziqadigan O'quvchilar Sonining Oshib Borish Diagrammasi (BarChart)
+              </h3>
+              <p class="text-xs text-slate-500">
+                Har bir tumanda ro'yxatdan o'tgan iqtidorli o'quvchilar soni, faollik ko'rsatkichi va o'sish sur'ati ustunli grafikda
+              </p>
+            </div>
+          </div>
+
+          <!-- BARCHART CONTAINER -->
+          <div id="region-districts-barchart" class="pt-4 pb-2">
+            <!-- JS to'ldiradi -->
+          </div>
+        </div>
+
+        <!-- VILOYATDAGI TUMAN KOORDINATORLARINI KIRITISH VA 5 XONALI KOD TAQDIM ETISH + NATIJALAR JADVALI -->
+        <div class="bg-white rounded-3xl border-2 border-purple-200 shadow-sm overflow-hidden">
+          <div class="p-5 bg-gradient-to-r from-purple-50 via-indigo-50 to-white border-b border-purple-100 flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <span class="inline-block px-3 py-1 rounded-full bg-purple-600 text-white text-[11px] font-black uppercase tracking-wider mb-1.5">
+                <i class="fa-solid fa-key mr-1"></i> Viloyat Koordinatori Vakolati
+              </span>
+              <h3 class="font-black text-slate-900 text-base sm:text-lg flex items-center gap-2">
+                <i class="fa-solid fa-users-gear text-purple-600"></i> Tuman Koordinatorlari Ismini Kiritish va 5 Xonali Kirish Kodi Taqdim Etish
+              </h3>
+              <p class="text-xs text-slate-600 mt-0.5">
+                Viloyatingizdagi har bir tuman uchun koordinator F.I.Sh. (masalan: <b>Jondor tumani — Shuhrat Mirzoqulov</b>, <b>Qorako'l tumani — Shuhrat Mehroj</b>) va <b>5 xonali kirish kodini</b> kiriting. Faqat siz kiritgan koordinatorlar o'z kodi orqali tizimga kira oladi!
+              </p>
+            </div>
+            <button type="button" onclick="App.saveAllDistrictCoordinatorsInRegion()" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white font-black text-xs shadow-md transition flex items-center gap-2 shrink-0">
+              <i class="fa-solid fa-floppy-disk"></i> Barcha Kiritilgan Tuman Koordinatorlarini Saqlash
+            </button>
+          </div>
+
+          <!-- Tezkor yangi tuman koordinatori qo'shish qatori -->
+          <form onsubmit="App.handleQuickAddDistrictCoordinator(event)" class="p-4 bg-purple-50/50 border-b border-purple-100 grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+            <div>
+              <label class="block text-[11px] font-black text-purple-900 mb-1">Tuman / Shahar Nomi *</label>
+              <input list="tumanlar-datalist" id="quick-dist-coord-district" required placeholder="Masalan: Jondor tumani" class="w-full px-3.5 py-2 text-xs font-bold bg-white border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-600 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[11px] font-black text-purple-900 mb-1">Tuman Koordinatori F.I.Sh. *</label>
+              <input type="text" id="quick-dist-coord-name" required placeholder="Masalan: Shuhrat Mirzoqulov" class="w-full px-3.5 py-2 text-xs font-bold bg-white border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-600 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[11px] font-black text-purple-900 mb-1">5 Xonali Kirish Kodi *</label>
+              <div class="flex gap-1.5">
+                <input type="text" id="quick-dist-coord-pin" required minlength="5" maxlength="5" pattern="\d{5}" placeholder="Masalan: 12345" class="w-full px-3.5 py-2 text-xs font-black tracking-widest text-purple-900 bg-white border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-600 focus:outline-none">
+                <button type="button" onclick="App.generateRandom5DigitPin('quick-dist-coord-pin')" title="Tasodifiy 5 xonali kod yaratish" class="px-3 py-2 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-800 font-black text-xs shrink-0 transition">
+                  🎲 Kod
+                </button>
+              </div>
+            </div>
+            <div>
+              <button type="submit" class="w-full py-2.5 px-4 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl text-xs shadow-sm transition flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-user-check"></i> Tumanga Koordinator Biriktirish
+              </button>
+            </div>
+          </form>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-700">
+              <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="px-4 py-3">№ / Tuman (Shahar)</th>
+                  <th class="px-4 py-3">Tuman Koordinatori Ism-Familiyasi (F.I.Sh.)</th>
+                  <th class="px-4 py-3">5 Xonali Kirish Kodi</th>
+                  <th class="px-4 py-3 text-center">Saqlash</th>
+                  <th class="px-4 py-3 text-center">O'quvchilar & Xodimlar</th>
+                  <th class="px-4 py-3 text-center">Jami Tangalar</th>
+                  <th class="px-4 py-3 text-right">Tendensiya</th>
+                </tr>
+              </thead>
+              <tbody id="region-districts-table-body" class="divide-y divide-slate-100">
+                <!-- JS to'ldiradi -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TUMAN KOORDINATORLARIDAN KELGAN MAVSUMIY HISOBOTLAR -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-slate-100 flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h3 class="font-black text-slate-900 text-base flex items-center gap-2">
+                <i class="fa-solid fa-file-invoice text-amber-500"></i> Tuman Koordinatorlaridan Kelgan Mavsumiy Hisobotlar
+              </h3>
+              <p class="text-xs text-slate-500">Mavsum oxirida tuman koordinatorlari topshirgan hisobotlarni ko'rib chiqing va tasdiqlang</p>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-700">
+              <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="px-5 py-3">Tuman</th>
+                  <th class="px-5 py-3">Koordinator</th>
+                  <th class="px-5 py-3">Mavsum & Hisobot Mazmuni</th>
+                  <th class="px-5 py-3 text-center">Ko'rsatkichlar</th>
+                  <th class="px-5 py-3 text-center">Holat</th>
+                  <th class="px-5 py-3 text-right">Amal</th>
+                </tr>
+              </thead>
+              <tbody id="region-received-reports-body" class="divide-y divide-slate-100">
+                <!-- JS to'ldiradi -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- VILOYAT KOORDINATORINING RESPUBLIKA KOORDINATORIGA MAVSUM OXIRIDA HISOBOT TOPSHIRISHI -->
+        <div class="bg-gradient-to-r from-rose-900 via-red-900 to-pink-950 text-white p-6 rounded-3xl border border-rose-700 shadow-lg space-y-5">
+          <div>
+            <span class="inline-block bg-rose-500/30 border border-rose-400/40 text-rose-200 text-xs font-black px-3 py-1 rounded-full mb-2">
+              <i class="fa-solid fa-earth-asia mr-1"></i> Respublika Bosqichiga Hisobot
+            </span>
+            <h3 class="text-lg sm:text-xl font-black">Respublika Koordinatoriga Viloyatning Mavsumiy Hisobotini Topshirish</h3>
+            <p class="text-xs text-rose-200 mt-1">
+              Mavsum oxirida viloyatingizdagi barcha tumanlarning umumiy natijalari va o'sish ko'rsatkichlarini Respublika koordinatoriga yuboring.
+            </p>
+          </div>
+
+          <form id="form-region-season-report" onsubmit="App.handleSubmitRegionReport(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15">
+            <div>
+              <label class="block text-xs font-bold text-rose-200 mb-1">Mavsum / Chorak Nomi *</label>
+              <input type="text" id="reg-report-season" required value="2026-yil Kuzgi Mavsum" placeholder="Masalan: 2026-yil 1-mavsum" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-rose-400/40 text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-400">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-rose-200 mb-1">Viloyat Yakuniy Xulosasi va Natijalari *</label>
+              <input type="text" id="reg-report-summary" required placeholder="Viloyat bo'yicha faol tumanlar, o'sish ko'rsatkichlari va yutuqlar..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-rose-400/40 text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-400">
+            </div>
+            <div class="flex items-end">
+              <button type="submit" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-paper-plane"></i> Respublika Koordinatoriga Yuborish
+              </button>
+            </div>
+          </form>
+
+          <div id="region-submitted-reports-list" class="space-y-2">
+            <!-- JS to'ldiradi -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 8-BO'LIM: RESPUBLIKA KOORDINATORI PANELI (Tab: republic_admin) -->
+      <section id="section-republic-admin" class="tab-section hidden space-y-6">
+        
+        <div class="bg-gradient-to-r from-rose-900 via-red-900 to-slate-950 text-white p-6 rounded-3xl shadow-xl border border-rose-700/60 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div>
+            <span class="inline-block bg-rose-500/30 text-rose-200 text-xs font-black px-3.5 py-1 rounded-full mb-2 border border-rose-400/40">
+              <i class="fa-solid fa-earth-asia mr-1"></i> Respublika Bosh Koordinatori Paneli
+            </span>
+            <h2 class="text-2xl sm:text-3xl font-black">O'zbekiston Respublikasi Bo'yicha Viloyat Koordinatorlari Tahlili</h2>
+            <p class="text-xs sm:text-sm text-rose-200 mt-1 max-w-2xl">
+              Barcha viloyat koordinatorlarining natijalari, viloyatlar kesimida o'quvchilar qiziqishining o'sish diagrammasi (BarChart) hamda viloyatlardan kelgan mavsumiy hisobotlar.
+            </p>
+          </div>
+          <div id="republic-admin-summary-stats" class="grid grid-cols-2 gap-3 shrink-0 w-full md:w-auto">
+            <!-- JS to'ldiradi -->
+          </div>
+        </div>
+
+        <!-- RESPUBLIKA BO'YICHA VILOYATLAR BARCHART DIAGRAMMASI -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+            <div>
+              <span class="text-xs font-black text-rose-700 bg-rose-100 px-3 py-1 rounded-full uppercase tracking-wider">
+                <i class="fa-solid fa-chart-column mr-1"></i> Respublika BarChart Tendensiyasi
+              </span>
+              <h3 class="text-lg font-black text-slate-900 mt-2">
+                Viloyatlar Kesimida Veb-saytga Qiziqadigan O'quvchilar Sonining Oshib Borish Diagrammasi (BarChart)
+              </h3>
+              <p class="text-xs text-slate-500">
+                14 ta hudud bo'yicha ro'yxatdan o'tgan iqtidorli o'quvchilar va faol tumanlar ko'rsatkichi
+              </p>
+            </div>
+          </div>
+
+          <div id="republic-regions-barchart" class="pt-4 pb-2">
+            <!-- JS to'ldiradi -->
+          </div>
+        </div>
+
+        <!-- VILOYAT KOORDINATORLARI RO'YXATINI KIRITISH VA 5 XONALI KOD TAQDIM ETISH + KO'RSATKICHLAR -->
+        <div class="bg-white rounded-3xl border-2 border-rose-200 shadow-sm overflow-hidden">
+          <div class="p-5 bg-gradient-to-r from-rose-50 via-pink-50 to-white border-b border-rose-100 flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <span class="inline-block px-3 py-1 rounded-full bg-rose-600 text-white text-[11px] font-black uppercase tracking-wider mb-1.5">
+                <i class="fa-solid fa-key mr-1"></i> Respublika Bosh Koordinatori Vakolati
+              </span>
+              <h3 class="font-black text-slate-900 text-base sm:text-lg flex items-center gap-2">
+                <i class="fa-solid fa-map-location-dot text-rose-600"></i> 14 ta Viloyat Koordinatorlarini Kiritish va Ularga 5 Xonali Kod Taqdim Etish
+              </h3>
+              <p class="text-xs text-slate-600 mt-0.5">
+                Har bir viloyat koordinatorining F.I.Sh. (ism-familiyasi) va <b>5 xonali kirish kodini</b> kiriting. Faqat siz kiritgan viloyat koordinatorlari o'z kodi orqali tizimga kira oladi!
+              </p>
+            </div>
+            <button type="button" onclick="App.saveAllRegionCoordinatorsInRepublic()" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-700 hover:from-rose-500 hover:to-pink-600 text-white font-black text-xs shadow-md transition flex items-center gap-2 shrink-0">
+              <i class="fa-solid fa-floppy-disk"></i> Barcha Viloyat Koordinatorlarini Saqlash
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-700">
+              <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="px-4 py-3">№ / Viloyat (Hudud)</th>
+                  <th class="px-4 py-3">Viloyat Koordinatori Ism-Familiyasi (F.I.Sh.)</th>
+                  <th class="px-4 py-3">5 Xonali Kirish Kodi</th>
+                  <th class="px-4 py-3 text-center">Saqlash</th>
+                  <th class="px-4 py-3 text-center">Faol Tumanlar</th>
+                  <th class="px-4 py-3 text-center">O'quvchilar & Tangalar</th>
+                  <th class="px-4 py-3 text-right">Tendensiya</th>
+                </tr>
+              </thead>
+              <tbody id="republic-regions-table-body" class="divide-y divide-slate-100">
+                <!-- JS to'ldiradi -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- VILOYAT KOORDINATORLARIDAN KELGAN MAVSUMIY HISOBOTLAR -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-slate-100 flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h3 class="font-black text-slate-900 text-base flex items-center gap-2">
+                <i class="fa-solid fa-file-shield text-rose-600"></i> Viloyat Koordinatorlaridan Kelgan Mavsumiy Hisobotlar
+              </h3>
+              <p class="text-xs text-slate-500">Viloyat koordinatorlari mavsum yakunida yuborgan hisobotlarni ko'rib chiqing va tasdiqlang</p>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-700">
+              <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="px-5 py-3">Viloyat</th>
+                  <th class="px-5 py-3">Viloyat Koordinatori</th>
+                  <th class="px-5 py-3">Mavsum & Hisobot Mazmuni</th>
+                  <th class="px-5 py-3 text-center">Viloyat Ko'rsatkichlari</th>
+                  <th class="px-5 py-3 text-center">Holat</th>
+                  <th class="px-5 py-3 text-right">Amal</th>
+                </tr>
+              </thead>
+              <tbody id="republic-received-reports-body" class="divide-y divide-slate-100">
+                <!-- JS to'ldiradi -->
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -751,7 +1166,15 @@
       </button>
       <button onclick="App.switchTab('admin')" class="mobile-nav-btn hidden flex-1 flex flex-col items-center justify-center py-1 text-slate-500 font-bold transition" id="mobile-nav-admin">
         <i class="fa-solid fa-shield-halved text-sm text-amber-600"></i>
-        <span class="text-[10px] mt-0.5" data-i18n="nav_admin">Admin</span>
+        <span class="text-[10px] mt-0.5" data-i18n="nav_admin">Tuman</span>
+      </button>
+      <button onclick="App.switchTab('region_admin')" class="mobile-nav-btn hidden flex-1 flex flex-col items-center justify-center py-1 text-slate-500 font-bold transition" id="mobile-nav-region-admin">
+        <i class="fa-solid fa-chart-column text-sm text-purple-600"></i>
+        <span class="text-[10px] mt-0.5">Viloyat</span>
+      </button>
+      <button onclick="App.switchTab('republic_admin')" class="mobile-nav-btn hidden flex-1 flex flex-col items-center justify-center py-1 text-slate-500 font-bold transition" id="mobile-nav-republic-admin">
+        <i class="fa-solid fa-earth-asia text-sm text-rose-600"></i>
+        <span class="text-[10px] mt-0.5">Respublika</span>
       </button>
     </nav>
 
@@ -761,19 +1184,19 @@
        MODALLAR
        ========================================================================= -->
 
-  <!-- 1. ADMIN KIRISH MODAL -->
+      <!-- 1. ADMIN KIRISH MODAL (TUMAN KOORDINATORLARI ALOHIDA — VILOYAT KOORDINATORI KIRITGAN KOD ORQALI) -->
   <div id="modal-admin-login" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
     <div class="fixed inset-0 modal-backdrop" onclick="App.closeModal('modal-admin-login')"></div>
-    <div class="relative bg-white text-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl modal-content z-10 border border-slate-100">
+    <div class="relative bg-white text-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl modal-content z-10 border border-slate-100 max-h-[92vh] overflow-y-auto">
       
-      <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
         <div class="flex items-center gap-2.5">
           <div class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg">
             <i class="fa-solid fa-crown"></i>
           </div>
           <div>
-            <h3 class="text-lg font-black text-slate-900">Admin Sifatida Kirish</h3>
-            <p class="text-xs text-slate-500">Bosh Koordinatorning maxfiy kodi</p>
+            <h3 class="text-lg font-black text-slate-900">Admin (Tuman Koordinatori)</h3>
+            <p class="text-xs text-slate-500">Viloyat koordinatori tomonidan biriktirilgan kod orqali kirish</p>
           </div>
         </div>
         <button onclick="App.closeModal('modal-admin-login')" class="text-slate-400 hover:text-slate-600 text-lg w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center">
@@ -781,17 +1204,59 @@
         </button>
       </div>
 
-      <form onsubmit="App.handleAdminLoginSubmit(event)" class="mt-6 space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1.5">Maxfiy Admin Kodini Kiriting</label>
-          <input type="password" id="admin-pin-input" required placeholder="••••" maxlength="12" class="w-full text-center text-2xl font-black tracking-widest px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-amber-500 focus:bg-white focus:outline-none">
-          <p class="text-[11px] text-slate-400 mt-1.5 text-center">Bu kod faqat bosh koordinatorga ma'lum.</p>
-        </div>
+      <!-- TUMAN ADMINIGA KIRISH PANELI -->
+      <div id="admin-panel-login" class="mt-4">
+        <form onsubmit="App.handleAdminLoginSubmit(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">
+              <i class="fa-solid fa-map-location-dot text-amber-600 mr-1"></i> 1. Viloyatingizni Tanlang:
+            </label>
+            <select id="admin-login-region-select" onchange="App.onDistrictModalRegionChange(this.value)" class="w-full px-4 py-2.5 text-xs sm:text-sm font-bold bg-slate-50 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-amber-500 focus:bg-white focus:outline-none">
+              <option value="Buxoro viloyati">Buxoro viloyati</option>
+              <option value="Toshkent shahri">Toshkent shahri</option>
+              <option value="Toshkent viloyati">Toshkent viloyati</option>
+              <option value="Samarqand viloyati">Samarqand viloyati</option>
+              <option value="Farg'ona viloyati">Farg'ona viloyati</option>
+              <option value="Andijon viloyati">Andijon viloyati</option>
+              <option value="Namangan viloyati">Namangan viloyati</option>
+              <option value="Xorazm viloyati">Xorazm viloyati</option>
+              <option value="Qashqadaryo viloyati">Qashqadaryo viloyati</option>
+              <option value="Surxondaryo viloyati">Surxondaryo viloyati</option>
+              <option value="Navoiy viloyati">Navoiy viloyati</option>
+              <option value="Jizzax viloyati">Jizzax viloyati</option>
+              <option value="Sirdaryo viloyati">Sirdaryo viloyati</option>
+              <option value="Qoraqalpog'iston Respublikasi">Qoraqalpog'iston Respublikasi</option>
+            </select>
+          </div>
 
-        <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-2xl text-sm shadow-md transition flex items-center justify-center gap-2">
-          <i class="fa-solid fa-lock-open"></i> Tizimga Kirish
-        </button>
-      </form>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">
+              <i class="fa-solid fa-location-dot text-amber-600 mr-1"></i> 2. Qaysi Tumansiz? (Tumaningizni bosing yoki yozing) *
+            </label>
+            <input list="tumanlar-datalist" id="admin-login-district" required oninput="App.updateDistrictCoordinatorPreview()" onchange="App.updateDistrictCoordinatorPreview()" placeholder="Masalan: Jondor tumani" class="w-full px-4 py-2.5 text-sm font-bold bg-slate-50 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-amber-500 focus:bg-white focus:outline-none">
+            <!-- Tumanlarni bitta bosishda tanlash tugmachalari -->
+            <div id="admin-login-district-chips" class="flex flex-wrap gap-1.5 mt-2 max-h-28 overflow-y-auto p-1">
+              <!-- JS to'ldiradi -->
+            </div>
+          </div>
+
+          <!-- VILOYAT KOORDINATORI TOMONIDAN BIRIKTIRILGAN TUMAN KOORDINATORI SALOMLASHUV BLOKI -->
+          <div id="district-coordinator-greeting-box" class="p-4 rounded-2xl border-2 border-amber-300 bg-amber-50/90 text-xs text-slate-800 space-y-1.5">
+            <!-- JS dinamik to'ldiradi -->
+          </div>
+
+          <div id="district-coordinator-pin-block">
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">
+              <i class="fa-solid fa-key text-amber-600 mr-1"></i> Viloyat Koordinatori Taqdim Etgan 5 Xonali Kodni Tering *
+            </label>
+            <input type="password" id="admin-pin-input" required placeholder="• • • • •" minlength="4" maxlength="5" class="w-full text-center text-2xl font-black tracking-[0.5em] px-4 py-3 bg-slate-50 border-2 border-amber-400 rounded-2xl focus:ring-2 focus:ring-amber-500 focus:bg-white focus:outline-none">
+          </div>
+
+          <button type="submit" id="btn-district-admin-login-submit" class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-2xl text-sm shadow-md transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-lock-open"></i> Tuman Koordinatori Xonasiga Kirish
+          </button>
+        </form>
+      </div>
 
     </div>
   </div>
@@ -905,11 +1370,22 @@
 
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">
+              Qaysi Tumanda Ishlaysiz? (Tuman / Shahar) *
+            </label>
+            <div class="relative">
+              <i class="fa-solid fa-location-dot absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-500 text-sm"></i>
+              <input list="tumanlar-datalist" id="staff-login-district" required placeholder="Masalan: Jondor tumani" class="w-full pl-10 pr-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">Siz faqat shu tumandagi o'quvchilar va videolarni ko'rasiz</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">
               Ismingiz yoki Telefon Raqamingiz *
             </label>
             <div class="relative">
               <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-              <input type="text" id="staff-login-identifier" required placeholder="Masalan: Sardorbek Aliyev yoki 901234567" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+              <input type="text" id="staff-login-identifier" required placeholder="Masalan: Sardorbek Aliyev yoki 99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
             </div>
             <p class="text-[11px] text-slate-400 mt-1">Ro'yxatdan o'tgan to'liq ism yoki telefon raqamingiz</p>
           </div>
@@ -948,9 +1424,19 @@
       <!-- 2-PANEL: YANGI XODIM PROFILI OCHISH (REGISTER) -->
       <div id="staff-panel-register" class="mt-4 hidden">
         <form onsubmit="App.handleStaffRegister(event)" class="space-y-4">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">To'liq Ism va Familiyangiz *</label>
-            <input type="text" id="staff-fullname" required placeholder="Masalan: Sardorbek Aliyev" class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">To'liq Ism va Familiyangiz *</label>
+              <input type="text" id="staff-fullname" required placeholder="Masalan: Sardorbek Aliyev" class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Qaysi Viloyatda Ishlaysiz? *</label>
+              <input list="viloyatlar-datalist" id="staff-region" required value="Buxoro viloyati" placeholder="Masalan: Buxoro viloyati" class="w-full px-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Qaysi Tumanda Ishlaysiz? *</label>
+              <input list="tumanlar-datalist" id="staff-district" required placeholder="Masalan: Jondor tumani" class="w-full px-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+            </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -969,7 +1455,7 @@
               <label class="block text-xs font-bold text-slate-700 mb-1">Telefon Raqamingiz *</label>
               <div class="relative">
                 <i class="fa-solid fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                <input type="tel" id="staff-phone" required placeholder="+998 90 123 45 67" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+                <input type="tel" id="staff-phone" required placeholder="99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
               </div>
             </div>
             <div>
@@ -1017,7 +1503,7 @@
             <label class="block text-xs font-bold text-slate-700 mb-1">Ro'yxatdan O'tgan Telefon Raqamingiz *</label>
             <div class="relative">
               <i class="fa-solid fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-              <input type="tel" id="staff-forgot-phone" placeholder="+998 90 123 45 67" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+              <input type="tel" id="staff-forgot-phone" placeholder="99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
             </div>
           </div>
 
@@ -1112,7 +1598,7 @@
             </label>
             <div class="relative">
               <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-              <input type="text" id="std-login-identifier" required placeholder="Masalan: Azizbek yoki @azizbek yoki 901234567" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+              <input type="text" id="std-login-identifier" required placeholder="Masalan: Azizbek yoki @azizbek yoki 99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
             </div>
             <p class="text-[11px] text-slate-400 mt-1">Ro'yxatdan o'tgan ism, taxallus (@nik) yoki telefon raqam</p>
           </div>
@@ -1197,10 +1683,14 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Tumaningiz yoki Shahringiz *</label>
-              <input list="tumanlar-datalist" id="std-district" required placeholder="Masalan: Chilonzor tumani" class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+              <label class="block text-xs font-bold text-slate-700 mb-1">Viloyatingiz *</label>
+              <input list="viloyatlar-datalist" id="std-region" required value="Buxoro viloyati" placeholder="Masalan: Buxoro viloyati" class="w-full px-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Qaysi Tumansiz? (Tuman/Shahar) *</label>
+              <input list="tumanlar-datalist" id="std-district" required placeholder="Masalan: Jondor tumani" class="w-full px-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-700 mb-1">Maktabingiz *</label>
@@ -1220,7 +1710,7 @@
             <label class="block text-xs font-bold text-slate-700 mb-1">Telefon Raqamingiz (Kodni tiklash uchun) *</label>
             <div class="relative">
               <i class="fa-solid fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-              <input type="tel" id="std-phone" required placeholder="+998 90 123 45 67" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+              <input type="tel" id="std-phone" required placeholder="99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
             </div>
             <p class="text-[11px] text-emerald-700 mt-1">
               <i class="fa-solid fa-shield-halved mr-1"></i> Parolingiz esdan chiqsa, tasdiqlash kodi faqat shu raqamga yuboriladi.
@@ -1264,7 +1754,7 @@
             <label class="block text-xs font-bold text-slate-700 mb-1">Ro'yxatdan O'tgan Telefon Raqamingiz *</label>
             <div class="relative">
               <i class="fa-solid fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-              <input type="tel" id="std-forgot-phone" placeholder="+998 90 123 45 67" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+              <input type="tel" id="std-forgot-phone" placeholder="99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
             </div>
           </div>
 
@@ -1370,7 +1860,7 @@
             <label class="block text-xs font-bold text-slate-700 mb-1">Telefon Raqami (Yangi raqamga almashtirish) *</label>
             <div class="relative">
               <i class="fa-solid fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-              <input type="tel" id="edit-phone" placeholder="+998 90 123 45 67" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+              <input type="tel" id="edit-phone" placeholder="99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
             </div>
           </div>
         </div>
@@ -1442,9 +1932,15 @@
       </div>
 
       <form onsubmit="App.handleEditStaffSubmit(event)" class="mt-5 space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-700 mb-1">To'liq F.I.O. *</label>
-          <input type="text" id="edit-staff-fullname" required class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">To'liq F.I.O. *</label>
+            <input type="text" id="edit-staff-fullname" required class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Tumaningiz yoki Shahringiz *</label>
+            <input list="tumanlar-datalist" id="edit-staff-district" required placeholder="Masalan: Jondor tumani" class="w-full px-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+          </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1462,7 +1958,7 @@
           <label class="block text-xs font-bold text-slate-700 mb-1">Telefon Raqami (Yangi raqamga almashtirish) *</label>
           <div class="relative">
             <i class="fa-solid fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-            <input type="tel" id="edit-staff-phone" required placeholder="+998 90 123 45 67" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+            <input type="tel" id="edit-staff-phone" required placeholder="99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
           </div>
         </div>
 
@@ -1999,6 +2495,302 @@
       </div>
     </div>
   </div>
+
+  <!-- 17. VILOYAT KOORDINATORI KIRISH MODALI (RESPUBLIKA KOORDINATORI KIRITGAN KOD ORQALI) -->
+  <div id="modal-region-admin-login" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="fixed inset-0 modal-backdrop" onclick="App.closeModal('modal-region-admin-login')"></div>
+    <div class="relative bg-white text-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl modal-content z-10 border border-slate-100 max-h-[92vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-chart-column"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-black text-slate-900">Admin (Viloyat Koordinatori)</h3>
+            <p class="text-xs text-slate-500">Respublika koordinatori taqdim etgan kod orqali kirish</p>
+          </div>
+        </div>
+        <button onclick="App.closeModal('modal-region-admin-login')" class="text-slate-400 hover:text-slate-600 text-lg w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- VILOYAT KOORDINATORI KIRISH PANELI -->
+      <div id="region-admin-panel-login" class="mt-4">
+        <form onsubmit="App.handleRegionAdminLoginSubmit(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">
+              <i class="fa-solid fa-map-location-dot text-purple-600 mr-1"></i> Qaysi Viloyat Koordinatorisiz? *
+            </label>
+            <select id="reg-admin-login-region" required onchange="App.updateRegionCoordinatorPreview()" class="w-full px-4 py-2.5 text-sm font-bold bg-slate-50 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-purple-600 focus:bg-white focus:outline-none">
+              <option value="Buxoro viloyati">Buxoro viloyati</option>
+              <option value="Toshkent shahri">Toshkent shahri</option>
+              <option value="Toshkent viloyati">Toshkent viloyati</option>
+              <option value="Samarqand viloyati">Samarqand viloyati</option>
+              <option value="Farg'ona viloyati">Farg'ona viloyati</option>
+              <option value="Andijon viloyati">Andijon viloyati</option>
+              <option value="Namangan viloyati">Namangan viloyati</option>
+              <option value="Xorazm viloyati">Xorazm viloyati</option>
+              <option value="Qashqadaryo viloyati">Qashqadaryo viloyati</option>
+              <option value="Surxondaryo viloyati">Surxondaryo viloyati</option>
+              <option value="Navoiy viloyati">Navoiy viloyati</option>
+              <option value="Jizzax viloyati">Jizzax viloyati</option>
+              <option value="Sirdaryo viloyati">Sirdaryo viloyati</option>
+              <option value="Qoraqalpog'iston Respublikasi">Qoraqalpog'iston Respublikasi</option>
+            </select>
+          </div>
+
+          <!-- RESPUBLIKA KOORDINATORI TOMONIDAN BIRIKTIRILGAN VILOYAT KOORDINATORI SALOMLASHUV BLOKI -->
+          <div id="region-coordinator-greeting-box" class="p-4 rounded-2xl border-2 border-purple-300 bg-purple-50/90 text-xs text-slate-800 space-y-1.5">
+            <!-- JS dinamik to'ldiradi -->
+          </div>
+
+          <div id="region-coordinator-pin-block">
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">
+              <i class="fa-solid fa-key text-purple-600 mr-1"></i> Respublika Koordinatori Taqdim Etgan 5 Xonali Kodni Tering *
+            </label>
+            <input type="password" id="reg-admin-pin-input" required placeholder="• • • • •" minlength="4" maxlength="5" class="w-full text-center text-2xl font-black tracking-[0.5em] px-4 py-3 bg-slate-50 border-2 border-purple-400 rounded-2xl focus:ring-2 focus:ring-purple-600 focus:bg-white focus:outline-none">
+          </div>
+
+          <button type="submit" id="btn-region-admin-login-submit" class="w-full py-3.5 bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-500 hover:to-indigo-600 text-white font-black rounded-2xl text-sm shadow-md transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-lock-open"></i> Viloyat Koordinatori Xonasiga Kirish
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 18. RESPUBLIKA KOORDINATORI KIRISH VA RO'YXATDAN O'TISH MODALI -->
+  <div id="modal-republic-admin-login" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="fixed inset-0 modal-backdrop" onclick="App.closeModal('modal-republic-admin-login')"></div>
+    <div class="relative bg-white text-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl modal-content z-10 border border-slate-100 max-h-[92vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-earth-asia"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-black text-slate-900">Admin (Respublika Koordinatori)</h3>
+            <p class="text-xs text-slate-500">Barcha viloyat koordinatorlari va respublika tahlili</p>
+          </div>
+        </div>
+        <button onclick="App.closeModal('modal-republic-admin-login')" class="text-slate-400 hover:text-slate-600 text-lg w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-2xl mt-4">
+        <button type="button" id="tab-btn-rep-admin-login" onclick="App.switchRepublicAdminAuthTab('login')" class="py-2 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 bg-white text-rose-700 shadow-sm">
+          <i class="fa-solid fa-right-to-bracket"></i> Profilga Kirish
+        </button>
+        <button type="button" id="tab-btn-rep-admin-register" onclick="App.switchRepublicAdminAuthTab('register')" class="py-2 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900">
+          <i class="fa-solid fa-user-plus"></i> Ro'yxatdan O'tish
+        </button>
+      </div>
+
+      <!-- 1-PANEL: RESPUBLIKA KOORDINATORI KIRISH -->
+      <div id="republic-admin-panel-login" class="mt-4">
+        <form onsubmit="App.handleRepublicAdminLoginSubmit(event)" class="space-y-4">
+          <div class="p-3 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-900 flex items-center gap-2">
+            <i class="fa-solid fa-shield-halved text-rose-600 text-sm"></i>
+            <span>Respublika Bosh Koordinatori maxfiy kodini kiriting:</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1.5">Respublika Koordinatori Maxfiy Kodi *</label>
+            <input type="password" id="rep-admin-pin-input" required placeholder="••••" maxlength="12" class="w-full text-center text-2xl font-black tracking-widest px-4 py-3 bg-slate-50 border border-slate-300 rounded-2xl focus:ring-2 focus:ring-rose-600 focus:bg-white focus:outline-none">
+          </div>
+
+          <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-rose-600 to-pink-700 hover:from-rose-500 hover:to-pink-600 text-white font-black rounded-2xl text-sm shadow-md transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-lock-open"></i> Respublika Koordinatori Xonasiga Kirish
+          </button>
+        </form>
+      </div>
+
+      <!-- 2-PANEL: RESPUBLIKA KOORDINATORI RO'YXATDAN O'TISH -->
+      <div id="republic-admin-panel-register" class="mt-4 hidden">
+        <form onsubmit="App.handleRepublicAdminRegisterSubmit(event)" class="space-y-3.5">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Respublika Koordinatori F.I.O. *</label>
+            <input type="text" id="rep-admin-reg-fullname" required placeholder="Masalan: Shuhratov Mirzohid" class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-600 focus:bg-white focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Telefon Raqamingiz *</label>
+            <input type="tel" id="rep-admin-reg-phone" required placeholder="99 674 14 40" class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-600 focus:bg-white focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Maxfiy Kod (Parol) *</label>
+            <input type="text" id="rep-admin-reg-pin" required minlength="4" placeholder="Masalan: 7777 yoki maxfiy kod" class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-600 focus:bg-white focus:outline-none">
+          </div>
+
+          <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-rose-600 to-pink-700 hover:from-rose-500 hover:to-pink-600 text-white font-black rounded-2xl text-sm shadow-md transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-earth-asia"></i> Respublika Koordinatori Sifatida Kirish
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 19. O'QUVCHINING TUMAN ADMINIGA SHIKOYAT YUBORISH MODALI -->
+  <div id="modal-student-complaint" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="fixed inset-0 modal-backdrop" onclick="App.closeModal('modal-student-complaint')"></div>
+    <div class="relative bg-white text-slate-800 rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl modal-content z-10 border border-slate-100 max-h-[92vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div>
+            <h3 id="complaint-modal-title" class="text-lg font-black text-slate-900">Tuman Adminiga Shikoyat Yuborish</h3>
+            <p id="complaint-modal-subtitle" class="text-xs text-slate-500">Nima tufayli shikoyat bildirmoqchisiz?</p>
+          </div>
+        </div>
+        <button onclick="App.closeModal('modal-student-complaint')" class="text-slate-400 hover:text-slate-600 text-lg w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="student-complaint-form" onsubmit="App.handleStudentComplaintSubmit(event)" class="mt-4 space-y-4">
+        <div class="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-900 flex items-start gap-2.5">
+          <i class="fa-solid fa-circle-info text-rose-600 text-sm mt-0.5 shrink-0"></i>
+          <div>
+            <span id="complaint-target-admin-text" class="font-black block">Jondor tumani koordinatoriga (adminga) shikoyat:</span>
+            <span>Agar videorolikda yoki tadbirda qatnashgan bo'lsangiz-u, sizga tanga berilmagan bo'lsa, sababini yozing. Shikoyatingiz o'rinli bo'lsa, koordinator uni ma'qullab tangangizni taqdim etadi!</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Ism va Familiyangiz *</label>
+            <input type="text" id="cmp-student-name" required placeholder="Masalan: Azizbek Nazarov" class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:bg-white focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Tumaningiz va Maktabingiz *</label>
+            <input type="text" id="cmp-student-school" required placeholder="Masalan: Jondor tumani, 15-maktab" class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:bg-white focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Nima tufayli shikoyat bildirmoqchisiz? *</label>
+            <select id="cmp-reason" required class="w-full px-3.5 py-2.5 text-xs sm:text-sm font-bold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:bg-white focus:outline-none">
+              <option value="Videorolikda qatnashdim, lekin tanga olmadim">🎬 Videorolikda qatnashdim, lekin tanga olmadim</option>
+              <option value="Chellenj vazifasini bajardim, tanga berilmadi">🔥 Chellenj vazifasini bajardim, tanga berilmadi</option>
+              <option value="Tadbirda ishtirok etdim, tanga yozilmadi">🎭 Tadbirda ishtirok etdim, tanga yozilmadi</option>
+              <option value="Tanga miqdori kam hisoblandi">🪙 Tanga miqdori xato/kam hisoblandi</option>
+              <option value="Boshqa kamchilik yuzasidan adminga shikoyat">⚠️ Boshqa kamchilik yuzasidan shikoyat</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Qancha tanga olishingiz kerak edi? *</label>
+            <div class="relative">
+              <input type="number" id="cmp-requested-coins" required min="5" max="500" value="30" class="w-full pl-4 pr-10 py-2.5 text-sm font-black text-amber-700 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:bg-white focus:outline-none">
+              <span class="absolute right-3.5 top-1/2 -translate-y-1/2">🪙</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Qaysi videorolik / tadbirda qatnashgansiz? (Havola yoki nom) *</label>
+          <input type="text" id="cmp-event-title" required placeholder="Masalan: Do'stlik chellenji videoroligi yoki https://t.me/..." class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:bg-white focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Shikoyat mazmuni (Batafsil tushuntiring) *</label>
+          <textarea id="cmp-description" rows="3" required placeholder="Masalan: Men Jondor tumani 15-maktab o'quvchisiman, videorolikda qatnashganman, lekin menga tanga taqdim etilmadi..." class="w-full px-4 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:bg-white focus:outline-none"></textarea>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-black rounded-2xl text-sm shadow-md transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-paper-plane"></i> Tuman Adminiga Shikoyatni Yuborish
+        </button>
+      </form>
+
+      <!-- O'quvchining oldingi shikoyatlari holati -->
+      <div class="mt-6 pt-4 border-t border-slate-200 space-y-3">
+        <h4 class="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+          <i class="fa-solid fa-clock-rotate-left text-rose-600"></i> Mening Yuborgan Shikoyatlarim Holati
+        </h4>
+        <div id="student-my-complaints-list" class="space-y-2 max-h-48 overflow-y-auto">
+          <!-- JS to'ldiradi -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Viloyatlar ro'yxati (Datalist) -->
+  <datalist id="viloyatlar-datalist">
+    <option value="Buxoro viloyati"></option>
+    <option value="Toshkent shahri"></option>
+    <option value="Toshkent viloyati"></option>
+    <option value="Samarqand viloyati"></option>
+    <option value="Farg'ona viloyati"></option>
+    <option value="Andijon viloyati"></option>
+    <option value="Namangan viloyati"></option>
+    <option value="Xorazm viloyati"></option>
+    <option value="Qashqadaryo viloyati"></option>
+    <option value="Surxondaryo viloyati"></option>
+    <option value="Navoiy viloyati"></option>
+    <option value="Jizzax viloyati"></option>
+    <option value="Sirdaryo viloyati"></option>
+    <option value="Qoraqalpog'iston Respublikasi"></option>
+  </datalist>
+
+  <!-- Tuman va shaharlar ro'yxati (Datalist) -->
+  <datalist id="tumanlar-datalist">
+    <option value="Jondor tumani"></option>
+    <option value="Qorako'l tumani"></option>
+    <option value="Buxoro shahri"></option>
+    <option value="Buxoro tumani"></option>
+    <option value="G'ijduvon tumani"></option>
+    <option value="Olot tumani"></option>
+    <option value="Vobkent tumani"></option>
+    <option value="Romitan tumani"></option>
+    <option value="Shofirkon tumani"></option>
+    <option value="Peshku tumani"></option>
+    <option value="Kogon tumani"></option>
+    <option value="Kogon shahri"></option>
+    <option value="Qorovulbozor tumani"></option>
+    <option value="Gazli shahri"></option>
+    <option value="Chilonzor tumani"></option>
+    <option value="Yunusobod tumani"></option>
+    <option value="Mirzo Ulug'bek tumani"></option>
+    <option value="Shayxontohur tumani"></option>
+    <option value="Yakkasaroy tumani"></option>
+    <option value="Yashnobod tumani"></option>
+    <option value="Olmazor tumani"></option>
+    <option value="Uchtepa tumani"></option>
+    <option value="Sergeli tumani"></option>
+    <option value="Yangihayot tumani"></option>
+    <option value="Mirobod tumani"></option>
+    <option value="Bektemir tumani"></option>
+    <option value="Samarqand shahri"></option>
+    <option value="Urgut tumani"></option>
+    <option value="Farg'ona shahri"></option>
+    <option value="Qo'qon shahri"></option>
+    <option value="Marg'ilon shahri"></option>
+    <option value="Andijon shahri"></option>
+    <option value="Asaka tumani"></option>
+    <option value="Namangan shahri"></option>
+    <option value="Chust tumani"></option>
+    <option value="Urganch shahri"></option>
+    <option value="Xiva shahri"></option>
+    <option value="Qarshi shahri"></option>
+    <option value="Shahrisabz shahri"></option>
+    <option value="Termiz shahri"></option>
+    <option value="Denov tumani"></option>
+    <option value="Nukus shahri"></option>
+    <option value="Jizzax shahri"></option>
+    <option value="Guliston shahri"></option>
+    <option value="Navoiy shahri"></option>
+  </datalist>
 
   <!-- Toast Bildirishnomalar Idishi -->
   <div id="toast-container"></div>
