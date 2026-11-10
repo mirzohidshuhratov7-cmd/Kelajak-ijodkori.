@@ -439,21 +439,45 @@ const Auth = {
         };
       }
     }
-    if (user.role === 'student' && user.creatorId) {
-      const c = DataStore.getCreatorById(user.creatorId);
+    if (user.role === 'student') {
+      const creators = DataStore.getCreators();
+      const c = (user.creatorId ? DataStore.getCreatorById(user.creatorId) : null) ||
+                creators.find(item => item && (
+                  item.id === user.id ||
+                  item.id === user.creatorId ||
+                  (user.fullName && item.fullName && item.fullName.toLowerCase().trim() === user.fullName.toLowerCase().trim()) ||
+                  (user.phone && item.phone && item.phone.replace(/\D/g, '') === user.phone.replace(/\D/g, ''))
+                ));
       if (c && (c.district || c.districtLabel)) {
         const norm = DataStore.normalizeDistrict(c.districtLabel || c.district, c.regionLabel || c.regionId);
-        return {
-          district: norm.id,
-          districtLabel: norm.label,
-          regionId: norm.regionId || 'buxoro_vil',
-          regionLabel: norm.regionLabel || 'Buxoro viloyati'
-        };
+        if (norm.id && norm.id !== 'all') {
+          user.district = norm.id;
+          user.districtLabel = norm.label;
+          user.regionId = norm.regionId || 'buxoro_vil';
+          user.regionLabel = norm.regionLabel || 'Buxoro viloyati';
+          try { localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(user)); } catch (e) {}
+          return {
+            district: norm.id,
+            districtLabel: norm.label,
+            regionId: norm.regionId || 'buxoro_vil',
+            regionLabel: norm.regionLabel || 'Buxoro viloyati'
+          };
+        }
       }
+      return {
+        district: 'jondor',
+        districtLabel: 'Jondor tumani',
+        regionId: 'buxoro_vil',
+        regionLabel: 'Buxoro viloyati'
+      };
     }
     if (user.role === 'staff') {
       const sList = DataStore.getStaffList();
-      const s = sList.find(item => item && (item.id === user.staffId || item.id === user.id));
+      const s = sList.find(item => item && (
+        item.id === user.staffId ||
+        item.id === user.id ||
+        (user.fullName && item.fullName && item.fullName.toLowerCase().trim() === user.fullName.toLowerCase().trim())
+      ));
       if (s && (s.district || s.districtLabel)) {
         const norm = DataStore.normalizeDistrict(s.districtLabel || s.district, s.regionLabel || s.regionId);
         return {
@@ -463,6 +487,12 @@ const Auth = {
           regionLabel: norm.regionLabel || 'Buxoro viloyati'
         };
       }
+      return {
+        district: 'jondor',
+        districtLabel: 'Jondor tumani',
+        regionId: 'buxoro_vil',
+        regionLabel: 'Buxoro viloyati'
+      };
     }
     return { district: '', districtLabel: '', regionId: '', regionLabel: '' };
   },

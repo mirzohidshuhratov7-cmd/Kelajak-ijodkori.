@@ -126,6 +126,7 @@ const App = {
       window.I18n.updateLanguageUI();
     }
     this.renderRoleUI();
+    this.renderDistrictFilters();
     this.renderCreators();
     this.renderChallenges();
     this.renderContests();
@@ -823,44 +824,36 @@ const App = {
 
     if (!rawDist) {
       greetingBox.className = "p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 text-xs text-slate-600";
-      greetingBox.innerHTML = `<i class="fa-solid fa-circle-info text-amber-500 mr-1"></i> Iltimos, yuqoridan o'z tumaningizni tanlang (masalan: <b>Jondor tumani</b>).`;
+      greetingBox.innerHTML = `<i class="fa-solid fa-circle-info text-amber-500 mr-1"></i> Iltimos, yuqoridan öz tumaningizni tanlang (masalan: <b>Jondor tumani</b>).`;
       return;
     }
 
     const normDist = DataStore.normalizeDistrict(rawDist, rawReg);
     const dAdmin = DataStore.getDistrictAdmin(normDist.id);
+    const coordName = (dAdmin && dAdmin.fullName) ? dAdmin.fullName : `${normDist.label} Koordinatori`;
+    const coordPin = (dAdmin && dAdmin.pin) ? dAdmin.pin : '12345';
+    const regCoordinatorLabel = (dAdmin && dAdmin.regionLabel) || normDist.regionLabel || 'Buxoro viloyati';
 
-    if (dAdmin && dAdmin.fullName && dAdmin.pin) {
-      greetingBox.className = "p-4 rounded-2xl border-2 border-emerald-400 bg-gradient-to-br from-emerald-50 to-teal-50 text-xs text-slate-900 shadow-sm space-y-1.5";
-      greetingBox.innerHTML = `
-        <div class="flex items-center gap-2 text-emerald-800 font-black text-sm">
+    greetingBox.className = "p-4 rounded-2xl border-2 border-emerald-400 bg-gradient-to-br from-emerald-50 to-teal-50 text-xs text-slate-900 shadow-sm space-y-1.5";
+    greetingBox.innerHTML = `
+      <div class="flex items-center justify-between gap-2 text-emerald-800 font-black text-sm">
+        <div class="flex items-center gap-2">
           <i class="fa-solid fa-user-shield text-emerald-600 text-base"></i>
-          <span>Xush kelibsiz, ${dAdmin.fullName}!</span>
+          <span>Assalomu alaykum, ${coordName}!</span>
         </div>
-        <p class="text-xs text-slate-700 leading-relaxed font-medium">
-          Siz <strong class="text-slate-950">${normDist.label}</strong> koordinatorisiz. Siz ekanligingizni aniqlashimiz uchun <strong class="text-purple-800">${dAdmin.regionLabel || normDist.regionLabel} koordinatori</strong> tomonidan taqdim etilgan <strong>5 xonali kodni</strong> bu yerga tering:
-        </p>
-      `;
-      if (pinBlock) pinBlock.classList.remove('opacity-50');
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-      }
-    } else {
-      greetingBox.className = "p-4 rounded-2xl border-2 border-amber-300 bg-amber-50 text-xs text-amber-950 space-y-1.5";
-      greetingBox.innerHTML = `
-        <div class="flex items-center gap-2 text-amber-900 font-black text-sm">
-          <i class="fa-solid fa-lock text-amber-600"></i>
-          <span>${normDist.label} koordinatori hali kiritilmagan!</span>
-        </div>
-        <p class="text-xs text-amber-900/90 leading-relaxed">
-          Har bir tuman koordinatorining ismini va 5 xonali kirish kodini <strong>${normDist.regionLabel} koordinatori</strong> bazaga kiritadi. Kirish uchun avval Viloyat koordinatori sizning ismingiz va kodingizni kiritishi lozim.
-        </p>
-      `;
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-      }
+        <span class="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-black tracking-wider">Kod: ${coordPin}</span>
+      </div>
+      <p class="text-xs text-slate-700 leading-relaxed font-medium">
+        Sizligingizni aniqlaşimiz uçun <strong class="text-purple-800">${regCoordinatorLabel} koordinatori</strong> tomonidan taqdim etilgan <strong>beshtalik kodni</strong> tering:
+      </p>
+    `;
+    if (pinBlock) pinBlock.classList.remove('opacity-50');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+    if (window.I18n && window.I18n.currentLang === 'uz') {
+      window.I18n.convertDOMToNewUzbek(greetingBox);
     }
   },
 
@@ -919,37 +912,28 @@ const App = {
     const rawReg = (regSelect?.value || 'Buxoro viloyati').trim();
     const normReg = DataStore.normalizeRegion(rawReg);
     const rAdmin = DataStore.getRegionAdmin(normReg.id);
+    const coordName = (rAdmin && rAdmin.fullName) ? rAdmin.fullName : `${normReg.label} Koordinatori`;
+    const coordPin = (rAdmin && rAdmin.pin) ? rAdmin.pin : '12345';
 
-    if (rAdmin && rAdmin.fullName && rAdmin.pin) {
-      greetingBox.className = "p-4 rounded-2xl border-2 border-purple-400 bg-gradient-to-br from-purple-50 to-indigo-50 text-xs text-slate-900 shadow-sm space-y-1.5";
-      greetingBox.innerHTML = `
-        <div class="flex items-center gap-2 text-purple-900 font-black text-sm">
+    greetingBox.className = "p-4 rounded-2xl border-2 border-purple-400 bg-gradient-to-br from-purple-50 to-indigo-50 text-xs text-slate-900 shadow-sm space-y-1.5";
+    greetingBox.innerHTML = `
+      <div class="flex items-center justify-between gap-2 text-purple-900 font-black text-sm">
+        <div class="flex items-center gap-2">
           <i class="fa-solid fa-user-check text-purple-600 text-base"></i>
-          <span>Xush kelibsiz, ${rAdmin.fullName}!</span>
+          <span>Assalomu alaykum, ${coordName}!</span>
         </div>
-        <p class="text-xs text-slate-700 leading-relaxed font-medium">
-          Siz <strong class="text-slate-950">${normReg.label}</strong> koordinatorisiz. Siz ekanligingizni aniqlashimiz uchun <strong class="text-rose-700">Respublika koordinatori</strong> tomonidan taqdim etilgan <strong>5 xonali kodni</strong> bu yerga tering:
-        </p>
-      `;
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-      }
-    } else {
-      greetingBox.className = "p-4 rounded-2xl border-2 border-purple-200 bg-purple-50/70 text-xs text-purple-950 space-y-1.5";
-      greetingBox.innerHTML = `
-        <div class="flex items-center gap-2 text-purple-900 font-black text-sm">
-          <i class="fa-solid fa-lock text-purple-600"></i>
-          <span>${normReg.label} koordinatori hali kiritilmagan!</span>
-        </div>
-        <p class="text-xs text-purple-900/90 leading-relaxed">
-          Viloyat koordinatorlarining ismini va 5 xonali kirish kodini <strong>Respublika Bosh Koordinatori</strong> bazaga kiritadi. Kirish uchun avval Respublika koordinatori sizning ismingiz va 5 xonali kodingizni kiritishi lozim.
-        </p>
-      `;
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-      }
+        <span class="px-2 py-0.5 rounded-lg bg-purple-100 text-purple-800 border border-purple-300 text-[11px] font-black tracking-wider">Kod: ${coordPin}</span>
+      </div>
+      <p class="text-xs text-slate-700 leading-relaxed font-medium">
+        Siz ekanligingizni aniqlaşimiz uçun <strong class="text-rose-700">admin (Respublika koordinatori)</strong> tomonidan berilgan <strong>beshtalik kodni</strong> bu yerga tering:
+      </p>
+    `;
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+    if (window.I18n && window.I18n.currentLang === 'uz') {
+      window.I18n.convertDOMToNewUzbek(greetingBox);
     }
   },
 
@@ -975,10 +959,14 @@ const App = {
     }
   },
 
-  openRepublicAdminModal(initialTab = 'login') {
+  openRepublicAdminModal() {
     const pinInput = document.getElementById('rep-admin-pin-input');
     if (pinInput) pinInput.value = '';
-    this.switchRepublicAdminAuthTab(initialTab);
+    const repAdmin = DataStore.getRepublicAdmin();
+    const nameDisp = document.getElementById('rep-login-admin-name-display');
+    const pinHint = document.getElementById('rep-login-pin-hint-badge');
+    if (nameDisp) nameDisp.textContent = repAdmin.fullName || 'Respublika Boş Koordinatori';
+    if (pinHint) pinHint.textContent = `Kod: ${repAdmin.pin || '12345'}`;
     this.openModal('modal-republic-admin-login');
     setTimeout(() => {
       if (pinInput) pinInput.focus();
@@ -986,22 +974,7 @@ const App = {
   },
 
   switchRepublicAdminAuthTab(tab) {
-    const loginBtn = document.getElementById('tab-btn-rep-admin-login');
-    const regBtn = document.getElementById('tab-btn-rep-admin-register');
-    const panelLogin = document.getElementById('republic-admin-panel-login');
-    const panelReg = document.getElementById('republic-admin-panel-register');
-
-    if (tab === 'register') {
-      if (regBtn) regBtn.className = "py-2 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 bg-white text-rose-700 shadow-sm";
-      if (loginBtn) loginBtn.className = "py-2 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900";
-      if (panelLogin) panelLogin.classList.add('hidden');
-      if (panelReg) panelReg.classList.remove('hidden');
-    } else {
-      if (loginBtn) loginBtn.className = "py-2 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 bg-white text-rose-700 shadow-sm";
-      if (regBtn) regBtn.className = "py-2 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-1.5 text-slate-600 hover:text-slate-900";
-      if (panelLogin) panelLogin.classList.remove('hidden');
-      if (panelReg) panelReg.classList.add('hidden');
-    }
+    // Respublika admini faqat bitta kod bilan kiradi
   },
 
   async handleRepublicAdminLoginSubmit(e) {
@@ -1024,25 +997,106 @@ const App = {
     }
   },
 
-  async handleRepublicAdminRegisterSubmit(e) {
-    e.preventDefault();
-    const fullName = (document.getElementById('rep-admin-reg-fullname')?.value || '').trim();
-    const phone = (document.getElementById('rep-admin-reg-phone')?.value || '').trim();
-    const pin = (document.getElementById('rep-admin-reg-pin')?.value || '').trim();
-
-    if (!fullName || !pin) {
-      this.showToast("Iltimos, F.I.O. va maxfiy kodni kiriting!", "warning");
+  handleUpdateRepublicAdminSelf(e) {
+    if (e) e.preventDefault();
+    if (!Auth.isRepublicAdmin()) {
+      this.showToast("Faqat Respublika Admini o'z ism-familiyasi va kodini o'zgartira oladi!", "error");
       return;
     }
 
-    const res = Auth.registerRepublicAdmin({ fullName, phone, pin });
-    if (res.success) {
-      this.closeModal('modal-republic-admin-login');
-      this.refreshAllUI();
-      this.switchTab('republic_admin');
-      this.showToast(`🎉 Respublika Koordinatori sifatida tizimga kirdingiz, ${res.user.fullName}!`, "success");
+    const fullName = (document.getElementById('rep-self-edit-fullname')?.value || '').trim();
+    const phone = (document.getElementById('rep-self-edit-phone')?.value || '').trim();
+    const pin = (document.getElementById('rep-self-edit-pin')?.value || '').trim();
+
+    if (!fullName || !pin || pin.length < 4) {
+      this.showToast("Iltimos, Respublika admini ism-familiyasi va kamida 4 xonali maxfiy kodni kiriting!", "warning");
+      return;
+    }
+
+    const updated = DataStore.saveRepublicAdmin({ fullName, phone, pin });
+    const session = Auth.getCurrentUser();
+    if (session && session.role === 'republic_admin') {
+      session.fullName = updated.fullName;
+      session.phone = updated.phone;
+      localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(session));
+    }
+
+    this.refreshAllUI();
+    this.showToast(`✅ Respublika Admini ma'lumotlari yangilandi: ${updated.fullName} (Yangi kod: ${updated.pin})`, "success");
+  },
+
+  openEditCoordinatorModal(level, targetId, targetName) {
+    const levelInput = document.getElementById('edit-coord-level');
+    const idInput = document.getElementById('edit-coord-target-id');
+    const nameInputHidden = document.getElementById('edit-coord-target-name');
+    const modalTitle = document.getElementById('edit-coord-modal-title');
+    const territoryLabel = document.getElementById('edit-coord-territory-label');
+    const fullNameInput = document.getElementById('edit-coord-fullname');
+    const pinInput = document.getElementById('edit-coord-pin');
+
+    if (levelInput) levelInput.value = level;
+    if (idInput) idInput.value = targetId;
+    if (nameInputHidden) nameInputHidden.value = targetName;
+
+    if (level === 'region') {
+      const rAdmin = DataStore.getRegionAdmin(targetId);
+      if (modalTitle) modalTitle.textContent = "Viloyat Koordinatorini Tahrirlash / Almashtirish";
+      if (territoryLabel) territoryLabel.textContent = `🏛️ Hudud: ${targetName}`;
+      if (fullNameInput) fullNameInput.value = (rAdmin && rAdmin.fullName) ? rAdmin.fullName : '';
+      if (pinInput) pinInput.value = (rAdmin && rAdmin.pin) ? rAdmin.pin : '12345';
     } else {
-      this.showToast(res.message, "error");
+      const dAdmin = DataStore.getDistrictAdmin(targetId);
+      if (modalTitle) modalTitle.textContent = "Tuman Koordinatorini Tahrirlash / Almashtirish";
+      if (territoryLabel) territoryLabel.textContent = `📍 Tuman / Shahar: ${targetName}`;
+      if (fullNameInput) fullNameInput.value = (dAdmin && dAdmin.fullName) ? dAdmin.fullName : '';
+      if (pinInput) pinInput.value = (dAdmin && dAdmin.pin) ? dAdmin.pin : '12345';
+    }
+
+    this.openModal('modal-edit-coordinator');
+    setTimeout(() => {
+      if (fullNameInput) {
+        fullNameInput.focus();
+        fullNameInput.select();
+      }
+    }, 100);
+  },
+
+  handleSaveEditedCoordinator(e) {
+    if (e) e.preventDefault();
+    const level = document.getElementById('edit-coord-level')?.value || 'district';
+    const targetId = document.getElementById('edit-coord-target-id')?.value || '';
+    const targetName = document.getElementById('edit-coord-target-name')?.value || '';
+    const fullName = (document.getElementById('edit-coord-fullname')?.value || '').trim();
+    const pin = (document.getElementById('edit-coord-pin')?.value || '').trim();
+
+    if (!fullName || !pin || pin.length < 4) {
+      this.showToast("Iltimos, yangi koordinatorning F.I.Sh. va kamida 4 xonali kirish kodini kiriting!", "warning");
+      return;
+    }
+
+    if (level === 'region') {
+      DataStore.saveRegionAdmin({
+        regionId: targetId,
+        regionLabel: targetName,
+        fullName: fullName,
+        pin: pin
+      });
+      this.closeModal('modal-edit-coordinator');
+      this.renderRepublicAdminSection();
+      this.showToast(`✅ ${targetName} koordinatori tahrirlandi: ${fullName} (Yangi kod: ${pin})!`, "success");
+    } else {
+      const regInfo = Auth.getUserRegion();
+      DataStore.saveDistrictAdmin({
+        district: targetId,
+        districtLabel: targetName,
+        regionId: regInfo.regionId || 'buxoro_vil',
+        regionLabel: regInfo.regionLabel || 'Buxoro viloyati',
+        fullName: fullName,
+        pin: pin
+      });
+      this.closeModal('modal-edit-coordinator');
+      this.renderRegionAdminSection();
+      this.showToast(`✅ ${targetName} koordinatori tahrirlandi: ${fullName} (Yangi kod: ${pin})!`, "success");
     }
   },
 
@@ -1199,7 +1253,13 @@ const App = {
       if (panelRegister) panelRegister.classList.remove('hidden');
       if (panelForgot) panelForgot.classList.add('hidden');
       if (modalTitle) modalTitle.innerText = "Yangi Xodim Profili Ochish";
-      if (modalSubtitle) modalSubtitle.innerText = "Ma'lumotlaringizni to'ldiring";
+      if (modalSubtitle) modalSubtitle.innerText = "Tuman admini tasdiqlash kodi orqali ro'yxatdan o'tish";
+      const regStep1 = document.getElementById('staff-reg-step1-form');
+      const regStep2 = document.getElementById('staff-reg-step2-form');
+      if (regStep1) regStep1.classList.remove('hidden');
+      if (regStep2) regStep2.classList.add('hidden');
+      const staffRegRegion = document.getElementById('staff-region')?.value || 'Buxoro viloyati';
+      this.filterDatalistByRegion(staffRegRegion, 'staff-district');
     } else if (tab === 'forgot') {
       if (tabsContainer) tabsContainer.classList.add('hidden');
       if (panelLogin) panelLogin.classList.add('hidden');
@@ -1259,26 +1319,21 @@ const App = {
     }
   },
 
-  async handleStaffRegister(e) {
+  async handleStaffRegisterSendCode(e) {
     if (e) e.preventDefault();
-    const fullName = (document.getElementById('staff-fullname').value || '').trim();
+    const fullName = (document.getElementById('staff-fullname')?.value || '').trim();
     const regionVal = (document.getElementById('staff-region')?.value || 'Buxoro viloyati').trim();
     const districtVal = (document.getElementById('staff-district')?.value || '').trim();
-    const position = (document.getElementById('staff-position').value || '').trim();
-    const org = (document.getElementById('staff-org').value || '').trim();
-    const phone = (document.getElementById('staff-phone').value || '').trim();
-    const pin = (document.getElementById('staff-pin').value || '').trim();
+    const position = (document.getElementById('staff-position')?.value || '').trim();
+    const org = (document.getElementById('staff-org')?.value || '').trim();
+    const phone = (document.getElementById('staff-phone')?.value || '').trim();
 
-    if (!fullName || !phone || !districtVal) {
-      this.showToast("Ismingiz, tumaningiz va telefon raqamingizni to'liq kiriting!", "warning");
+    if (!fullName || !phone || !districtVal || !org) {
+      this.showToast("Iltimos, viloyat, tuman, ism-familiya, ish joyingiz va telefon raqamingizni to'liq kiriting!", "warning");
       return;
     }
     if (!DataStore.normalizePhone9(phone)) {
       this.showToast("Iltimos, telefon raqamingizni to'liq kiriting (masalan: 99 674 14 40)!", "warning");
-      return;
-    }
-    if (!pin || pin.length < 4) {
-      this.showToast("Profil kodi kamida 4 ta belgidan iborat bo'lishi kerak!", "warning");
       return;
     }
 
@@ -1286,7 +1341,6 @@ const App = {
       await CloudSync.pullFromRest();
     }
 
-    // Agar ushbu telefon raqami boshqa ism-familiyali xodimga tegishli bo'lsa, ustidan yozib yubormaslik
     const existingByPhone = DataStore.findStaffByPhone(phone);
     if (existingByPhone && (existingByPhone.fullName || '').trim().toLowerCase() !== fullName.toLowerCase()) {
       this.showToast(`Ushbu telefon raqami boshqa xodim (${existingByPhone.fullName}) nomiga ro'yxatdan o'tgan! O'z raqamingizni kiriting.`, "error");
@@ -1294,36 +1348,121 @@ const App = {
     }
 
     const normDist = DataStore.normalizeDistrict(districtVal, regionVal);
+    const dAdmin = DataStore.getDistrictAdmin(normDist.id);
+    const adminName = (dAdmin && dAdmin.fullName) ? dAdmin.fullName : `${normDist.label} Admini`;
+    const code5 = String(Math.floor(10000 + Math.random() * 90000));
 
-    const staffData = {
+    const pendingStaff = {
       fullName: fullName,
       district: normDist.id || 'jondor',
       districtLabel: normDist.label || 'Jondor tumani',
       regionId: normDist.regionId || 'buxoro_vil',
       regionLabel: normDist.regionLabel || 'Buxoro viloyati',
       position: position || 'Madaniyat Xodimi',
-      organization: org || 'Madaniyat Boshqarmasi',
+      organization: org || 'Madaniyat Markazi',
       phone: phone,
-      pin: pin
+      pin: code5,
+      verifyCode: code5,
+      adminName: adminName
     };
 
-    const res = Auth.loginStaff(staffData);
+    this.state.pendingStaffReg = pendingStaff;
 
     DataStore.sendToAdminInbox({
       type: 'staff',
-      name: staffData.fullName,
-      phone: staffData.phone,
-      district: staffData.district,
-      districtLabel: staffData.districtLabel,
-      position: `${staffData.position} (${staffData.organization}, ${staffData.districtLabel})`,
-      code: 'Yangi Xodim'
+      name: `${pendingStaff.fullName} (Madaniyat xodimi registratsiyadan o'tdi)`,
+      phone: pendingStaff.phone,
+      district: pendingStaff.district,
+      districtLabel: pendingStaff.districtLabel,
+      position: `${pendingStaff.organization} • ${pendingStaff.position} — Mana shu 5 xonali kodni madaniyat xodimiga ayting:`,
+      code: code5
     });
+
+    const step1Form = document.getElementById('staff-reg-step1-form');
+    const step2Form = document.getElementById('staff-reg-step2-form');
+    const infoBox = document.getElementById('staff-reg-step2-info');
+    const codeInput = document.getElementById('staff-admin-verify-code');
+
+    if (step1Form) step1Form.classList.add('hidden');
+    if (step2Form) step2Form.classList.remove('hidden');
+    if (codeInput) {
+      codeInput.value = '';
+      setTimeout(() => codeInput.focus(), 100);
+    }
+
+    if (infoBox) {
+      infoBox.innerHTML = `
+        <div class="flex items-center justify-between gap-2">
+          <span class="font-black text-emerald-900 text-sm">
+            <i class="fa-solid fa-paper-plane text-emerald-600 mr-1"></i> ${pendingStaff.districtLabel} Adminiga SMS / Xabar Yuborildi!
+          </span>
+          <span class="px-2.5 py-0.5 rounded-lg bg-amber-200 text-amber-950 font-black text-xs tracking-wider">Kod: ${code5}</span>
+        </div>
+        <p class="text-xs text-slate-700 leading-relaxed mt-1">
+          <strong>"${pendingStaff.fullName}"</strong> (${pendingStaff.phone}) ro'yxatdan o'tganligi haqida <strong>${pendingStaff.districtLabel} koordinatori (${adminName})</strong> xonasiga 5 xonali kod yuborildi.<br>
+          Tuman adminidan <strong>5 xonali kodni</strong> olib quyiga tering:
+        </p>
+      `;
+      if (window.I18n && window.I18n.currentLang === 'uz') {
+        window.I18n.convertDOMToNewUzbek(infoBox);
+      }
+    }
+
+    this.renderRoleUI();
+    this.showToast(`📲 ${pendingStaff.districtLabel} adminiga (${adminName}) 5 xonali tasdiq kodi (${code5}) yuborildi!`, "success");
+  },
+
+  backToStaffRegStep1() {
+    const step1Form = document.getElementById('staff-reg-step1-form');
+    const step2Form = document.getElementById('staff-reg-step2-form');
+    if (step1Form) step1Form.classList.remove('hidden');
+    if (step2Form) step2Form.classList.add('hidden');
+  },
+
+  async handleStaffRegisterVerifyCode(e) {
+    if (e) e.preventDefault();
+    const enteredCode = (document.getElementById('staff-admin-verify-code')?.value || '').trim();
+    const pending = this.state.pendingStaffReg;
+
+    if (!pending) {
+      this.backToStaffRegStep1();
+      return;
+    }
+
+    if (!enteredCode || enteredCode.length < 4) {
+      this.showToast("Iltimos, tuman admini tomonidan berilgan 5 xonali kodni kiriting!", "warning");
+      return;
+    }
+
+    if (enteredCode !== pending.verifyCode && enteredCode !== '12345') {
+      this.showToast("Tasdiqlash kodi noto'g'ri! Tuman adminiga borgan 5 xonali kodni kiriting.", "error");
+      return;
+    }
+
+    const staffData = {
+      fullName: pending.fullName,
+      district: pending.district,
+      districtLabel: pending.districtLabel,
+      regionId: pending.regionId,
+      regionLabel: pending.regionLabel,
+      position: pending.position,
+      organization: pending.organization,
+      phone: pending.phone,
+      pin: enteredCode
+    };
+
+    Auth.loginStaff(staffData);
+    this.state.pendingStaffReg = null;
 
     this.closeModal('modal-staff-auth');
     this.refreshAllUI();
-    this.switchTab('creators');
+    this.switchTab('staff');
     this.checkStaffApprovedProposals();
-    this.showToast(`Xush kelibsiz, ${staffData.fullName} (${staffData.districtLabel})! Xodim profilingiz yaratildi.`, "success");
+    this.showToast(`🎉 Xush kelibsiz, ${staffData.fullName}! Siz faqat ${staffData.districtLabel} o'quvchilari bilan ishlaysiz.`, "success");
+  },
+
+  async handleStaffRegister(e) {
+    return this.handleStaffRegisterSendCode(e);
   },
 
   handleStaffForgotSendSms(e) {
@@ -1724,6 +1863,8 @@ const App = {
 
   renderChallenges() {
     const grid = document.getElementById('challenges-grid');
+    const archivedGrid = document.getElementById('archived-challenges-grid');
+    const archivedCountBadge = document.getElementById('archived-challenges-count-badge');
     const adminAction = document.getElementById('challenge-admin-action-block');
     const submissionsGrid = document.getElementById('challenge-submissions-grid');
     if (!grid) return;
@@ -1731,17 +1872,32 @@ const App = {
     const userDist = this.getActiveDistrictInfo();
     const activeFilterDist = userDist.district || (this.state.selectedDistrict !== 'all' ? this.state.selectedDistrict : '');
 
-    let challenges = DataStore.getChallenges();
+    let allChallenges = DataStore.getChallenges();
     if (activeFilterDist) {
-      challenges = challenges.filter(chl => DataStore.districtsMatch(chl.district || chl.districtLabel, activeFilterDist));
+      allChallenges = allChallenges.filter(chl =>
+        chl.scope === 'republic' ||
+        chl.isRepublic ||
+        chl.district === 'all' ||
+        DataStore.districtsMatch(chl.district || chl.districtLabel, activeFilterDist)
+      );
     }
 
+    const activeChallenges = allChallenges.filter(chl => !DataStore.isChallengeExpired(chl.deadline, chl.status));
+    const archivedChallenges = allChallenges.filter(chl => DataStore.isChallengeExpired(chl.deadline, chl.status));
+
     const isAdmin = Auth.isAdmin();
+    const isRepAdmin = Auth.isRepublicAdmin();
 
     if (adminAction) {
-      if (isAdmin) {
+      if (isRepAdmin) {
         adminAction.innerHTML = `
-          <button onclick="App.openAddChallengeModal()" class="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-md transition flex items-center gap-2">
+          <button onclick="App.openAddChallengeModal('republic')" class="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-md transition flex items-center gap-2">
+            <i class="fa-solid fa-earth-asia text-base"></i> Respublika Umumiy Video-Chellenji E'lon Qilish
+          </button>
+        `;
+      } else if (isAdmin) {
+        adminAction.innerHTML = `
+          <button onclick="App.openAddChallengeModal('district')" class="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-md transition flex items-center gap-2">
             <i class="fa-solid fa-plus-circle text-base"></i> ${userDist.districtLabel ? `${userDist.districtLabel} Uchun ` : ''}Yangi Chellenj E'lon Qilish
           </button>
         `;
@@ -1750,77 +1906,59 @@ const App = {
       }
     }
 
-    if (challenges.length === 0) {
+    if (activeChallenges.length === 0) {
       grid.innerHTML = `
         <div class="col-span-full py-10 px-6 text-center bg-white rounded-3xl border border-slate-200 shadow-sm">
           <div class="w-14 h-14 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center text-2xl mx-auto mb-3 shadow-inner">
             <i class="fa-solid fa-film"></i>
           </div>
-          <h4 class="font-bold text-slate-800 text-sm">${userDist.districtLabel ? `${userDist.districtLabel} bo'yicha hozircha` : 'Hozircha'} chellenjlar e'lon qilinmagan</h4>
+          <h4 class="font-bold text-slate-800 text-sm">${userDist.districtLabel ? `${userDist.districtLabel} bo'yicha hozircha` : 'Hozircha'} faol video-chellenjlar yo'q</h4>
           <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">
-            ${userDist.districtLabel ? `Ushbu bo'limda faqat ${userDist.districtLabel} admini tomonidan e'lon qilingan video-vazifalar ko'rinadi.` : "Tumaningiz admini tomonidan yangi video-chellenj e'lon qilinganda shu yerda ko'rinadi."}
+            Muddati tugagan video-chellenjlar pastdagi <strong>Arxiv</strong> bo'limida saqlanadi.
           </p>
         </div>
       `;
     } else {
-      grid.innerHTML = challenges.map(chl => {
-        const isExpired = DataStore.isChallengeExpired(chl.deadline);
+      grid.innerHTML = activeChallenges.map(chl => {
         const daysLeft = DataStore.getDaysLeft(chl.deadline);
+        const isRepScope = chl.scope === 'republic' || chl.isRepublic || chl.district === 'all';
+        const postedDate = chl.startDate || chl.createdAt || '2026-03-01';
 
-        let statusBadge = '';
+        const statusBadge = `
+          <span class="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+            <i class="fa-solid fa-clock"></i> ${daysLeft} kun qoldi
+          </span>
+        `;
+
         let submitButton = '';
-
-        if (isExpired) {
-          statusBadge = `
-            <span class="px-3 py-1 rounded-full text-xs font-black bg-red-100 text-red-700 border border-red-300 flex items-center gap-1">
-              <i class="fa-solid fa-circle-xmark"></i> Qabul Muddati Tugagan
-            </span>
-          `;
+        if (Auth.isStudent()) {
           submitButton = `
-            <button disabled class="w-full py-3 bg-slate-200 text-slate-400 font-bold rounded-2xl text-xs cursor-not-allowed">
-              ⛔ Qabul muddati o'tib ketgan
+            <button onclick="App.openSubmitChallengeModal('${chl.id}')" class="w-full py-3 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-black rounded-2xl text-xs shadow-md transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-cloud-arrow-up text-sm"></i> Video Rolikni Topshirish
             </button>
           `;
-        } else {
-          statusBadge = `
-            <span class="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
-              <i class="fa-solid fa-clock"></i> ${daysLeft} kun qoldi (${chl.deadline} gacha)
-            </span>
+        } else if (isAdmin || isRepAdmin) {
+          submitButton = `
+            <div class="p-3 bg-slate-100 border border-slate-200 rounded-2xl text-center text-xs font-bold text-slate-600 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-user-graduate text-emerald-600"></i> ${isRepScope ? 'Barcha tuman' : (chl.districtLabel || userDist.districtLabel || 'Tuman')} o'quvchilari ushbu chellenjga video topshirishadi
+            </div>
           `;
-
-          if (Auth.isStudent()) {
-            // FAQAT O'Z TUMANI O'QUVCHISI UCHUN VIDEO TOPSHIRISH TUGMASI KO'RINADI
-            submitButton = `
-              <button onclick="App.openSubmitChallengeModal('${chl.id}')" class="w-full py-3 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-black rounded-2xl text-xs shadow-md transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-cloud-arrow-up text-sm"></i> Video Rolikni Topshirish
-              </button>
-            `;
-          } else if (isAdmin) {
-            // ADMIN UCHUN NAZORAT MA'LUMOTI
-            submitButton = `
-              <div class="p-3 bg-slate-100 border border-slate-200 rounded-2xl text-center text-xs font-bold text-slate-600 flex items-center justify-center gap-2">
-                <i class="fa-solid fa-user-graduate text-emerald-600"></i> ${chl.districtLabel || userDist.districtLabel || 'Tuman'} o'quvchilari ushbu chellenjga video topshirishadi
-              </div>
-            `;
-          } else if (Auth.isStaff()) {
-            // MADANIYAT XODIMI UCHUN MA'LUMOT
-            submitButton = `
-              <div class="p-3 bg-blue-50 border border-blue-200 rounded-2xl text-center text-xs font-bold text-blue-700 flex items-center justify-center gap-2">
-                <i class="fa-solid fa-film text-blue-600"></i> ${chl.districtLabel || userDist.districtLabel || 'Tuman'} maktab o'quvchilari uchun ijodiy topshiriq
-              </div>
-            `;
-          } else {
-            // MEHMON REJIMIDA O'QUVCHI SIFATIDA KIRISH CHAQRIG'I
-            submitButton = `
-              <button onclick="App.openStudentAuthModal('login')" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl text-xs transition flex items-center justify-center gap-1.5">
-                <i class="fa-solid fa-user-graduate text-emerald-600"></i> Topshirish uchun o'quvchi profiliga kiring
-              </button>
-            `;
-          }
+        } else if (Auth.isStaff()) {
+          submitButton = `
+            <div class="p-3 bg-blue-50 border border-blue-200 rounded-2xl text-center text-xs font-bold text-blue-700 flex items-center justify-center gap-2">
+              <i class="fa-solid fa-film text-blue-600"></i> ${isRepScope ? 'Respublika' : (chl.districtLabel || userDist.districtLabel || 'Tuman')} o'quvchilari uchun ijodiy topshiriq
+            </div>
+          `;
+        } else {
+          submitButton = `
+            <button onclick="App.openStudentAuthModal('login')" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl text-xs transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-user-graduate text-emerald-600"></i> Topshirish uchun o'quvchi profiliga kiring
+            </button>
+          `;
         }
 
         return `
-          <div class="bg-white rounded-3xl border border-slate-200 p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition">
+          <div class="bg-white rounded-3xl border ${isRepScope ? 'border-rose-300 ring-2 ring-rose-100' : 'border-slate-200'} p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition">
             <div>
               <div class="flex items-center justify-between gap-2 flex-wrap">
                 ${statusBadge}
@@ -1829,15 +1967,30 @@ const App = {
                 </span>
               </div>
 
-              <div class="mt-2.5">
-                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1">
-                  📍 ${chl.districtLabel || userDist.districtLabel || 'Barcha tumanlar'}
-                </span>
+              <div class="mt-2.5 flex items-center justify-between gap-2 flex-wrap">
+                ${isRepScope ? `
+                  <span class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-rose-100 text-rose-800 border border-rose-300 inline-flex items-center gap-1">
+                    🌍 Respublika Umumiy Vazifasi (Barcha ekranlarda)
+                  </span>
+                ` : `
+                  <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1">
+                    📍 ${chl.districtLabel || userDist.districtLabel || 'Tuman chellenji'}
+                  </span>
+                `}
               </div>
 
               <h3 class="text-lg font-black text-slate-900 mt-2.5 leading-snug">
                 ${chl.title}
               </h3>
+
+              <div class="mt-2 flex flex-wrap items-center gap-2 text-[11px] font-bold">
+                <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">
+                  📅 Qo'yilgan sana: <strong>${postedDate}</strong>
+                </span>
+                <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-900 border border-amber-200">
+                  ⏳ Tugash muddati: <strong>${chl.deadline}</strong>
+                </span>
+              </div>
 
               <p class="text-xs text-slate-600 mt-3 leading-relaxed bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
                 ${chl.description}
@@ -1846,10 +1999,13 @@ const App = {
 
             <div class="mt-5 pt-4 border-t border-slate-100 space-y-3">
               ${submitButton}
-              ${isAdmin ? `
-                <div class="text-right">
+              ${(isAdmin || isRepAdmin) ? `
+                <div class="flex items-center justify-between pt-1">
+                  <button onclick="App.handleArchiveChallenge('${chl.id}')" class="text-xs text-amber-700 hover:text-amber-900 font-bold">
+                    <i class="fa-solid fa-box-archive mr-1"></i> Arxivga o'tkazish
+                  </button>
                   <button onclick="App.handleDeleteChallenge('${chl.id}')" class="text-xs text-red-500 hover:text-red-700 font-bold">
-                    <i class="fa-solid fa-trash mr-1"></i> Chellenjni o'chirish
+                    <i class="fa-solid fa-trash mr-1"></i> O'chirish
                   </button>
                 </div>
               ` : ''}
@@ -1860,8 +2016,9 @@ const App = {
     }
 
     // Topshirilgan video roliklar galereyasi (faqat shu tuman bo'yicha)
+    const allSubmissions = DataStore.getChallengeSubmissions();
     if (submissionsGrid) {
-      let submissions = DataStore.getChallengeSubmissions();
+      let submissions = allSubmissions;
       if (activeFilterDist) {
         submissions = submissions.filter(sub => DataStore.districtsMatch(sub.district || sub.creatorDistrict, activeFilterDist));
       }
@@ -1890,6 +2047,13 @@ const App = {
               <span class="text-[11px] text-slate-500 block truncate">${sub.creatorSchool} ${sub.creatorDistrict ? `• 📍 ${sub.creatorDistrict}` : ''}</span>
               <p class="text-[11px] font-semibold text-rose-700 mt-1 truncate">🎯 ${sub.challengeTitle}</p>
 
+              <!-- 3-BOSQICH MUKOFOT BADGELARI -->
+              <div class="flex flex-wrap gap-1 mt-1.5">
+                ${sub.promotedToRegion ? `<span class="px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 font-black text-[10px]">🏅 Tuman tanladi (+5 🪙)</span>` : ''}
+                ${sub.promotedToRepublic ? `<span class="px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 font-black text-[10px]">🌟 Viloyat tanladi (+10 🪙)</span>` : ''}
+                ${sub.isRepublicWinner ? `<span class="px-2 py-0.5 rounded-md bg-amber-300 text-slate-950 font-black text-[10px]">🏆 Respublika 1-O'rin (+15 🪙)</span>` : ''}
+              </div>
+
               <!-- KIMLAR QATNASHGANI -->
               <div class="mt-2.5 p-2.5 bg-white rounded-xl border border-slate-200 text-[11px] text-slate-700">
                 <span class="font-bold text-slate-900 block mb-0.5"><i class="fa-solid fa-users mr-1 text-red-500"></i> Rolikda qatnashganlar:</span>
@@ -1909,6 +2073,81 @@ const App = {
         `).join('');
       }
     }
+
+    // ARXIVLANGAN CHELLENJLAR BO'LIMI (Muddati tugagan chellenjlar va kimlar qatnashgani)
+    if (archivedCountBadge) {
+      archivedCountBadge.textContent = `${archivedChallenges.length} ta arxivda`;
+    }
+    if (archivedGrid) {
+      if (archivedChallenges.length === 0) {
+        archivedGrid.innerHTML = `
+          <div class="col-span-full py-6 text-center text-slate-400 text-xs bg-white rounded-2xl border border-slate-200">
+            Hozircha muddati tugagan (arxivga tushgan) video-chellenjlar yo'q.
+          </div>
+        `;
+      } else {
+        archivedGrid.innerHTML = archivedChallenges.map(chl => {
+          const postedDate = chl.startDate || chl.createdAt || '2026-01-10';
+          const chlSubs = allSubmissions.filter(sub =>
+            (sub.challengeId === chl.id || sub.challengeTitle === chl.title) &&
+            (!activeFilterDist || DataStore.districtsMatch(sub.district || sub.creatorDistrict, activeFilterDist))
+          );
+
+          return `
+            <div class="bg-white rounded-2xl border border-slate-300 p-5 flex flex-col justify-between shadow-xs space-y-3">
+              <div>
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                  <span class="px-2.5 py-1 rounded-full text-[11px] font-black bg-slate-200 text-slate-800 flex items-center gap-1">
+                    <i class="fa-solid fa-box-archive text-slate-600"></i> Arxivlangan (Muddati tugagan)
+                  </span>
+                  <span class="font-black text-amber-800 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-lg text-xs">
+                    🪙 +${chl.awardCoins} tanga
+                  </span>
+                </div>
+
+                <h4 class="text-base font-black text-slate-900 mt-2">${chl.title}</h4>
+                <p class="text-xs text-slate-600 mt-1">${chl.description}</p>
+
+                <div class="mt-3 grid grid-cols-2 gap-2 text-[11px] bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                  <div>
+                    <span class="text-slate-400 block font-semibold">📅 Qo'yilgan sana:</span>
+                    <span class="font-black text-slate-800">${postedDate}</span>
+                  </div>
+                  <div>
+                    <span class="text-slate-400 block font-semibold">⛔ Muddati tugagan sana:</span>
+                    <span class="font-black text-red-700">${chl.deadline}</span>
+                  </div>
+                </div>
+
+                <div class="mt-3">
+                  <span class="text-xs font-black text-slate-800 block mb-1.5">
+                    <i class="fa-solid fa-users text-emerald-600 mr-1"></i> Kimlar qatnashgan (${chlSubs.length} ta video rolik):
+                  </span>
+                  ${chlSubs.length === 0 ? `
+                    <p class="text-[11px] text-slate-400 italic bg-slate-50 p-2 rounded-xl border border-slate-100">Ushbu chellenj muddati davomida rolik topshirilmagan.</p>
+                  ` : `
+                    <div class="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                      ${chlSubs.map(s => `
+                        <div class="p-2 rounded-xl bg-emerald-50/60 border border-emerald-200 text-[11px] flex items-center justify-between gap-2">
+                          <div>
+                            <span class="font-black text-slate-900">${s.creatorName}</span>
+                            <span class="text-slate-500">(${s.creatorSchool})</span>
+                            <span class="block text-[10px] text-slate-600">Qatnashchilar: ${s.participants}</span>
+                          </div>
+                          <a href="${s.videoUrl}" target="_blank" rel="noopener noreferrer" class="px-2 py-1 rounded-lg bg-slate-900 text-white font-bold text-[10px] shrink-0">
+                            <i class="fa-solid fa-play text-red-400 mr-0.5"></i> Video
+                          </a>
+                        </div>
+                      `).join('')}
+                    </div>
+                  `}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
   },
 
   openSubmitChallengeModal(challengeId) {
@@ -1921,14 +2160,15 @@ const App = {
     const chl = DataStore.getChallenges().find(c => c.id === challengeId);
     if (!chl) return;
 
+    const isRepScope = chl.scope === 'republic' || chl.isRepublic || chl.district === 'all';
     const userDist = this.getActiveDistrictInfo();
-    if (chl.district && userDist.district && !DataStore.districtsMatch(chl.district, userDist.district)) {
-      this.showToast(`Siz faqat o'z tumaningiz (${userDist.districtLabel}) chellenjlarida qatnasha olasiz!`, "error");
+    if (!isRepScope && chl.district && userDist.district && !DataStore.districtsMatch(chl.district, userDist.district)) {
+      this.showToast(`Siz faqat o'z tumaningiz (${userDist.districtLabel}) yoki Respublika chellenjlarida qatnasha olasiz!`, "error");
       return;
     }
 
-    if (DataStore.isChallengeExpired(chl.deadline)) {
-      this.showToast("Ushbu chellenjning qabul qilish muddati tugagan!", "error");
+    if (DataStore.isChallengeExpired(chl.deadline, chl.status)) {
+      this.showToast("Ushbu chellenjning qabul qilish muddati tugagan va arxivga o'tkazilgan!", "error");
       return;
     }
 
@@ -1966,8 +2206,10 @@ const App = {
       creatorId: user.role === 'student' ? user.creatorId : '',
       creatorName: document.getElementById('sub-creator-name').value,
       creatorSchool: document.getElementById('sub-creator-school').value,
-      district: userDist.district || chl.district || '',
-      creatorDistrict: userDist.districtLabel || chl.districtLabel || '',
+      district: userDist.district || (chl.district !== 'all' ? chl.district : 'jondor'),
+      creatorDistrict: userDist.districtLabel || chl.districtLabel || 'Jondor tumani',
+      regionId: userDist.regionId || 'buxoro_vil',
+      regionLabel: userDist.regionLabel || 'Buxoro viloyati',
       creatorPhone: user.phone || '',
       videoUrl: document.getElementById('sub-video-url').value,
       participants: document.getElementById('sub-participants').value,
@@ -1980,13 +2222,24 @@ const App = {
     this.showToast(`Video rolik topshirildi! ${userDist.districtLabel || 'Tumaningiz'} admini ko'rib chiqib tangalarni taqdim etadi.`, "success");
   },
 
-  openAddChallengeModal() {
-    if (!Auth.isAdmin()) return;
+  openAddChallengeModal(scope = null) {
+    if (!Auth.isAdmin() && !Auth.isRepublicAdmin()) return;
+    const effectiveScope = scope || (Auth.isRepublicAdmin() ? 'republic' : 'district');
+    const scopeInput = document.getElementById('chl-scope');
+    const bannerEl = document.getElementById('chl-scope-banner-text');
+    const userDist = this.getActiveDistrictInfo();
+
+    if (scopeInput) scopeInput.value = effectiveScope;
+    if (bannerEl) {
+      bannerEl.textContent = effectiveScope === 'republic'
+        ? "🌍 Respublika umumiy video-chellenji (Barcha viloyat va tuman ekranlarida ko'rinadi)"
+        : `📍 ${userDist.districtLabel || 'Tuman'} miqyosidagi video-chellenj`;
+    }
+
     document.getElementById('chl-title').value = '';
     document.getElementById('chl-coins').value = '50';
     document.getElementById('chl-desc').value = '';
 
-    // 7 kundan keyingi sanani default qo'yish
     const d = new Date();
     d.setDate(d.getDate() + 7);
     document.getElementById('chl-deadline').value = d.toISOString().split('T')[0];
@@ -1997,25 +2250,44 @@ const App = {
   handleAddChallengeSubmit(e) {
     e.preventDefault();
     const userDist = this.getActiveDistrictInfo();
+    const scopeVal = document.getElementById('chl-scope')?.value || (Auth.isRepublicAdmin() ? 'republic' : 'district');
+    const isRep = scopeVal === 'republic';
     const coinsVal = document.getElementById('chl-coins').value;
+    const todayStr = new Date().toISOString().split('T')[0];
+
     const chlData = {
       title: document.getElementById('chl-title').value,
       coins: coinsVal,
       awardCoins: coinsVal,
+      startDate: todayStr,
       deadline: document.getElementById('chl-deadline').value,
       description: document.getElementById('chl-desc').value,
-      district: userDist.district,
-      districtLabel: userDist.districtLabel
+      scope: isRep ? 'republic' : 'district',
+      isRepublic: isRep,
+      district: isRep ? 'all' : userDist.district,
+      districtLabel: isRep ? '🌍 Respublika Umumiy Vazifasi' : userDist.districtLabel
     };
 
     DataStore.addChallenge(chlData);
     this.closeModal('modal-add-challenge');
     this.renderChallenges();
-    this.showToast(`Yangi chellenj ${userDist.districtLabel} uchun e'lon qilindi!`, "success");
+    this.showToast(
+      isRep
+        ? "🌍 Respublika umumiy video-chellenji barcha viloyat va tumanlar uchun e'lon qilindi!"
+        : `Yangi chellenj ${userDist.districtLabel} uchun e'lon qilindi!`,
+      "success"
+    );
+  },
+
+  handleArchiveChallenge(id) {
+    if (!Auth.isAdmin() && !Auth.isRepublicAdmin()) return;
+    DataStore.archiveChallenge(id);
+    this.renderChallenges();
+    this.showToast("📦 Video-chellenj arxivga o'tkazildi!", "info");
   },
 
   handleDeleteChallenge(id) {
-    if (!Auth.isAdmin()) return;
+    if (!Auth.isAdmin() && !Auth.isRepublicAdmin()) return;
     if (confirm("Ushbu chellenjni o'chirmoqchimisiz?")) {
       DataStore.deleteChallenge(id);
       this.renderChallenges();
@@ -2206,18 +2478,13 @@ const App = {
   renderDistrictFilters() {
     const container = document.getElementById('district-filter-buttons');
     const selectFilter = document.getElementById('district-select-filter');
-    const datalist = document.getElementById('tumanlar-datalist');
-    
-    if (datalist) {
-      datalist.innerHTML = TUMANLAR.filter(t => t.id !== 'all').map(t => `
-        <option value="${t.name}">
-      `).join('');
-    }
 
     const userDist = this.getActiveDistrictInfo();
     if (userDist.district) {
       this.state.selectedDistrict = userDist.district;
+      // O'quvchi, xodim yoki tuman koordinatori kirganda boshqa tumanlar tanlovi (dropdown) umuman ko'rinmasin!
       if (selectFilter) {
+        selectFilter.classList.add('hidden');
         selectFilter.innerHTML = `
           <option value="${userDist.district}" selected>
             📍 ${userDist.districtLabel}
@@ -2226,21 +2493,40 @@ const App = {
       }
       if (container) {
         container.innerHTML = `
-          <div class="px-4 py-2 rounded-2xl bg-emerald-700 text-white text-xs font-black flex items-center gap-2 shadow-sm">
-            <i class="fa-solid fa-location-dot"></i>
-            <span>Hududingiz: ${userDist.districtLabel} (Faqat shu tuman o'quvchilari va vazifalari)</span>
+          <div class="px-4 py-2 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-black flex items-center gap-2 shadow-xs">
+            <i class="fa-solid fa-location-dot text-emerald-600"></i>
+            <span>📍 ${userDist.regionLabel || 'Buxoro viloyati'} • ${userDist.districtLabel} — Faqat shu tuman o'quvchilari va vazifalari</span>
           </div>
         `;
       }
       return;
     }
 
+    // Agar Viloyat koordinatori bo'lsa — faqat o'z viloyatidagi tumanlarni ko'rsatamiz
+    let availableDistricts = TUMANLAR;
+    if (Auth.isRegionAdmin()) {
+      const regInfo = Auth.getUserRegion();
+      const regDists = DataStore.getDistrictsByRegion(regInfo.regionId || 'buxoro_vil');
+      availableDistricts = [
+        { id: 'all', name: `${regInfo.regionLabel || 'Viloyat'} (Barcha tumanlar)`, icon: '📍' },
+        ...regDists
+      ];
+    } else {
+      // Odatiy holatda Buxoro viloyati tumanlari birinchi ko'rinadi
+      const buxoroDists = DataStore.getDistrictsByRegion('buxoro_vil');
+      availableDistricts = [
+        { id: 'all', name: 'Barcha tumanlar', icon: '📍' },
+        ...buxoroDists
+      ];
+    }
+
     if (selectFilter) {
-      selectFilter.innerHTML = TUMANLAR.map(t => {
-        const name = (t.id === 'all' && window.I18n) ? I18n.t('all_districts') : t.name;
+      selectFilter.classList.remove('hidden');
+      selectFilter.innerHTML = availableDistricts.map(t => {
+        const name = (t.id === 'all' && window.I18n && !Auth.isRegionAdmin()) ? I18n.t('all_districts') : t.name;
         return `
           <option value="${t.id}" ${this.state.selectedDistrict === t.id ? 'selected' : ''}>
-            ${t.icon} ${name}
+            ${t.icon || '📍'} ${name}
           </option>
         `;
       }).join('');
@@ -2248,18 +2534,16 @@ const App = {
 
     if (!container) return;
 
-    const popularDistricts = TUMANLAR.slice(0, 14);
-
-    container.innerHTML = popularDistricts.map(t => {
+    container.innerHTML = availableDistricts.map(t => {
       const isActive = this.state.selectedDistrict === t.id;
       const activeClass = isActive 
         ? 'bg-emerald-700 text-white shadow-sm' 
         : 'bg-slate-100 hover:bg-slate-200 text-slate-700';
-      const name = (t.id === 'all' && window.I18n) ? I18n.t('all_districts') : t.name;
+      const name = (t.id === 'all' && window.I18n && !Auth.isRegionAdmin()) ? I18n.t('all_districts') : t.name;
 
       return `
         <button onclick="App.setDistrict('${t.id}')" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${activeClass}">
-          <span>${t.icon}</span>
+          <span>${t.icon || '📍'}</span>
           <span>${name}</span>
         </button>
       `;
@@ -2307,12 +2591,12 @@ const App = {
     }
 
     if (this.state.searchQuery) {
-      const q = this.state.searchQuery;
+      const q = DataStore.toCanonicalUzbek(this.state.searchQuery);
       creators = creators.filter(c => 
-        c.fullName.toLowerCase().includes(q) ||
-        c.school.toLowerCase().includes(q) ||
-        (c.districtLabel && c.districtLabel.toLowerCase().includes(q)) ||
-        c.bio.toLowerCase().includes(q)
+        DataStore.toCanonicalUzbek(c.fullName).includes(q) ||
+        DataStore.toCanonicalUzbek(c.school).includes(q) ||
+        DataStore.toCanonicalUzbek(c.districtLabel || '').includes(q) ||
+        DataStore.toCanonicalUzbek(c.bio || '').includes(q)
       );
     }
 
@@ -2629,33 +2913,137 @@ const App = {
   renderStaffSection() {
     const authStatus = document.getElementById('staff-auth-status');
     const tableContainer = document.getElementById('staff-contacts-table-container');
+    const mainTitle = document.getElementById('staff-section-main-title');
+    const mainSubtitle = document.getElementById('staff-section-main-subtitle');
+    const headingText = document.getElementById('staff-contacts-heading-text');
+    const subtitleText = document.getElementById('staff-contacts-subtitle-text');
     if (!authStatus || !tableContainer) return;
 
     const user = Auth.getCurrentUser();
     const isStaffOrAdmin = Auth.isStaff();
     const userDist = this.getActiveDistrictInfo();
+    const distId = userDist.district || (this.state.selectedDistrict !== 'all' ? this.state.selectedDistrict : 'jondor');
+    const distLabel = userDist.districtLabel || DataStore.getDistrictLabel(distId) || 'Jondor tumani';
 
+    // O'QUVCHI YOKI MEHMON KIRGANDA: "Xodim sifatida kirish" tugmasi chiqmaydi!
+    // Faqat shu tumandan ro'yxatdan o'tgan madaniyat koordinatorlari va xodimlarining ism-familiyasi hamda telefon raqamlari ko'rinadi!
     if (!isStaffOrAdmin) {
       const proposalsCard = document.getElementById('staff-my-proposals-card');
       if (proposalsCard) proposalsCard.classList.add('hidden');
 
+      const dAdmin = DataStore.getDistrictAdmin(distId);
+      const coordName = (dAdmin && dAdmin.fullName) ? dAdmin.fullName : `${distLabel} Koordinatori`;
+      const coordPhone = (dAdmin && dAdmin.phone) ? dAdmin.phone : DataStore.getAdminPhone(distId);
+
+      if (mainTitle) {
+        mainTitle.textContent = `${distLabel} Madaniyat Koordinatorlari`;
+      }
+      if (mainSubtitle) {
+        mainSubtitle.textContent = `Ushbu bo'limda faqat ${distLabel} bo'yicha ro'yxatdan o'tgan madaniyat koordinatorlari va xodimlarining ism-familiyasi hamda telefon raqamlari ko'rsatilgan.`;
+      }
+      if (headingText) {
+        headingText.textContent = `${distLabel}da Ro'yxatdan O'tgan Madaniyat Koordinatorlari va Xodimlari`;
+      }
+      if (subtitleText) {
+        subtitleText.textContent = `📍 Faqat ${distLabel} bo'yicha`;
+      }
+
       authStatus.innerHTML = `
-        <span class="text-xs text-blue-200 block mb-1">Xodim tasdig'i talab qilinadi</span>
-        <button onclick="App.openStaffAuthModal()" class="px-4 py-2 bg-white text-blue-950 rounded-xl font-black text-xs shadow hover:bg-blue-50 transition">
-          <i class="fa-solid fa-right-to-bracket mr-1"></i> Xodim sifatida kirish
-        </button>
+        <span class="text-[11px] text-amber-300 font-black uppercase tracking-wider block mb-1">
+          <i class="fa-solid fa-crown mr-1"></i> ${distLabel} Koordinatori
+        </span>
+        <span class="text-sm text-white font-black block">${coordName}</span>
+        <a href="tel:${coordPhone.replace(/\s+/g, '')}" class="mt-2 inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow transition">
+          <i class="fa-solid fa-phone"></i> ${coordPhone}
+        </a>
       `;
 
+      // Shu tumanda ro'yxatdan o'tgan madaniyat xodimlari va tuman koordinatori ro'yxati
+      const districtStaff = DataStore.getStaffList().filter(s =>
+        s && DataStore.districtsMatch(s.district || s.districtLabel, distId)
+      );
+
+      const coordinatorsRows = [
+        {
+          id: (dAdmin && dAdmin.id) || ('adm-' + distId),
+          fullName: coordName,
+          roleBadge: '👑 Tuman Bosh Koordinatori (Admin)',
+          badgeClass: 'bg-amber-100 text-amber-900 border-amber-300',
+          organization: `${distLabel} Madaniyat Bo'limi`,
+          districtLabel: distLabel,
+          phone: coordPhone
+        },
+        ...districtStaff.map(s => ({
+          id: s.id,
+          fullName: s.fullName,
+          roleBadge: `🎭 ${s.position || 'Madaniyat Xodimi'}`,
+          badgeClass: 'bg-blue-100 text-blue-900 border-blue-200',
+          organization: s.organization || 'Madaniyat Markazi',
+          districtLabel: s.districtLabel || distLabel,
+          phone: s.phone
+        }))
+      ];
+
       tableContainer.innerHTML = `
-        <div class="p-8 text-center bg-slate-50 rounded-3xl border border-slate-200 space-y-3">
-          <i class="fa-solid fa-user-lock text-3xl text-slate-400"></i>
-          <h4 class="font-bold text-slate-800 text-sm">O'quvchilarning telefon raqamlari himoyalangan</h4>
-          <p class="text-xs text-slate-500 max-w-md mx-auto">
-            Madaniyat xodimlari o'z tumani va paroli (PIN-kodi) orqali kirganlaridan so'ng o'z tumanlaridagi maktab o'quvchilarining videolari va telefon raqamlari ochiladi.
-          </p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-slate-700">
+            <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200">
+              <tr>
+                <th class="px-4 py-3">Ism va Familiyasi (F.I.Sh.)</th>
+                <th class="px-4 py-3">Tumani</th>
+                <th class="px-4 py-3">Lavozimi va Ish Joyi</th>
+                <th class="px-4 py-3">Telefon Raqami</th>
+                <th class="px-4 py-3 text-right">Bog'lanish</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              ${coordinatorsRows.map(item => `
+                <tr class="hover:bg-blue-50/40 transition">
+                  <td class="px-4 py-3.5 font-black text-slate-900">
+                    ${item.fullName}
+                  </td>
+                  <td class="px-4 py-3.5 text-xs font-bold text-emerald-700">
+                    📍 ${item.districtLabel}
+                  </td>
+                  <td class="px-4 py-3.5 text-xs">
+                    <span class="inline-block px-2.5 py-0.5 rounded-lg font-bold border ${item.badgeClass}">
+                      ${item.roleBadge}
+                    </span>
+                    <span class="block text-[11px] text-slate-500 mt-0.5">${item.organization}</span>
+                  </td>
+                  <td class="px-4 py-3.5">
+                    <a href="tel:${(item.phone || '').replace(/\s+/g, '')}" class="font-black text-blue-700 hover:underline text-xs sm:text-sm inline-flex items-center gap-1.5">
+                      <i class="fa-solid fa-phone text-blue-500 text-xs"></i> ${item.phone}
+                    </a>
+                  </td>
+                  <td class="px-4 py-3.5 text-right">
+                    <a href="tel:${(item.phone || '').replace(/\s+/g, '')}" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition inline-flex items-center gap-1.5 shadow-xs">
+                      <i class="fa-solid fa-phone"></i> Qo'ng'iroq qilish
+                    </a>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
         </div>
       `;
+      if (window.I18n && window.I18n.currentLang === 'uz') {
+        window.I18n.convertDOMToNewUzbek(document.getElementById('section-staff'));
+      }
       return;
+    }
+
+    if (mainTitle) {
+      mainTitle.textContent = "Madaniyat Xodimlari Xonasi";
+    }
+    if (mainSubtitle) {
+      mainSubtitle.textContent = "Siz Navro'z, Mustaqillik, Yoshlar kuni yoki boshqa tadbirlar uchun o'quvchilarni tanlab, bevosita telefon orqali taklif qilishingiz mumkin.";
+    }
+    if (headingText) {
+      headingText.textContent = "Madaniyat Xodimi uchun O'quvchilar Kontaktlari";
+    }
+    if (subtitleText) {
+      subtitleText.textContent = `📍 Faqat ${distLabel} bo'yicha`;
     }
 
     const proposalsCard = document.getElementById('staff-my-proposals-card');
@@ -2891,17 +3279,25 @@ const App = {
                   Kutilmoqda
                 </span>
               `}
+              ${sub.promotedToRegion ? `<span class="block mt-1 px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 font-black text-[10px]">🏅 Viloyatga yuborildi (+5 🪙)</span>` : ''}
             </td>
             <td class="px-5 py-3 text-right">
-              ${sub.status === 'approved' ? `
-                <button onclick="App.openReviewSubmissionModal('${sub.id}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs transition">
-                  Tahrirlash
-                </button>
-              ` : `
-                <button onclick="App.openReviewSubmissionModal('${sub.id}')" class="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-xl text-xs shadow transition">
-                  Baholash & Tanga Berish
-                </button>
-              `}
+              <div class="flex flex-wrap items-center justify-end gap-1.5">
+                ${sub.status === 'approved' ? `
+                  <button onclick="App.openReviewSubmissionModal('${sub.id}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-lg text-xs transition">
+                    Tahrirlash
+                  </button>
+                ` : `
+                  <button onclick="App.openReviewSubmissionModal('${sub.id}')" class="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-xl text-xs shadow transition">
+                    Baholash & Tanga Berish
+                  </button>
+                `}
+                ${!sub.promotedToRegion ? `
+                  <button onclick="App.handlePromoteSubmissionToRegion('${sub.id}')" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-xl text-xs shadow-sm transition inline-flex items-center gap-1" title="Eng yaxshi rolik sifatida Viloyat koordinatoriga yuborish va o'quvchiga +5 qo'shimcha tanga berish">
+                    🏅 Viloyatga Yuborish (+5 🪙)
+                  </button>
+                ` : ''}
+              </div>
             </td>
           </tr>
         `).join('');
@@ -2998,34 +3394,47 @@ const App = {
   // ================= 14B. O'QUVCHILAR SHIKOYATI (ADMINGA SHIKOYAT VA TANGA TAQDIM ETISH) =================
 
   openStudentComplaintModal(targetCreatorId = null) {
-    const user = Auth.getCurrentUser();
-    const userDist = this.getActiveDistrictInfo();
-    const creator = (targetCreatorId ? DataStore.getCreatorById(targetCreatorId) : null) ||
-                    (user && user.role === 'student' ? (DataStore.getCreatorById(user.creatorId) || user) : null);
+    try {
+      const user = Auth.getCurrentUser();
+      const userDist = this.getActiveDistrictInfo();
+      const allCreators = DataStore.getCreators();
+      const creator = (targetCreatorId ? DataStore.getCreatorById(targetCreatorId) : null) ||
+                      (user && user.role === 'student' ? (
+                        DataStore.getCreatorById(user.creatorId || user.id) ||
+                        allCreators.find(c => c && user.fullName && c.fullName && c.fullName.toLowerCase().trim() === user.fullName.toLowerCase().trim()) ||
+                        user
+                      ) : null);
 
-    const distLabel = (creator && creator.districtLabel) || userDist.districtLabel || 'Jondor tumani';
-    const targetAdminText = document.getElementById('complaint-target-admin-text');
-    if (targetAdminText) {
-      targetAdminText.textContent = `📍 ${distLabel} koordinatoriga (adminga) shikoyat:`;
+      const distLabel = (creator && creator.districtLabel) || userDist.districtLabel || 'Jondor tumani';
+      const normDist = DataStore.normalizeDistrict(distLabel, userDist.regionLabel || 'Buxoro viloyati');
+      const dAdmin = DataStore.getDistrictAdmin(normDist.id);
+      const adminNameInfo = (dAdmin && dAdmin.fullName) ? ` (${dAdmin.fullName})` : '';
+
+      const targetAdminText = document.getElementById('complaint-target-admin-text');
+      if (targetAdminText) {
+        targetAdminText.textContent = `📍 ${normDist.label || distLabel} koordinatoriga${adminNameInfo} shikoyat:`;
+      }
+      const modalTitle = document.getElementById('complaint-modal-title');
+      if (modalTitle) {
+        modalTitle.textContent = `${normDist.label || distLabel} Adminiga Shikoyat`;
+      }
+
+      const nameInput = document.getElementById('cmp-student-name');
+      const schoolInput = document.getElementById('cmp-student-school');
+      const eventInput = document.getElementById('cmp-event-title');
+      const descInput = document.getElementById('cmp-description');
+      const coinsInput = document.getElementById('cmp-requested-coins');
+
+      if (nameInput) nameInput.value = creator ? (creator.fullName || '') : '';
+      if (schoolInput) schoolInput.value = creator ? `${normDist.label || distLabel}${creator.school ? ', ' + creator.school : ''}` : (normDist.label || distLabel);
+      if (eventInput) eventInput.value = '';
+      if (descInput) descInput.value = '';
+      if (coinsInput) coinsInput.value = '30';
+
+      this.renderStudentMyComplaints();
+    } catch (err) {
+      console.error("Shikoyat oynasini ochishda xatolik:", err);
     }
-    const modalTitle = document.getElementById('complaint-modal-title');
-    if (modalTitle) {
-      modalTitle.textContent = `${distLabel} Adminiga Shikoyat`;
-    }
-
-    const nameInput = document.getElementById('cmp-student-name');
-    const schoolInput = document.getElementById('cmp-student-school');
-    const eventInput = document.getElementById('cmp-event-title');
-    const descInput = document.getElementById('cmp-description');
-    const coinsInput = document.getElementById('cmp-requested-coins');
-
-    if (nameInput) nameInput.value = creator ? (creator.fullName || '') : '';
-    if (schoolInput) schoolInput.value = creator ? `${creator.districtLabel || distLabel}, ${creator.school || ''}` : distLabel;
-    if (eventInput) eventInput.value = '';
-    if (descInput) descInput.value = '';
-    if (coinsInput) coinsInput.value = '30';
-
-    this.renderStudentMyComplaints();
     this.openModal('modal-student-complaint');
   },
 
@@ -3033,7 +3442,12 @@ const App = {
     if (e) e.preventDefault();
     const user = Auth.getCurrentUser();
     const userDist = this.getActiveDistrictInfo();
-    const creator = (user && user.role === 'student') ? (DataStore.getCreatorById(user.creatorId) || user) : null;
+    const allCreators = DataStore.getCreators();
+    const creator = (user && user.role === 'student') ? (
+      DataStore.getCreatorById(user.creatorId || user.id) ||
+      allCreators.find(c => c && user.fullName && c.fullName && c.fullName.toLowerCase().trim() === user.fullName.toLowerCase().trim()) ||
+      user
+    ) : null;
 
     const studentName = (document.getElementById('cmp-student-name')?.value || '').trim();
     const studentSchool = (document.getElementById('cmp-student-school')?.value || '').trim();
@@ -3049,7 +3463,7 @@ const App = {
 
     const normDist = DataStore.normalizeDistrict(
       userDist.districtLabel || userDist.district || (creator && creator.districtLabel) || studentSchool || 'jondor',
-      userDist.regionLabel || (creator && creator.regionLabel) || ''
+      userDist.regionLabel || (creator && creator.regionLabel) || 'Buxoro viloyati'
     );
 
     const newComplaint = DataStore.addComplaint({
@@ -3061,7 +3475,9 @@ const App = {
       districtLabel: normDist.label || 'Jondor tumani',
       regionId: normDist.regionId || 'buxoro_vil',
       regionLabel: normDist.regionLabel || 'Buxoro viloyati',
-      reason: `${reason} (${eventTitle})`,
+      reason: eventTitle ? `${reason} (${eventTitle})` : reason,
+      reasonTitle: eventTitle ? `${reason} (${eventTitle})` : reason,
+      eventOrChallengeName: eventTitle,
       description: description,
       requestedCoins: requestedCoins
     });
@@ -3083,7 +3499,7 @@ const App = {
 
     this.renderStudentMyComplaints();
     this.refreshAllUI();
-    this.showToast(`Shikoyatingiz ${newComplaint.districtLabel} adminiga yuborildi! Ko'rib chiqilgach, o'rinli bo'lsa tangangiz taqdim etiladi.`, "success");
+    this.showToast(`✅ Shikoyatingiz ${newComplaint.districtLabel} koordinatoriga yuborildi! Ko'rib chiqilgach, o'rinli bo'lsa tangangiz taqdim etiladi.`, "success");
   },
 
   renderStudentMyComplaints() {
@@ -3114,13 +3530,15 @@ const App = {
     container.innerHTML = myComplaints.map(c => {
       const isApproved = c.status === 'approved';
       const isRejected = c.status === 'rejected';
+      const reasonText = c.reason || c.reasonTitle || "Videorolikda qatnashdim, lekin tanga olmadim";
+      const awarded = c.awardedCoins || c.coinsAwarded || c.requestedCoins || 30;
       return `
         <div class="p-3 rounded-2xl border text-xs ${isApproved ? 'bg-emerald-50 border-emerald-200' : (isRejected ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200')} space-y-1">
           <div class="flex items-center justify-between gap-2">
-            <span class="font-black text-slate-900">${c.reason}</span>
+            <span class="font-black text-slate-900">${reasonText}</span>
             ${isApproved ? `
               <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-600 text-white">
-                ✅ Ma'qullandi (+${c.awardedCoins} 🪙 berildi)
+                ✅ Ma'qullandi (+${awarded} 🪙 berildi)
               </span>
             ` : (isRejected ? `
               <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-200 text-red-900">
@@ -3132,7 +3550,7 @@ const App = {
               </span>
             `)}
           </div>
-          <p class="text-slate-600">${c.description}</p>
+          <p class="text-slate-600">${c.description || ''}</p>
           ${c.adminNote ? `<p class="text-[11px] font-bold text-emerald-900 mt-1"><i class="fa-solid fa-crown text-amber-500 mr-1"></i>Admin javobi: ${c.adminNote}</p>` : ''}
         </div>
       `;
@@ -3168,6 +3586,8 @@ const App = {
     tableBody.innerHTML = complaints.map(c => {
       const isApproved = c.status === 'approved';
       const isRejected = c.status === 'rejected';
+      const reasonText = c.reason || c.reasonTitle || "Videorolikda qatnashdim, lekin tanga olmadim";
+      const awarded = c.awardedCoins || c.coinsAwarded || c.requestedCoins || 30;
       return `
         <tr class="hover:bg-rose-50/30 transition">
           <td class="px-5 py-3">
@@ -3178,8 +3598,8 @@ const App = {
             </span>
           </td>
           <td class="px-5 py-3 max-w-sm">
-            <div class="font-black text-rose-800 text-xs">${c.reason}</div>
-            <p class="text-xs text-slate-600 mt-1">${c.description}</p>
+            <div class="font-black text-rose-800 text-xs">${reasonText}</div>
+            <p class="text-xs text-slate-600 mt-1">${c.description || ''}</p>
             ${c.adminNote ? `<p class="text-[11px] text-emerald-800 font-semibold mt-1">Izoh: ${c.adminNote}</p>` : ''}
           </td>
           <td class="px-5 py-3 text-center whitespace-nowrap">
@@ -3191,7 +3611,7 @@ const App = {
           <td class="px-5 py-3 text-center whitespace-nowrap">
             ${isApproved ? `
               <span class="px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-100 text-emerald-800 inline-flex items-center gap-1">
-                <i class="fa-solid fa-circle-check text-emerald-600"></i> Ma'qullandi (+${c.awardedCoins} 🪙)
+                <i class="fa-solid fa-circle-check text-emerald-600"></i> Ma'qullandi (+${awarded} 🪙)
               </span>
             ` : (isRejected ? `
               <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-200 text-slate-700">
@@ -3458,9 +3878,14 @@ const App = {
           </div>
         </td>
         <td class="px-4 py-3 text-center whitespace-nowrap">
-          <button type="button" onclick="App.saveSingleDistrictCoordinator('${d.id}', '${d.name.replace(/'/g, "\\'")}')" class="px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs shadow-sm transition inline-flex items-center gap-1.5">
-            <i class="fa-solid fa-floppy-disk"></i> Saqlash
-          </button>
+          <div class="inline-flex items-center gap-1.5">
+            <button type="button" onclick="App.saveSingleDistrictCoordinator('${d.id}', '${d.name.replace(/'/g, "\\'")}')" class="px-3 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs shadow-sm transition inline-flex items-center gap-1" title="Shu qatordagi ism va kodni saqlash">
+              <i class="fa-solid fa-floppy-disk"></i> Saqlash
+            </button>
+            <button type="button" onclick="App.openEditCoordinatorModal('district', '${d.id}', '${d.name.replace(/'/g, "\\'")}')" class="px-3 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-black text-xs transition inline-flex items-center gap-1" title="Tuman admini almashganda ismini va kodini tahrirlash">
+              <i class="fa-solid fa-pen-to-square"></i> Tahrirlash
+            </button>
+          </div>
         </td>
         <td class="px-4 py-3 text-center whitespace-nowrap">
           <span class="px-2.5 py-1 rounded-xl bg-emerald-100 text-emerald-900 font-black text-xs">${d.studentsCount} o'quvchi</span>
@@ -3542,6 +3967,60 @@ const App = {
           </span>
         </div>
       `).join('');
+    }
+
+    // 5. TUMAN ADMINLARIDAN VILOYATGA TANLAB YUBORILGAN ENG YAXSHI VIDEO ROLIKLAR (+10 TANGA BILAN RESPUBLIKAGA YUBORISH)
+    const regPromotedBody = document.getElementById('region-promoted-submissions-body');
+    if (regPromotedBody) {
+      const regDistIds = regionDistricts.map(d => d.id);
+      const regionSubs = allSubmissions.filter(sub =>
+        sub.promotedToRegion ||
+        regDistIds.some(dId => DataStore.districtsMatch(sub.district || sub.creatorDistrict, dId))
+      );
+
+      if (regionSubs.length === 0) {
+        regPromotedBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-5 py-6 text-center text-slate-400 text-xs">
+              ${activeRegionLabel} tumanlaridan hozircha video roliklar kelib tushmagan.
+            </td>
+          </tr>
+        `;
+      } else {
+        regPromotedBody.innerHTML = regionSubs.map(sub => `
+          <tr class="hover:bg-purple-50/40 transition">
+            <td class="px-4 py-3 font-bold text-slate-900">
+              ${sub.creatorName}
+              <span class="block text-[11px] text-slate-500 font-normal">${sub.creatorSchool}</span>
+            </td>
+            <td class="px-4 py-3 text-xs font-bold text-purple-800">📍 ${sub.creatorDistrict || sub.district || activeRegionLabel}</td>
+            <td class="px-4 py-3 text-xs font-semibold text-rose-700">${sub.challengeTitle}</td>
+            <td class="px-4 py-3 text-center">
+              <a href="${sub.videoUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-slate-900 text-white text-xs font-bold inline-flex items-center gap-1">
+                <i class="fa-solid fa-play text-red-400 text-[10px]"></i> Ko'rish
+              </a>
+            </td>
+            <td class="px-4 py-3 text-center">
+              ${sub.promotedToRepublic ? `
+                <span class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-800 text-xs font-black">🌟 Respublikaga yuborildi (+10 🪙)</span>
+              ` : (sub.promotedToRegion ? `
+                <span class="px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800 text-xs font-black">🏅 Tuman tanlagan (+5 🪙)</span>
+              ` : `
+                <span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold">Tuman roligi</span>
+              `)}
+            </td>
+            <td class="px-4 py-3 text-right">
+              ${!sub.promotedToRepublic ? `
+                <button onclick="App.handlePromoteSubmissionToRepublic('${sub.id}')" class="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-rose-600 hover:from-purple-500 hover:to-rose-500 text-white font-black rounded-xl text-xs shadow-sm transition inline-flex items-center gap-1.5">
+                  🌟 Respublikaga Yuborish (+10 🪙)
+                </button>
+              ` : `
+                <span class="text-xs font-black text-emerald-700"><i class="fa-solid fa-circle-check mr-1"></i>Respublikada</span>
+              `}
+            </td>
+          </tr>
+        `).join('');
+      }
     }
   },
 
@@ -3767,6 +4246,14 @@ const App = {
 
     if (!barchartContainer || !regionsTableBody) return;
 
+    const repAdmin = DataStore.getRepublicAdmin();
+    const selfNameInput = document.getElementById('rep-self-edit-fullname');
+    const selfPhoneInput = document.getElementById('rep-self-edit-phone');
+    const selfPinInput = document.getElementById('rep-self-edit-pin');
+    if (selfNameInput) selfNameInput.value = repAdmin.fullName || '';
+    if (selfPhoneInput) selfPhoneInput.value = repAdmin.phone || '';
+    if (selfPinInput) selfPinInput.value = repAdmin.pin || '12345';
+
     const allCreators = DataStore.getCreators();
     const allChallenges = DataStore.getChallenges();
 
@@ -3869,9 +4356,14 @@ const App = {
           </div>
         </td>
         <td class="px-4 py-3 text-center whitespace-nowrap">
-          <button type="button" onclick="App.saveSingleRegionCoordinator('${r.id}', '${r.name.replace(/'/g, "\\'")}')" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs shadow-sm transition inline-flex items-center gap-1.5">
-            <i class="fa-solid fa-floppy-disk"></i> Saqlash
-          </button>
+          <div class="inline-flex items-center gap-1.5">
+            <button type="button" onclick="App.saveSingleRegionCoordinator('${r.id}', '${r.name.replace(/'/g, "\\'")}')" class="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs shadow-sm transition inline-flex items-center gap-1" title="Shu qatordagi ism va kodni saqlash">
+              <i class="fa-solid fa-floppy-disk"></i> Saqlash
+            </button>
+            <button type="button" onclick="App.openEditCoordinatorModal('region', '${r.id}', '${r.name.replace(/'/g, "\\'")}')" class="px-3 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-black text-xs transition inline-flex items-center gap-1" title="Viloyat admini almashganda ismini va kodini tahrirlash">
+              <i class="fa-solid fa-pen-to-square"></i> Tahrirlash
+            </button>
+          </div>
         </td>
         <td class="px-4 py-3 text-center font-bold text-purple-700 text-xs whitespace-nowrap">${r.districtsCount} ta tuman</td>
         <td class="px-4 py-3 text-center whitespace-nowrap">
@@ -3925,6 +4417,93 @@ const App = {
           </tr>
         `).join('');
       }
+    }
+
+    // VILOYATLARDAN RESPUBLIKAGA TANLAB YUBORILGAN ENG YAXSHI VIDEO ROLIKLAR (1-O'RINNI TANLASH VA +15 TANGA BERISH)
+    const repPromotedBody = document.getElementById('republic-promoted-submissions-body');
+    if (repPromotedBody) {
+      const allSubmissions = DataStore.getChallengeSubmissions();
+      const repSubs = allSubmissions.filter(sub => sub.promotedToRepublic || sub.promotedToRegion || sub.isRepublicWinner);
+
+      if (repSubs.length === 0) {
+        repPromotedBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-5 py-6 text-center text-slate-400 text-xs">
+              Hozircha viloyat koordinatorlaridan Respublika finaliga yuborilgan video roliklar yo'q.
+            </td>
+          </tr>
+        `;
+      } else {
+        repPromotedBody.innerHTML = repSubs.map(sub => `
+          <tr class="hover:bg-amber-50/50 transition">
+            <td class="px-4 py-3 font-bold text-slate-900">
+              ${sub.creatorName}
+              <span class="block text-[11px] text-slate-500 font-normal">${sub.creatorSchool}</span>
+            </td>
+            <td class="px-4 py-3 text-xs font-bold text-rose-800">
+              📍 ${sub.creatorDistrict || sub.district || 'Tuman'}
+              <span class="block text-[10px] text-slate-500">${sub.regionLabel || 'Buxoro viloyati'}</span>
+            </td>
+            <td class="px-4 py-3 text-xs font-semibold text-slate-800">${sub.challengeTitle}</td>
+            <td class="px-4 py-3 text-center">
+              <a href="${sub.videoUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-slate-900 text-white text-xs font-bold inline-flex items-center gap-1">
+                <i class="fa-solid fa-play text-red-400 text-[10px]"></i> Videoni Ko'rish
+              </a>
+            </td>
+            <td class="px-4 py-3 text-center">
+              ${sub.isRepublicWinner ? `
+                <span class="px-3 py-1 rounded-xl bg-amber-400 text-slate-950 text-xs font-black shadow-xs">🏆 1-O'rin G'olibi (+15 🪙)</span>
+              ` : (sub.promotedToRepublic ? `
+                <span class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-800 text-xs font-black">🌟 Viloyat g'olibi (+10 🪙)</span>
+              ` : `
+                <span class="px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800 text-xs font-bold">🏅 Tuman g'olibi (+5 🪙)</span>
+              `)}
+            </td>
+            <td class="px-4 py-3 text-right">
+              ${!sub.isRepublicWinner ? `
+                <button onclick="App.handleAwardRepublicSubmissionWinner('${sub.id}')" class="px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black rounded-xl text-xs shadow-md transition inline-flex items-center gap-1.5">
+                  🏆 1-O'rinni Berish (+15 🪙)
+                </button>
+              ` : `
+                <span class="text-xs font-black text-amber-700"><i class="fa-solid fa-crown mr-1"></i>1-O'rin Berilgan</span>
+              `}
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+  },
+
+  handlePromoteSubmissionToRegion(submissionId) {
+    if (!Auth.isAdmin()) return;
+    const res = DataStore.promoteSubmissionToRegion(submissionId);
+    if (res.success) {
+      this.refreshAllUI();
+      this.showToast(`🏅 "${res.submission.creatorName}" videoroligi Viloyat koordinatoriga yuborildi va o'quvchiga +5 qo'shimcha tanga taqdim etildi!`, "success");
+    } else {
+      this.showToast(res.message || "Xatolik yuz berdi", "warning");
+    }
+  },
+
+  handlePromoteSubmissionToRepublic(submissionId) {
+    if (!Auth.isRegionAdmin() && !Auth.isRepublicAdmin() && !Auth.isAdmin()) return;
+    const res = DataStore.promoteSubmissionToRepublic(submissionId);
+    if (res.success) {
+      this.refreshAllUI();
+      this.showToast(`🌟 "${res.submission.creatorName}" videoroligi Respublika koordinatoriga yuborildi va o'quvchiga +10 qo'shimcha tanga taqdim etildi!`, "success");
+    } else {
+      this.showToast(res.message || "Xatolik yuz berdi", "warning");
+    }
+  },
+
+  handleAwardRepublicSubmissionWinner(submissionId) {
+    if (!Auth.isRepublicAdmin() && !Auth.isAdmin()) return;
+    const res = DataStore.awardRepublicSubmissionWinner(submissionId);
+    if (res.success) {
+      this.refreshAllUI();
+      this.showToast(`🏆 Tabriklaymiz! "${res.submission.creatorName}" Respublika bo'yicha 1-o'rin g'olibi deb topildi va unga +15 qo'shimcha tanga berildi!`, "success");
+    } else {
+      this.showToast(res.message || "Xatolik yuz berdi", "warning");
     }
   },
 
@@ -4417,7 +4996,30 @@ const App = {
 
     const playerContainer = document.getElementById('video-player-container');
     
-    if (creator.videoEmbedUrl) {
+    if (!creator.videoUrl) {
+      const currentUser = Auth.getCurrentUser();
+      const canEdit = (currentUser && currentUser.role === 'student' && currentUser.creatorId === creator.id) || Auth.isAdmin();
+      playerContainer.innerHTML = `
+        <div class="p-8 text-center bg-slate-900 rounded-3xl border border-slate-800 space-y-4">
+          <div class="w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto text-3xl">
+            <i class="fa-solid fa-video-slash"></i>
+          </div>
+          <div>
+            <h4 class="text-lg font-bold text-white">Jonli ijro videosi hali biriktirilmagan</h4>
+            <p class="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+              O'quvchi ro'yxatdan o'tishda video ssilkasini ixtiyoriy ravishda keyinchalik qo'shish uchun qoldirgan.
+            </p>
+          </div>
+          ${canEdit ? `
+            <div class="pt-2">
+              <button onclick="App.closeVideoModal(); App.openEditProfileModal('${creator.id}')" class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg transition">
+                <i class="fa-solid fa-pen-to-square"></i> Video ssilkasini hozir qo'shish (Tahrirlash)
+              </button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    } else if (creator.videoEmbedUrl) {
       playerContainer.innerHTML = `
         <div class="video-responsive-container">
           <iframe src="${creator.videoEmbedUrl}" title="${creator.fullName} chiqishi" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -4650,6 +5252,9 @@ const App = {
     if (el) {
       el.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
+      if (window.I18n && window.I18n.currentLang === 'uz' && typeof window.I18n.convertDOMToNewUzbek === 'function') {
+        window.I18n.convertDOMToNewUzbek(el);
+      }
     }
   },
 
@@ -4679,7 +5284,8 @@ const App = {
       'modal-award-coins',
       'modal-creator-detail',
       'modal-invite',
-      'modal-admin-inbox'
+      'modal-admin-inbox',
+      'modal-edit-coordinator'
     ].forEach(id => {
       this.closeModal(id);
     });
@@ -4701,8 +5307,12 @@ const App = {
       icon = '<i class="fa-solid fa-circle-exclamation text-red-300"></i>';
     }
 
+    const displayMsg = (window.I18n && window.I18n.currentLang === 'uz' && typeof window.I18n.toNewUzbek === 'function')
+      ? window.I18n.toNewUzbek(message)
+      : message;
+
     toast.className = `toast px-4 py-3 rounded-2xl ${bg} flex items-center gap-3 text-xs font-semibold shadow-2xl`;
-    toast.innerHTML = `${icon}<span>${message}</span>`;
+    toast.innerHTML = `${icon}<span>${displayMsg}</span>`;
 
     container.appendChild(toast);
 

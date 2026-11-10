@@ -4,112 +4,143 @@
  */
 
 const I18n = {
-  currentLang: localStorage.getItem('ijodkor_lang') || 'uz',
+  currentLang: localStorage.getItem('ijodkor_lang_v3') || 'uz',
+  _observer: null,
+  _isConverting: false,
+
+  // Takomillaştirilgan yangi özbek alifbosiga ötkaziş (O'->Ö, G'->Ğ, Sh->Ş, Ch->Ç)
+  toNewUzbek(text) {
+    if (!text || typeof text !== 'string') return text;
+    // Agar matnda kirill harflari bölsa (rus tilidagi matn), uni özgartirmaymiz
+    if (/[\u0400-\u04FF]/.test(text)) return text;
+
+    const protectedTokens = [];
+    let s = text.replace(/(https?:\/\/[^\s"'<>]+|\b(?:English|Русский|Google|Firebase|Realtime|YouTube|Telegram)\b)/gi, (match) => {
+      protectedTokens.push(match);
+      return `__PROT_${protectedTokens.length - 1}__`;
+    });
+
+    // 1. O‘ / o‘ / O' / o' -> Ö / ö
+    s = s.replace(/O['`‘’ʻʼ]/g, 'Ö').replace(/o['`‘’ʻʼ]/g, 'ö');
+    // 2. G‘ / g‘ / G' / g' -> Ğ / ğ
+    s = s.replace(/G['`‘’ʻʼ]/g, 'Ğ').replace(/g['`‘’ʻʼ]/g, 'ğ');
+    // 3. Sh / sh / SH -> Ş / ş
+    s = s.replace(/SH(?=[A-ZÖĞŞÇ\s.,!?:;\-\)]|$)/g, 'Ş')
+         .replace(/Sh/g, 'Ş')
+         .replace(/sh/g, 'ş');
+    // 4. Ch / ch / CH -> Ç / ç
+    s = s.replace(/CH(?=[A-ZÖĞŞÇ\s.,!?:;\-\)]|$)/g, 'Ç')
+         .replace(/Ch/g, 'Ç')
+         .replace(/ch/g, 'ç');
+
+    s = s.replace(/__PROT_(\d+)__/g, (_, idx) => protectedTokens[Number(idx)] || '');
+    return s;
+  },
 
   translations: {
     uz: {
-      // Bosh sahifa va header
+      // Boş sahifa va header
       app_title: "Kelajak",
       app_title_highlight: "ijodkori",
-      app_subtitle: "Iqtidorli Yoshlar & Chellenjlar Portali",
+      app_subtitle: "Iqtidorli Yoşlar & Çellenjlar Portali",
       server_connected: "Server: Ulangan",
-      server_sync: "Sinxronlash",
-      btn_exit: "Chiqish",
-      btn_edit: "Tahrirlash",
-      btn_proposal: "Taklif Yuborish",
+      server_sync: "Sinxronlaş",
+      btn_exit: "Çiqiş",
+      btn_edit: "Tahrirlaş",
+      btn_proposal: "Taklif Yuboriş",
       role_admin: "Admin (Tuman koordinatori)",
       role_staff: "Xodim",
-      role_student: "O'quvchi",
+      role_student: "Öquvçi",
 
       // Gateway
-      gateway_tagline: "Iqtidorli Maktab O'quvchilari Milliy Portali",
-      gateway_desc: "Tuman va viloyat miqyosida maktab o'quvchilarining ijodiy chiqishlari, umumiy chellenjlar va madaniyat xodimlari bilan hamkorlik platformasi",
-      gateway_btn_student: "O'quvchi bo'lib kirish",
-      gateway_btn_student_sub: "Video roliklar topshirish, tangalar yig'ish va reytingda ko'tarilish",
-      gateway_btn_staff: "Madaniyat Xodimi",
-      gateway_btn_staff_sub: "O'quvchilar kontaktlarini ko'rish, tadbirlarga taklif etish va taklif kiritish",
+      gateway_tagline: "Özbekiston Iqtidorli Maktab Öquvçilari Milliy Portali",
+      gateway_desc: "Tuman va viloyat miqyosida maktab öquvçilarining ijodiy çiqişlari, umumiy çellenjlar va madaniyat xodimlari bilan hamkorlik platformasi",
+      gateway_btn_student: "Öquvçi sifatida kiriş",
+      gateway_btn_student_sub: "Özingizning tumaningizdan röyxatdan öting, video roliklar topşiring va tangalar yiğing",
+      gateway_btn_staff: "Madaniyat xodimi sifatida kiriş",
+      gateway_btn_staff_sub: "Öz tumaningiz öquvçilarini kuzatiş, tadbirlarga taklif etiş va taklif kiritiş",
       gateway_btn_admin: "Admin (Tuman koordinatorlari)",
-      gateway_btn_admin_sub: "Tuman vazifalari, tangalar, videolarni baholash va shikoyatlarni ko'rib chiqish",
+      gateway_btn_admin_sub: "Tuman vazifalari, tangalar, videolarni baholaş va şikoyatlarni körib çiqiş",
       gateway_btn_region_admin: "Admin (Viloyat koordinatorlari)",
-      gateway_btn_region_admin_sub: "Viloyatdagi tumanlar o'sish tendensiyasi va hisobotlar",
+      gateway_btn_region_admin_sub: "Viloyatdagi tumanlar ösiş tendensiyasi va hisobotlar",
       gateway_btn_republic_admin: "Admin (Respublika koordinatori)",
-      gateway_btn_republic_admin_sub: "Respublika bo'yicha viloyatlar tahlili va hisobotlari",
-      gateway_footer: "© 2026 Kelajak ijodkori. Barcha huquqlar himoyalangan.",
+      gateway_btn_republic_admin_sub: "Respublika böyiça viloyatlar tahlili va hisobotlari",
+      gateway_footer: "© 2026 Kelajak ijodkori. Barça huquqlar himoyalangan.",
 
       // Navigatsiya
-      nav_creators: "O'quvchilar",
-      nav_challenges: "Chellenjlar 🔥",
+      nav_creators: "Öquvçilar",
+      nav_challenges: "Çellenjlar",
       nav_contests: "Tanlovlar",
       nav_leaderboard: "Reyting",
       nav_staff: "Xodimlar",
-      nav_admin: "Admin Paneli",
+      nav_admin: "Tuman Admin",
 
-      // 1-Bo'lim: O'quvchilar
-      creators_title: "Ro'yxatdan O'tgan Maktab O'quvchilari",
-      creators_subtitle: "Umumta'lim maktab o'quvchilari o'z rasmi bilan kiritilgan va tumanlar bo'yicha saralangan",
+      // 1-Bölim: Öquvçilar
+      creators_title: "Röyxatdan Ötgan Maktab Öquvçilari",
+      creators_subtitle: "Umumta'lim maktab öquvçilari öz rasmi bilan kiritilgan va tumanlar böyiça saralangan",
       search_placeholder: "Ism, maktab yoki tuman...",
-      all_districts: "Barcha tumanlar",
-      no_creators: "Hech qanday o'quvchi topilmadi",
-      no_creators_sub: "Boshqa tuman tanlang yoki qidiruv so'zini o'zgartiring.",
+      all_districts: "Barça tumanlar",
+      no_creators: "Heç qanday öquvçi topilmadi",
+      no_creators_sub: "Boşqa tuman tanlang yoki qidiruv sözini özgartiring.",
       coins: "tanga",
-      watch_video: "Videoni ko'rish",
+      watch_video: "Videoni köriş",
       more_details: "Batafsil",
 
-      // 2-Bo'lim: Chellenjlar
-      challenges_title: "Umumiy Maktab Video Chellenjlari",
-      challenges_subtitle: "Maktab o'quvchilari turli ijodiy yo'nalishlarda video tayyorlab, Bosh Koordinatordan tanga yutib olishadi",
-      btn_submit_challenge: "Video Rolikni Topshirish",
-      btn_add_challenge: "Yangi Chellenj Qo'shish",
-      active_challenges: "Faol Chellenjlar",
-      submissions_gallery: "Topshirilgan Video Roliklar Galereyasi",
-      submissions_gallery_sub: "O'quvchilar tomonidan yuklangan va tasdiqlangan videolar",
+      // 2-Bölim: Çellenjlar
+      challenges_title: "Umumiy Maktab Video Çellenjlari",
+      challenges_subtitle: "Maktab öquvçilari turli ijodiy yönalişlarda video tayyorlab, Tuman Koordinatoridan tanga yutib olişadi",
+      btn_submit_challenge: "Video Rolikni Topşiriş",
+      btn_add_challenge: "Yangi Çellenj Qöşiş",
+      active_challenges: "Faol Çellenjlar",
+      submissions_gallery: "Topşirilgan Video Roliklar Galereyasi",
+      submissions_gallery_sub: "Öquvçilar tomonidan yuklangan va tasdiqlangan videolar",
       status_approved: "Tasdiqlangan",
       status_pending: "Kutilmoqda",
 
-      // 3-Bo'lim: Tanlovlar
+      // 3-Bölim: Tanlovlar
       contests_title: "Rasmiy Tanlovlar & Madaniy Tadbirlar",
-      contests_subtitle: "Barcha umumta'lim maktab o'quvchilari ishtirok etishi mumkin bo'lgan dasturlar",
-      btn_add_contest: "Yangi Tanlov E'loni Qo'shish",
+      contests_subtitle: "Barça umumta'lim maktab öquvçilari iştirok etişi mumkin bölgan dasturlar",
+      btn_add_contest: "Yangi Tanlov E'loni Qöşiş",
       contest_active: "Faol Tanlov",
       contest_date: "Sanasi",
       contest_location: "Manzil",
 
-      // 4-Bo'lim: Reyting
-      leaderboard_title: "Iqtidorli O'quvchilar Milliy Reytingi",
-      leaderboard_subtitle: "Chellenjlarda eng ko'p tanga to'plagan eng faol o'quvchilar",
+      // 4-Bölim: Reyting
+      leaderboard_title: "Iqtidorli Öquvçilar Milliy Reytingi",
+      leaderboard_subtitle: "Çellenjlarda eng köp tanga töplagan eng faol öquvçilar",
       top_creators: "Top Ijodkorlar",
 
-      // 5-Bo'lim: Xodimlar
+      // 5-Bölim: Xodimlar
       staff_title: "Madaniyat Xodimlari Xonasi",
-      staff_subtitle: "Siz Navro'z, Mustaqillik, Yoshlar kuni yoki boshqa tadbirlar uchun o'quvchilarni tanlab, bevosita telefon orqali taklif qilishingiz mumkin.",
-      staff_my_proposals_title: "Mening Bosh Koordinatorga Yuborgan Takliflarim",
-      staff_my_proposals_subtitle: "Siz tomoningizdan kiritilgan madaniy tashabbuslar va ularning joriy holati",
-      btn_send_new_proposal: "Yangi Taklif Yuborish",
-      staff_contacts_title: "Madaniyat Xodimi uchun O'quvchilar Kontaktlari",
-      staff_contacts_subtitle: "Barcha tumanlar bo'yicha",
-      proposal_status_pending: "Taklif uchun rahmat, admin siz bilan bog'lanadi",
+      staff_subtitle: "Siz Navröz, Mustaqillik, Yoşlar kuni yoki boşqa tadbirlar uçun öquvçilarni tanlab, bevosita telefon orqali taklif qilişingiz mumkin.",
+      staff_my_proposals_title: "Mening Tuman Koordinatoriga Yuborgan Takliflarim",
+      staff_my_proposals_subtitle: "Siz tomoningizdan kiritilgan madaniy taşabbuslar va ularning joriy holati",
+      btn_send_new_proposal: "Yangi Taklif Yuboriş",
+      staff_contacts_title: "Madaniyat Xodimi uçun Öquvçilar Kontaktlari",
+      staff_contacts_subtitle: "Öz tumaningiz böyiça",
+      proposal_status_pending: "Taklif uçun rahmat, admin siz bilan boğlanadi",
       proposal_status_approved: "Tabriklaymiz, taklifingiz ma'qullandi!",
-      staff_invite_btn: "Taklif qilish",
+      staff_invite_btn: "Taklif qiliş",
 
-      // 6-Bo'lim: Admin
-      admin_title: "Admin Boshqaruvi: Tangalar, Chellenjlar & Server",
-      admin_subtitle: "Chellenj roliklarini baholang, oylik tashriflar statistikasini ko'ring, xodimlarga qo'ng'iroq qiling va bulutli bazani boshqaring.",
-      admin_proposals_title: "Madaniyat Xodimlaridan Kelgan Taklif va Tashabbuslar",
-      admin_proposals_subtitle: "Madaniyat markazlari va soha yetakchilarining yangi tadbirlar, chellenjlar va iqtidorli o'quvchilarni tavsiya etish takliflari",
-      admin_staff_title: "Ro'yxatdan O'tgan Madaniyat Xodimlari",
-      admin_staff_subtitle: "Xodimlarning telefon raqamlari qonuniy talab bo'yicha FAQAT Adminga ko'rinadi",
-      admin_creators_title: "Bazada Mavjud O'quvchilar Ro'yxati",
-      admin_creators_subtitle: "O'quvchilar rasmi, maktabi, videolari va tangalar nazorati",
-      btn_approve: "Ma'qullash",
-      btn_convert_challenge: "Chellenj qilish",
-      btn_convert_contest: "Tadbir qilish",
-      btn_delete: "O'chirish",
+      // 6-Bölim: Admin
+      admin_title: "Admin Boşqaruvi: Tangalar, Çellenjlar & Server",
+      admin_subtitle: "Çellenj roliklarini baholang, oylik taşriflar statistikasini köring, xodimlarga qönğiroq qiling va bulutli bazani boşqaring.",
+      admin_proposals_title: "Madaniyat Xodimlaridan Kelgan Taklif va Taşabbuslar",
+      admin_proposals_subtitle: "Madaniyat markazlari va soha yetakçilarining yangi tadbirlar, çellenjlar va iqtidorli öquvçilarni tavsiya etiş takliflari",
+      admin_staff_title: "Röyxatdan Ötgan Madaniyat Xodimlari",
+      admin_staff_subtitle: "Xodimlarning telefon raqamlari qonuniy talab böyiça FAQAT Adminga körinadi",
+      admin_creators_title: "Bazada Mavjud Öquvçilar Röyxati",
+      admin_creators_subtitle: "Öquvçilar rasmi, maktabi, videolari va tangalar nazorati",
+      btn_approve: "Ma'qullaş",
+      btn_convert_challenge: "Çellenj qiliş",
+      btn_convert_contest: "Tadbir qiliş",
+      btn_delete: "Öçiriş",
 
       // Toasts & Dialogs
-      toast_proposal_sent: "Taklif uchun rahmat, admin siz bilan bog'lanadi",
+      toast_proposal_sent: "Taklif uçun rahmat, admin siz bilan boğlanadi",
       toast_proposal_approved: "Tabriklaymiz, taklifingiz ma'qullandi!",
-      toast_logged_out: "Profildan chiqildi. Bosh ekranga qaytdingiz.",
-      toast_sync_done: "Barcha ma'lumotlar sinxronlandi!"
+      toast_logged_out: "Profildan çiqildi. Boş ekranga qaytdingiz.",
+      toast_sync_done: "Barça ma'lumotlar sinxronlandi!"
     },
 
     ru: {
@@ -143,11 +174,11 @@ const I18n = {
 
       // Навигация
       nav_creators: "Учащиеся",
-      nav_challenges: "Челленджи 🔥",
+      nav_challenges: "Челленджи",
       nav_contests: "Конкурсы",
       nav_leaderboard: "Рейтинг",
       nav_staff: "Сотрудники",
-      nav_admin: "Панель админа",
+      nav_admin: "Админ",
 
       // 1-Раздел: Учащиеся
       creators_title: "Зарегистрированные школьники",
@@ -248,11 +279,11 @@ const I18n = {
 
       // Navigation
       nav_creators: "Students",
-      nav_challenges: "Challenges 🔥",
+      nav_challenges: "Challenges",
       nav_contests: "Contests",
       nav_leaderboard: "Leaderboard",
-      nav_staff: "Culture Staff",
-      nav_admin: "Admin Panel",
+      nav_staff: "Staff",
+      nav_admin: "Admin",
 
       // Section 1: Creators
       creators_title: "Registered School Students",
@@ -324,15 +355,16 @@ const I18n = {
   },
 
   init() {
-    this.currentLang = localStorage.getItem('ijodkor_lang') || 'uz';
+    this.currentLang = localStorage.getItem('ijodkor_lang_v3') || 'uz';
     this.applyTranslations();
     this.updateLanguageUI();
+    this.setupDOMObserver();
   },
 
   setLanguage(lang) {
     if (!this.translations[lang]) lang = 'uz';
     this.currentLang = lang;
-    localStorage.setItem('ijodkor_lang', lang);
+    localStorage.setItem('ijodkor_lang_v3', lang);
     this.applyTranslations();
     this.updateLanguageUI();
     if (window.App && typeof window.App.refreshAllUI === 'function') {
@@ -342,7 +374,96 @@ const I18n = {
 
   t(key) {
     const dict = this.translations[this.currentLang] || this.translations.uz;
-    return dict[key] || this.translations.uz[key] || key;
+    const val = dict[key] || this.translations.uz[key] || key;
+    return this.currentLang === 'uz' ? this.toNewUzbek(val) : val;
+  },
+
+  convertDOMToNewUzbek(root = document.body) {
+    if (this.currentLang !== 'uz' || !root || this._isConverting) return;
+    this._isConverting = true;
+    if (this._observer) {
+      this._observer.disconnect();
+    }
+    try {
+      const walker = document.createTreeWalker(
+        root,
+        NodeFilter.SHOW_TEXT,
+        {
+          acceptNode(node) {
+            const parent = node.parentElement;
+            if (!parent) return NodeFilter.FILTER_REJECT;
+            const tag = parent.tagName;
+            if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'CODE' || tag === 'NOSCRIPT' || tag === 'TEXTAREA') {
+              return NodeFilter.FILTER_REJECT;
+            }
+            return NodeFilter.FILTER_ACCEPT;
+          }
+        }
+      );
+
+      let currentNode = walker.nextNode();
+      while (currentNode) {
+        const orig = currentNode.nodeValue;
+        if (orig && orig.trim().length > 0) {
+          const converted = this.toNewUzbek(orig);
+          if (converted !== orig) {
+            currentNode.nodeValue = converted;
+          }
+        }
+        currentNode = walker.nextNode();
+      }
+
+      if (root.querySelectorAll) {
+        root.querySelectorAll('[placeholder], [title], datalist option').forEach(el => {
+          if (el.hasAttribute('placeholder')) {
+            const p = el.getAttribute('placeholder');
+            const cp = this.toNewUzbek(p);
+            if (cp !== p) el.setAttribute('placeholder', cp);
+          }
+          if (el.hasAttribute('title')) {
+            const t = el.getAttribute('title');
+            const ct = this.toNewUzbek(t);
+            if (ct !== t) el.setAttribute('title', ct);
+          }
+          if (el.tagName === 'OPTION' && el.parentElement && el.parentElement.tagName === 'DATALIST') {
+            const v = el.getAttribute('value');
+            if (v) {
+              const cv = this.toNewUzbek(v);
+              if (cv !== v) el.setAttribute('value', cv);
+            }
+          }
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      this._isConverting = false;
+      if (this._observer && document.body) {
+        this._observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+          characterData: false
+        });
+      }
+    }
+  },
+
+  setupDOMObserver() {
+    if (this._observer || typeof MutationObserver === 'undefined' || !document.body) return;
+    this._observer = new MutationObserver(() => {
+      if (this.currentLang !== 'uz' || this._isConverting) return;
+      if (this._observerTimer) clearTimeout(this._observerTimer);
+      this._observerTimer = setTimeout(() => {
+        if (this.currentLang === 'uz' && !this._isConverting && document.body) {
+          this.convertDOMToNewUzbek(document.body);
+        }
+      }, 120);
+    });
+    this._observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: false
+    });
   },
 
   applyTranslations() {
@@ -377,6 +498,10 @@ const I18n = {
         el.setAttribute('title', val);
       }
     });
+
+    if (this.currentLang === 'uz') {
+      this.convertDOMToNewUzbek(document.body);
+    }
   },
 
   updateLanguageUI() {
