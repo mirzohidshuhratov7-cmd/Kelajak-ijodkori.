@@ -16,7 +16,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <!-- Maxsus uslublar -->
-  <link rel="stylesheet" href="css/style.css?v=20261109_1">
+  <link rel="stylesheet" href="css/style.css?v=20261110_4" onerror="this.onerror=null;this.href='style.css?v=20261110_4';">
   <script>
     if (window.tailwind) {
       tailwind.config = {
@@ -52,28 +52,6 @@
        Agar profilga kirmagan bo'lsa: Ekran markazida FAQAT 3 TA KATTA TUGMA!
        ========================================================================= -->
   <div id="view-gateway" class="flex-1 flex flex-col justify-between items-center px-3 sm:px-4 py-6 sm:py-8 relative bg-cultural-gradient min-h-screen overflow-x-hidden w-full">
-
-    <!-- Gateway Tepasidagi Til Tanlash -->
-    <div class="absolute top-3 right-3 sm:top-4 sm:right-4 z-[9999]" id="gateway-lang-switcher">
-      <div class="relative">
-        <button type="button" onclick="App.toggleLangDropdown('gateway')" class="px-3 py-1.5 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white font-bold rounded-xl text-xs transition flex items-center gap-1.5 shadow">
-          <span class="current-lang-flag">🇺🇿</span>
-          <span class="current-lang-code text-[11px] font-black uppercase">UZ</span>
-          <i class="fa-solid fa-chevron-down text-[8px] text-white/70"></i>
-        </button>
-        <div id="gateway-lang-dropdown-menu" class="hidden absolute right-0 top-full mt-1.5 bg-slate-900/95 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl z-[9999] py-1.5 w-36 text-xs font-bold text-white">
-          <button type="button" onclick="App.changeLanguage('uz')" class="w-full text-left px-3 py-2 hover:bg-white/10 flex items-center gap-2">
-            <span>🇺🇿</span> <span>O'zbekcha</span>
-          </button>
-          <button type="button" onclick="App.changeLanguage('ru')" class="w-full text-left px-3 py-2 hover:bg-white/10 flex items-center gap-2">
-            <span>🇷🇺</span> <span>Русский</span>
-          </button>
-          <button type="button" onclick="App.changeLanguage('en')" class="w-full text-left px-3 py-2 hover:bg-white/10 flex items-center gap-2">
-            <span>🇬🇧</span> <span>English</span>
-          </button>
-        </div>
-      </div>
-    </div>
 
     <!-- Yuqori qism: Logo va Tushuntirish -->
     <div class="text-center pt-8 sm:pt-12 space-y-3 max-w-2xl relative z-10">
@@ -224,7 +202,10 @@
             <button id="nav-btn-leaderboard" onclick="App.switchTab('leaderboard')" class="nav-tab px-2.5 py-1.5 rounded-lg text-[11px] xl:text-xs font-bold transition-all text-slate-600 hover:text-slate-900 whitespace-nowrap">
               <i class="fa-solid fa-trophy mr-1 text-amber-500"></i><span data-i18n="nav_leaderboard">Reyting</span>
             </button>
-            <button id="nav-btn-staff" onclick="App.switchTab('staff')" class="nav-tab px-2.5 py-1.5 rounded-lg text-[11px] xl:text-xs font-bold transition-all text-slate-600 hover:text-slate-900 whitespace-nowrap">
+            <button id="nav-btn-achievements" onclick="App.switchTab('achievements')" class="nav-tab px-2.5 py-1.5 rounded-lg text-[11px] xl:text-xs font-bold transition-all text-slate-600 hover:text-slate-900 whitespace-nowrap">
+              <i class="fa-solid fa-medal mr-1 text-amber-500"></i><span>Yutuqlarim</span>
+            </button>
+            <button id="nav-btn-staff" onclick="App.switchTab('staff')" class="nav-tab hidden px-2.5 py-1.5 rounded-lg text-[11px] xl:text-xs font-bold transition-all text-slate-600 hover:text-slate-900 whitespace-nowrap">
               <i class="fa-solid fa-id-badge mr-1 text-blue-500"></i><span data-i18n="nav_staff">Xodimlar</span>
             </button>
             <button id="nav-btn-admin" onclick="App.switchTab('admin')" class="nav-tab hidden px-2.5 py-1.5 rounded-lg text-[11px] xl:text-xs font-bold transition-all text-slate-600 hover:text-slate-900 whitespace-nowrap">
@@ -238,28 +219,8 @@
             </button>
           </nav>
 
-          <!-- Hozirgi Profil, Til Tanlash, Tahrirlash va Chiqish (Ixcham) -->
+          <!-- Hozirgi Profil, Tahrirlash va Chiqish (Ixcham) -->
           <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
-            
-            <!-- TILNI TANLASH TUGMASI (UZ / RU / EN) -->
-            <div class="relative z-[120]" id="lang-switcher-container">
-              <button type="button" onclick="App.toggleLangDropdown('app')" class="px-2 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-[11px] border border-slate-300 transition flex items-center gap-1" title="Tilni tanlash / Выбрать язык / Choose language">
-                <span class="current-lang-flag text-xs">🇺🇿</span>
-                <span class="current-lang-code text-[10px] font-black uppercase">UZ</span>
-                <i class="fa-solid fa-chevron-down text-[8px] text-slate-500"></i>
-              </button>
-              <div id="lang-dropdown-menu" class="hidden absolute right-0 top-full mt-1.5 bg-white border-2 border-slate-200 rounded-2xl shadow-2xl z-[9999] py-1.5 w-40 text-xs font-bold text-slate-800">
-                <button type="button" onclick="App.changeLanguage('uz')" class="w-full text-left px-3 py-2 hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-2">
-                  <span>🇺🇿</span> <span>O'zbekcha</span>
-                </button>
-                <button type="button" onclick="App.changeLanguage('ru')" class="w-full text-left px-3 py-2 hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-2">
-                  <span>🇷🇺</span> <span>Русский</span>
-                </button>
-                <button type="button" onclick="App.changeLanguage('en')" class="w-full text-left px-3 py-2 hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-2">
-                  <span>🇬🇧</span> <span>English</span>
-                </button>
-              </div>
-            </div>
 
             <!-- Profil Nishoni (Ixcham) -->
             <div id="user-profile-badge" class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl border bg-slate-100 text-[11px] font-black text-slate-800 max-w-[170px] sm:max-w-[200px] truncate shrink-0">
@@ -300,6 +261,35 @@
 
         </div>
       </div>
+
+      <!-- YUQORI CHETDAGI 4 TA MAVSUM (KUZGI, QISHKI, BAHORGI, YOZGI) ORQAGA SANASH TAYMERI -->
+      <div id="season-countdown-bar" class="bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-900 text-white border-t border-slate-800/80 px-3 sm:px-6 py-1.5">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-[11px]">
+          <div class="flex items-center gap-2">
+            <span id="season-active-badge" class="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[10px] uppercase tracking-wider shadow-2xs">
+              ⏳ Joriy Mavsum
+            </span>
+            <span id="season-active-title" class="font-black text-amber-200 text-xs sm:text-sm">🍁 Kuzgi Mavsum</span>
+            <span id="season-active-dates" class="hidden md:inline text-slate-400 text-[11px]">(1-sentabr — 30-noyabr)</span>
+          </div>
+
+          <div class="flex items-center gap-2 ml-auto">
+            <span class="text-slate-300 font-semibold hidden sm:inline">Mavsum tugashiga:</span>
+            <div id="season-countdown-clock" class="flex items-center gap-1 font-mono font-black text-xs">
+              <span class="px-2 py-0.5 rounded-lg bg-white/10 border border-amber-400/40 text-amber-300"><b id="cd-days">00</b> kun</span>
+              <span class="text-amber-400">:</span>
+              <span class="px-2 py-0.5 rounded-lg bg-white/10 border border-amber-400/40 text-amber-300"><b id="cd-hours">00</b> soat</span>
+              <span class="text-amber-400">:</span>
+              <span class="px-2 py-0.5 rounded-lg bg-white/10 border border-amber-400/40 text-amber-300"><b id="cd-mins">00</b> daq</span>
+              <span class="text-amber-400">:</span>
+              <span class="px-2 py-0.5 rounded-lg bg-rose-600/90 border border-rose-400 text-white"><b id="cd-secs">00</b> soniya</span>
+            </div>
+            <button type="button" onclick="App.openSeasonEndedModal(true)" class="px-2.5 py-0.5 rounded-lg bg-amber-400/20 hover:bg-amber-400/30 border border-amber-400/50 text-amber-300 font-black text-[10px] transition shrink-0" title="Mavsum yakuni va yutuqlar oynasini ko'rish">
+              🏆 Mavsum Natijasi
+            </button>
+          </div>
+        </div>
+      </div>
     </header>
 
     <!-- Asosiy Mazmun -->
@@ -307,6 +297,9 @@
 
       <!-- 1-BO'LIM: O'QUVCHILAR KATALOGI (Tab: creators) -->
       <section id="section-creators" class="tab-section block space-y-6">
+
+        <!-- O'QUVCHINING G'OLIBLIK VA KOLLABORATSIYA TABRIKNOMASI BANNERI (Tuman / Viloyat / Respublika) -->
+        <div id="student-victory-achievements-banner" class="hidden space-y-4"></div>
 
         <!-- O'QUVCHILAR UCHUN ADMINGA SHIKOYAT VA KAMCHILIK HAQIDA XABAR BERISH PANELI -->
         <div id="student-complaint-banner" class="relative z-10 bg-gradient-to-r from-rose-50 via-amber-50 to-orange-50 border-2 border-rose-200 rounded-3xl p-4 sm:p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -391,11 +384,14 @@
           </div>
         </div>
 
+        <!-- O'QUVCHINING CHELLENJDAGI G'OLIBLIK VA KOLLABORATSIYA TABRIKNOMASI BANNERI -->
+        <div id="challenges-victory-achievements-banner" class="hidden space-y-4"></div>
+
         <!-- 3-BOSQICHLI BONUS TANGALAR TIZIMI TUSHUNTIRISH BANNERI -->
         <div class="bg-gradient-to-r from-amber-50 via-orange-50 to-rose-50 border-2 border-amber-200 rounded-3xl p-4 sm:p-5 shadow-xs">
           <div class="flex items-center gap-2 text-amber-900 font-black text-xs sm:text-sm mb-2">
             <i class="fa-solid fa-ranking-star text-amber-600 text-base"></i>
-            <span>Bosqiçma-bosqiç Qo'şimça Bonus Tangalar Tizimi (Tuman $\rightarrow$ Viloyat $\rightarrow$ Respublika):</span>
+            <span>Bosqiçma-bosqiç Qo'şimça Bonus Tangalar Tizimi (Tuman → Viloyat → Respublika):</span>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-2.5 text-xs">
             <div class="p-3 rounded-2xl bg-white border border-slate-200 shadow-2xs">
@@ -489,7 +485,12 @@
           </div>
         </div>
 
-        <div id="contests-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- O'QUVCHI MADANIYAT XODIMI TOMONIDAN TANLOVGA TANLANGANDA CHIQUVCHI MAXSUS TAKLIF VA TABRIK BANNERI -->
+        <div id="student-selected-contests-banner" class="hidden space-y-4">
+          <!-- JS to'ldiradi -->
+        </div>
+
+        <div id="contests-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           <!-- JS to'ldiradi -->
         </div>
 
@@ -544,7 +545,7 @@
                 <tr>
                   <th class="px-6 py-4">O'rin</th>
                   <th class="px-6 py-4">O'quvchi (F.I.O.)</th>
-                  <th class="px-6 py-4">Tumani / Shahri</th>
+                  <th class="px-6 py-4">Viloyati va Tumani</th>
                   <th class="px-6 py-4">Maktabi</th>
                   <th class="px-6 py-4 text-center">Bayramlar Soni</th>
                   <th class="px-6 py-4 text-right">Umumiy Tangalar</th>
@@ -555,6 +556,74 @@
                 <!-- JS to'ldiradi -->
               </tbody>
             </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- 4B-BO'LIM: MENING YUTUQLARIM, MAVSUMLAR VA TAKLIF QILINGAN TADBIRLARIM (Tab: achievements) -->
+      <section id="section-achievements" class="tab-section hidden space-y-6">
+        
+        <div class="bg-gradient-to-r from-indigo-900 via-purple-900 to-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-xl border border-indigo-700/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div class="space-y-1.5">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider">
+              <i class="fa-solid fa-medal"></i> Mening Yutuqlarim va Mavsumlar Tarixi
+            </span>
+            <h2 id="achievements-student-heading" class="text-2xl sm:text-3xl font-black">Mavsumlar Bo'yicha To'plangan Tangalar, Yutuqlar va Takliflar</h2>
+            <p class="text-xs sm:text-sm text-indigo-200 max-w-2xl leading-relaxed">
+              To'rtta mavsum (Kuzgi mavsum, Qishki mavsum, Bahorgi mavsum, Yozgi mavsum) davomida nechta tanga to'plaganingiz, video-chellenjlarda erishgan g'olibliklaringiz hamda qaysi madaniy tadbirlarga taklif qilinganingiz shu yerda doimiy saqlanadi.
+            </p>
+          </div>
+          <div id="achievements-summary-box" class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 text-center min-w-[210px] shrink-0">
+            <!-- JS to'ldiradi -->
+          </div>
+        </div>
+
+        <!-- 1. HAR BITTA MAVSUM (4 TA MAVSUM: KUZGI, QISHKI, BAHORGI, YOZGI) BO'YICHA TANGALAR VA YUTUQLAR -->
+        <div class="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between flex-wrap gap-2 border-b border-slate-100 pb-3">
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-calendar-days text-indigo-600"></i> To'rtta Mavsumda (Kuzgi, Qishki, Bahorgi, Yozgi) To'plagan Tangalarim
+              </h3>
+              <p class="text-xs text-slate-500">Yilning 4 ta mavsumi bo'yicha qaysi mavsumda nechta tanga yig'ganingiz va erishgan yutuqlaringiz</p>
+            </div>
+          </div>
+
+          <div id="achievements-seasons-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- JS to'ldiradi -->
+          </div>
+        </div>
+
+        <!-- 2. VIDEO-CHELLENJ G'OLIBLIKLARI, KOLLABORATSIYALAR VA YUTUQLAR RO'YXATI -->
+        <div class="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between flex-wrap gap-2 border-b border-slate-100 pb-3">
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-trophy text-amber-500"></i> Erishgan Yutuqlarim va Jamoaviy Kollaboratsiyalarim (@nickname)
+              </h3>
+              <p class="text-xs text-slate-500">Tuman, Viloyat va Respublika bosqichlaridagi g'olibliklar hamda jamoaviy video-chellenjlar tarixi (1 kundan keyin bosh ekrandan shu bo'limga o'tadi)</p>
+            </div>
+          </div>
+
+          <div id="achievements-victories-list" class="space-y-3">
+            <!-- JS to'ldiradi -->
+          </div>
+        </div>
+
+        <!-- 3. QAYSI TADBIRLARGA TAKLIF QILINGANIM VA BAYRAMLARDA QATNASHGANIM -->
+        <div class="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between flex-wrap gap-2 border-b border-slate-100 pb-3">
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-envelope-open-text text-emerald-600"></i> Qaysi Tadbirlarga Taklif Qilinganim va Bayram Chiqishlarim
+              </h3>
+              <p class="text-xs text-slate-500">Madaniyat xodimlari va koordinatorlar tomonidan bayram, festival va tanlovlarga qilingan takliflar hamda taqdim etilgan tangalar</p>
+            </div>
+          </div>
+
+          <div id="achievements-invitations-list" class="space-y-3">
+            <!-- JS to'ldiradi -->
           </div>
         </div>
 
@@ -574,6 +643,27 @@
             </p>
           </div>
           <div id="staff-auth-status" class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 text-center min-w-[220px]">
+            <!-- JS to'ldiradi -->
+          </div>
+        </div>
+
+        <!-- TUMAN KOORDINATORI KIRITGAN TANLOVLAR (MADANIYAT XODIMI "+" PLYUSCHA TUGMASI ORQALI O'QUVCHI TANLAYDI) -->
+        <div id="staff-contests-selection-card" class="bg-gradient-to-br from-indigo-50 via-white to-blue-50 p-6 rounded-3xl border-2 border-indigo-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between flex-wrap gap-2 border-b border-indigo-100 pb-3">
+            <div>
+              <span class="inline-block px-3 py-0.5 rounded-full bg-indigo-600 text-white font-black text-[11px] uppercase tracking-wider mb-1">
+                <i class="fa-solid fa-circle-plus mr-1"></i> Tanlovga O'quvchi Biriktirish (+)
+              </span>
+              <h3 class="font-black text-slate-900 text-base sm:text-lg flex items-center gap-2">
+                <i class="fa-solid fa-bullhorn text-indigo-600"></i> Tuman Koordinatori E'lon Qilgan Tanlovlar — «+» Tugmasi Orqali O'quvchi Tanlang
+              </h3>
+              <p class="text-xs text-slate-600 mt-0.5">
+                Har bir tanlovdagi <b>«➕ O'quvchi tanlash»</b> tugmasini bosib, tumaningizdagi iqtidorli o'quvchilarni tanlang. Tanlangan o'quvchilar barcha ekranda ko'rinadi va ularga <i>«Siz madaniyat xodimi tomonidan tanlandingiz!»</i> degan xabar boradi.
+              </p>
+            </div>
+          </div>
+
+          <div id="staff-contests-selection-container" class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <!-- JS to'ldiradi -->
           </div>
         </div>
@@ -629,9 +719,6 @@
           <div class="flex items-center gap-2 flex-wrap">
             <button onclick="App.openAdminInboxModal()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md transition flex items-center gap-2">
               <i class="fa-solid fa-bell"></i> Kelgan Kodlar
-            </button>
-            <button onclick="App.openAddChallengeModal()" class="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs shadow-md transition flex items-center gap-2">
-              <i class="fa-solid fa-video"></i> Yangi Chellenj
             </button>
             <button onclick="App.openAwardModal()" class="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-black text-xs shadow-md transition flex items-center gap-2">
               <i class="fa-solid fa-coins"></i> Tanga Berish
@@ -827,33 +914,75 @@
             </div>
           </div>
 
-          <!-- TUMAN KOORDINATORINING VILOYAT KOORDINATORIGA MAVSUM OXIRIDA HISOBOT TOPSHIRISHI -->
+          <!-- TUMAN KOORDINATORINING VILOYAT KOORDINATORIGA ENG ZO'R VIDEO-CHELLENJ VA HISOBOT TOPSHIRISHI -->
           <div class="bg-gradient-to-r from-purple-900 via-violet-900 to-indigo-950 text-white p-6 rounded-3xl border border-purple-700 shadow-lg space-y-5">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <span class="inline-block bg-purple-500/30 border border-purple-400/40 text-purple-200 text-xs font-black px-3 py-1 rounded-full mb-2">
-                  <i class="fa-solid fa-file-signature mr-1"></i> Mavsumiy Hisobot Tizimi
+                <span class="inline-block bg-amber-400/20 border border-amber-400/40 text-amber-300 text-xs font-black px-3 py-1 rounded-full mb-2">
+                  <i class="fa-solid fa-trophy mr-1"></i> Hisobot & Eng Zo'r Video-Chellenjni Viloyatga Yuborish (+5 🪙)
                 </span>
-                <h3 class="text-lg sm:text-xl font-black">Viloyat Koordinatoriga Mavsum Oxirida Hisobot Topshirish</h3>
+                <h3 class="text-lg sm:text-xl font-black">Viloyat Koordinatoriga Hisobot va Tumandagi Eng Zo'r Video-Chellenjni Topshirish</h3>
                 <p class="text-xs text-purple-200 mt-1">
-                  Tumaningizdagi o'quvchilar faolligi, o'tkazilgan chellenjlar va berilgan tangalar bo'yicha o'z viloyatingiz koordinatoriga yakuniy hisobot yuboring.
+                  Respublikadan e'lon qilingan video-chellenj bo'yicha tumaningizdagi maktablar tayyorlagan videoroliklardan <b>eng zo'r bittasini tanlang</b> va hisobot bilan birga Viloyat koordinatoriga yuboring (tanlangan o'quvchiga avtomatik <b>+5 bonus tanga</b> beriladi!).
                 </p>
               </div>
             </div>
 
-            <form id="form-district-season-report" onsubmit="App.handleSubmitDistrictReport(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15">
-              <div>
-                <label class="block text-xs font-bold text-purple-200 mb-1">Mavsum / Chorak Nomi *</label>
-                <input type="text" id="dist-report-season" required value="2026-yil Kuzgi Mavsum" placeholder="Masalan: 2026-yil 1-mavsum" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-purple-400/40 text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-400">
+            <!-- Tumandagi maktablardan kelgan video-chellenjlar (Tezkor ko'rish va eng zo'rini tanlash) -->
+            <div id="district-report-candidate-videos" class="space-y-2">
+              <!-- JS to'ldiradi -->
+            </div>
+
+            <form id="form-district-season-report" onsubmit="App.handleSubmitDistrictReport(event)" class="space-y-4 bg-white/10 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-white/15">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-amber-300 mb-1">
+                    <i class="fa-solid fa-film mr-1"></i> 1. Qaysi Video-Chellenj Bo'yicha? *
+                  </label>
+                  <select id="dist-report-challenge-select" onchange="App.onDistrictReportChallengeChange()" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-purple-400/40 text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-400">
+                    <!-- JS to'ldiradi -->
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-amber-300 mb-1">
+                    <i class="fa-solid fa-medal mr-1"></i> 2. Tumandagi Maktablar Orasidan Eng Zo'r Video-Chellenjni Tanlang (+5 🪙) *
+                  </label>
+                  <select id="dist-report-best-submission-select" onchange="App.onDistrictReportBestSubChange()" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-amber-400/60 text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-400">
+                    <!-- JS to'ldiradi -->
+                  </select>
+                </div>
               </div>
-              <div>
-                <label class="block text-xs font-bold text-purple-200 mb-1">Hisobot Qisqacha Mazmuni va Yutuqlar *</label>
-                <input type="text" id="dist-report-summary" required placeholder="Tumanda o'tkazilgan tadbirlar, faol maktablar va natijalar..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-purple-400/40 text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-400">
+
+              <!-- Agar tuman admini maktabning eng zo'r videosini qo'lda kiritib yubormoqchi bo'lsa -->
+              <div id="dist-report-custom-video-block" class="hidden grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-slate-950/60 border border-amber-400/30">
+                <div>
+                  <label class="block text-[11px] font-bold text-purple-200 mb-1">G'olib O'quvchi / Jamoa Nomi *</label>
+                  <input type="text" id="dist-report-custom-student" placeholder="Masalan: Sardor Aliyev" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-purple-400/40 text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-400">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-purple-200 mb-1">Qaysi Maktab? *</label>
+                  <input type="text" id="dist-report-custom-school" placeholder="Masalan: 2-maktab" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-purple-400/40 text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-400">
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-purple-200 mb-1">Video Havolasi (YouTube / Telegram) *</label>
+                  <input type="text" id="dist-report-custom-url" placeholder="https://youtube.com/..." class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-purple-400/40 text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-400">
+                </div>
               </div>
-              <div class="flex items-end">
-                <button type="submit" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2">
-                  <i class="fa-solid fa-paper-plane"></i> Viloyat Koordinatoriga Hisobot Yuborish
-                </button>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-purple-200 mb-1">3. Mavsum / Chorak Nomi *</label>
+                  <input type="text" id="dist-report-season" required value="2026-yil Kuzgi Mavsum" placeholder="Masalan: 2026-yil 1-mavsum" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-purple-400/40 text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-400">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-purple-200 mb-1">4. Hisobot Qisqacha Mazmuni va Yutuqlar *</label>
+                  <input type="text" id="dist-report-summary" required placeholder="Tumanda o'tkazilgan video-chellenj, faol maktablar va natijalar..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-purple-400/40 text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-400">
+                </div>
+                <div class="flex items-end">
+                  <button type="submit" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Eng Zo'r Video va Hisobotni Viloyatga Yuborish
+                  </button>
+                </div>
               </div>
             </form>
 
@@ -883,6 +1012,41 @@
                   </tr>
                 </thead>
                 <tbody id="admin-creators-table-body" class="divide-y divide-slate-100">
+                  <!-- JS to'ldiradi -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- QORA RO'YXAT: 1 OY (30 KUN) DAVOMIDA ONLINE BO'LMAGAN VA AVTOMATIK CHIQARIB YUBORILGAN O'QUVCHILAR -->
+          <div class="bg-slate-900 text-white rounded-3xl border-2 border-red-500/60 shadow-md overflow-hidden">
+            <div class="p-5 border-b border-slate-800 flex items-center justify-between flex-wrap gap-3">
+              <div>
+                <span class="inline-block px-3 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-black uppercase tracking-wider mb-1">
+                  <i class="fa-solid fa-ban mr-1"></i> Avtomatik Qora Ro'yxat (30 Kun Offline)
+                </span>
+                <h3 class="font-black text-white text-base">1 Oy (30 Kun) Online Bo'lmagani Uchun Ro'yxatdan Chiqarilganlar (Qora Ro'yxat)</h3>
+                <p class="text-xs text-slate-400">
+                  1 oy davomida tizimga kirmagan o'quvchilar avtomatik qora ro'yxatga tushadi va tumanning faol o'quvchilari sonida hamda reytingda <b>hisoblanmaydi</b>.
+                </p>
+              </div>
+              <span id="admin-blacklist-count-badge" class="px-3.5 py-1.5 rounded-xl bg-red-600/20 border border-red-500/40 text-red-300 font-black text-xs">
+                0 nafar qora ro'yxatda
+              </span>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm text-slate-200">
+                <thead class="bg-slate-950 text-xs uppercase text-slate-400 font-semibold border-b border-slate-800">
+                  <tr>
+                    <th class="px-5 py-3">O'quvchi</th>
+                    <th class="px-5 py-3">Maktabi & Tumani</th>
+                    <th class="px-5 py-3">Oxirgi Faollik</th>
+                    <th class="px-5 py-3">Sababi</th>
+                    <th class="px-5 py-3 text-right">Amal</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-blacklist-table-body" class="divide-y divide-slate-800">
                   <!-- JS to'ldiradi -->
                 </tbody>
               </table>
@@ -1008,7 +1172,7 @@
                 <i class="fa-solid fa-film text-purple-600"></i> Tuman Adminlari Tanlab Yuborgan Eng Yaxshi Videoroliklar
               </h3>
               <p class="text-xs text-slate-600">
-                Tumanlardan chiqqan eng yaxshi videoroliklarni ko'rib chiqing va eng munosiblarini <b>Respublika koordinatoriga</b> yuboring (tanlangan o'quvchiga avtomatik <b>+10 qo'shimcha tanga</b> beriladi!)
+                Tumanlardan chiqqan eng zo'r videoroliklarni ko'rib chiqing va ular orasidan <b>Viloyat bo'yicha eng zo'r bittasini tanlab Respublika koordinatoriga</b> yuboring (tanlangan o'quvchiga avtomatik <b>+10 qo'shimcha tanga</b> beriladi!)
               </p>
             </div>
           </div>
@@ -1017,11 +1181,12 @@
             <table class="w-full text-left text-sm text-slate-700">
               <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200">
                 <tr>
-                  <th class="px-5 py-3">Tuman & O'quvchi</th>
-                  <th class="px-5 py-3">Chellenj & Ishtirokchilar</th>
-                  <th class="px-5 py-3 text-center">Videorolik</th>
-                  <th class="px-5 py-3 text-center">Bosqich Holati</th>
-                  <th class="px-5 py-3 text-right">Respublikaga Yuborish (+10 🪙)</th>
+                  <th class="px-4 py-3">O'quvchi & Maktabi</th>
+                  <th class="px-4 py-3">Tuman</th>
+                  <th class="px-4 py-3">Chellenj & Ishtirokchilar</th>
+                  <th class="px-4 py-3 text-center">Videorolik</th>
+                  <th class="px-4 py-3 text-center">Bosqich Holati</th>
+                  <th class="px-4 py-3 text-right">Respublikaga Yuborish (+10 🪙)</th>
                 </tr>
               </thead>
               <tbody id="region-promoted-submissions-body" class="divide-y divide-slate-100">
@@ -1031,14 +1196,14 @@
           </div>
         </div>
 
-        <!-- TUMAN KOORDINATORLARIDAN KELGAN MAVSUMIY HISOBOTLAR -->
+        <!-- TUMAN KOORDINATORLARIDAN KELGAN MAVSUMIY HISOBOTLAR VA ENG ZO'R VIDEOLAR -->
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
           <div class="p-5 border-b border-slate-100 flex items-center justify-between flex-wrap gap-3">
             <div>
               <h3 class="font-black text-slate-900 text-base flex items-center gap-2">
-                <i class="fa-solid fa-file-invoice text-amber-500"></i> Tuman Koordinatorlaridan Kelgan Mavsumiy Hisobotlar
+                <i class="fa-solid fa-file-invoice text-amber-500"></i> Tuman Koordinatorlaridan Kelgan Hisobotlar va Eng Zo'r Video-Chellenjlar
               </h3>
-              <p class="text-xs text-slate-500">Mavsum oxirida tuman koordinatorlari topshirgan hisobotlarni ko'rib chiqing va tasdiqlang</p>
+              <p class="text-xs text-slate-500">Tuman koordinatorlari topshirgan hisobotlar va har bir tumandan biriktirilgan eng zo'r video-chellenjlarni ko'rib chiqing</p>
             </div>
           </div>
 
@@ -1048,7 +1213,7 @@
                 <tr>
                   <th class="px-5 py-3">Tuman</th>
                   <th class="px-5 py-3">Koordinator</th>
-                  <th class="px-5 py-3">Mavsum & Hisobot Mazmuni</th>
+                  <th class="px-5 py-3">Mavsum, Hisobot & Eng Zo'r Video</th>
                   <th class="px-5 py-3 text-center">Ko'rsatkichlar</th>
                   <th class="px-5 py-3 text-center">Holat</th>
                   <th class="px-5 py-3 text-right">Amal</th>
@@ -1061,31 +1226,47 @@
           </div>
         </div>
 
-        <!-- VILOYAT KOORDINATORINING RESPUBLIKA KOORDINATORIGA MAVSUM OXIRIDA HISOBOT TOPSHIRISHI -->
+        <!-- VILOYAT KOORDINATORINING RESPUBLIKA KOORDINATORIGA ENG ZO'R VIDEO-CHELLENJ VA HISOBOT TOPSHIRISHI -->
         <div class="bg-gradient-to-r from-rose-900 via-red-900 to-pink-950 text-white p-6 rounded-3xl border border-rose-700 shadow-lg space-y-5">
           <div>
-            <span class="inline-block bg-rose-500/30 border border-rose-400/40 text-rose-200 text-xs font-black px-3 py-1 rounded-full mb-2">
-              <i class="fa-solid fa-earth-asia mr-1"></i> Respublika Bosqichiga Hisobot
+            <span class="inline-block bg-amber-400/20 border border-amber-400/40 text-amber-300 text-xs font-black px-3 py-1 rounded-full mb-2">
+              <i class="fa-solid fa-earth-asia mr-1"></i> Respublika Bosqichiga Eng Zo'r Video-Chellenj va Hisobot (+10 🪙)
             </span>
-            <h3 class="text-lg sm:text-xl font-black">Respublika Koordinatoriga Viloyatning Mavsumiy Hisobotini Topshirish</h3>
+            <h3 class="text-lg sm:text-xl font-black">Respublika Koordinatoriga Viloyat Hisoboti va Eng Zo'r Video-Chellenjni Topshirish</h3>
             <p class="text-xs text-rose-200 mt-1">
-              Mavsum oxirida viloyatingizdagi barcha tumanlarning umumiy natijalari va o'sish ko'rsatkichlarini Respublika koordinatoriga yuboring.
+              Tumanlardan kelgan eng zo'r video-chellenjlar orasidan <b>Viloyat bo'yicha eng zo'r bittasini tanlang</b> va Respublika koordinatoriga hisobot bilan birga yuboring (tanlangan o'quvchiga avtomatik <b>+10 bonus tanga</b> beriladi!).
             </p>
           </div>
 
-          <form id="form-region-season-report" onsubmit="App.handleSubmitRegionReport(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15">
+          <!-- Tumanlardan kelgan nomzod videolar ro'yxati -->
+          <div id="region-report-candidate-videos" class="space-y-2">
+            <!-- JS to'ldiradi -->
+          </div>
+
+          <form id="form-region-season-report" onsubmit="App.handleSubmitRegionReport(event)" class="space-y-4 bg-white/10 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-white/15">
             <div>
-              <label class="block text-xs font-bold text-rose-200 mb-1">Mavsum / Chorak Nomi *</label>
-              <input type="text" id="reg-report-season" required value="2026-yil Kuzgi Mavsum" placeholder="Masalan: 2026-yil 1-mavsum" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-rose-400/40 text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-400">
+              <label class="block text-xs font-bold text-amber-300 mb-1">
+                <i class="fa-solid fa-star mr-1"></i> 1. Tumanlardan Kelgan Eng Zo'r Videolar Orasidan Viloyat G'olibini Tanlang (Respublikaga Yuborish +10 🪙) *
+              </label>
+              <select id="reg-report-best-submission-select" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/90 border border-amber-400/60 text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-400">
+                <!-- JS to'ldiradi -->
+              </select>
             </div>
-            <div>
-              <label class="block text-xs font-bold text-rose-200 mb-1">Viloyat Yakuniy Xulosasi va Natijalari *</label>
-              <input type="text" id="reg-report-summary" required placeholder="Viloyat bo'yicha faol tumanlar, o'sish ko'rsatkichlari va yutuqlar..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-rose-400/40 text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-400">
-            </div>
-            <div class="flex items-end">
-              <button type="submit" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-paper-plane"></i> Respublika Koordinatoriga Yuborish
-              </button>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-rose-200 mb-1">2. Mavsum / Chorak Nomi *</label>
+                <input type="text" id="reg-report-season" required value="2026-yil Kuzgi Mavsum" placeholder="Masalan: 2026-yil 1-mavsum" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-rose-400/40 text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-amber-400">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-rose-200 mb-1">3. Viloyat Yakuniy Xulosasi va Natijalari *</label>
+                <input type="text" id="reg-report-summary" required placeholder="Viloyat bo'yicha faol tumanlar, o'sish ko'rsatkichlari va yutuqlar..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900/80 border border-rose-400/40 text-white text-xs focus:outline-none focus:ring-2 focus:ring-amber-400">
+              </div>
+              <div class="flex items-end">
+                <button type="submit" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black rounded-xl text-xs shadow-md transition flex items-center justify-center gap-2">
+                  <i class="fa-solid fa-paper-plane"></i> Eng Zo'r Video va Hisobotni Respublikaga Yuborish
+                </button>
+              </div>
             </div>
           </form>
 
@@ -1232,20 +1413,25 @@
                 <i class="fa-solid fa-crown text-amber-500"></i> Viloyat Koordinatorlari Tanlab Yuborgan Eng Yaxshi Videoroliklar
               </h3>
               <p class="text-xs text-slate-600">
-                Viloyatlardan saralab yuborilgan videoroliklar orasidan <b>Respublika 1-o'rin g'olibini</b> tanlang (g'olib o'quvchiga avtomatik <b>+15 qo'shimcha tanga</b> taqdim etiladi!)
+                Viloyatlardan saralab yuborilgan eng zo'r videoroliklar orasidan <b>Respublika 1-o'rin g'olibini</b> tanlang (g'olib o'quvchiga avtomatik <b>+15 qo'shimcha tanga</b> taqdim etiladi!)
               </p>
             </div>
+          </div>
+
+          <div id="republic-grand-winner-banner" class="hidden p-4 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-slate-950 border-b border-amber-300">
+            <!-- JS to'ldiradi -->
           </div>
 
           <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-700">
               <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200">
                 <tr>
-                  <th class="px-5 py-3">Viloyat, Tuman & O'quvchi</th>
-                  <th class="px-5 py-3">Chellenj & Ishtirokchilar</th>
-                  <th class="px-5 py-3 text-center">Videorolik</th>
-                  <th class="px-5 py-3 text-center">Bosqich Holati</th>
-                  <th class="px-5 py-3 text-right">1-O'rinni Berish (+15 🪙)</th>
+                  <th class="px-4 py-3">O'quvchi & Maktabi</th>
+                  <th class="px-4 py-3">Viloyat & Tuman</th>
+                  <th class="px-4 py-3">Chellenj & Ishtirokchilar</th>
+                  <th class="px-4 py-3 text-center">Videorolik</th>
+                  <th class="px-4 py-3 text-center">Bosqich Holati</th>
+                  <th class="px-4 py-3 text-right">1-O'rinni Berish (+15 🪙)</th>
                 </tr>
               </thead>
               <tbody id="republic-promoted-submissions-body" class="divide-y divide-slate-100">
@@ -1255,14 +1441,14 @@
           </div>
         </div>
 
-        <!-- VILOYAT KOORDINATORLARIDAN KELGAN MAVSUMIY HISOBOTLAR -->
+        <!-- VILOYAT KOORDINATORLARIDAN KELGAN MAVSUMIY HISOBOTLAR VA ENG ZO'R VIDEOLAR -->
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
           <div class="p-5 border-b border-slate-100 flex items-center justify-between flex-wrap gap-3">
             <div>
               <h3 class="font-black text-slate-900 text-base flex items-center gap-2">
-                <i class="fa-solid fa-file-shield text-rose-600"></i> Viloyat Koordinatorlaridan Kelgan Mavsumiy Hisobotlar
+                <i class="fa-solid fa-file-shield text-rose-600"></i> Viloyat Koordinatorlaridan Kelgan Hisobotlar va Eng Zo'r Video-Chellenjlar
               </h3>
-              <p class="text-xs text-slate-500">Viloyat koordinatorlari mavsum yakunida yuborgan hisobotlarni ko'rib chiqing va tasdiqlang</p>
+              <p class="text-xs text-slate-500">Viloyat koordinatorlari yuborgan hisobotlar va har bir viloyatdan tanlab yuborilgan eng zo'r video-chellenjlarni ko'rib chiqing</p>
             </div>
           </div>
 
@@ -1272,13 +1458,51 @@
                 <tr>
                   <th class="px-5 py-3">Viloyat</th>
                   <th class="px-5 py-3">Viloyat Koordinatori</th>
-                  <th class="px-5 py-3">Mavsum & Hisobot Mazmuni</th>
+                  <th class="px-5 py-3">Mavsum, Hisobot & Eng Zo'r Video</th>
                   <th class="px-5 py-3 text-center">Viloyat Ko'rsatkichlari</th>
                   <th class="px-5 py-3 text-center">Holat</th>
                   <th class="px-5 py-3 text-right">Amal</th>
                 </tr>
               </thead>
               <tbody id="republic-received-reports-body" class="divide-y divide-slate-100">
+                <!-- JS to'ldiradi -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- RESPUBLIKA BO'YICHA RO'YXATDAN O'TGAN BARCHA O'QUVCHILAR REYTINGI (VILOYAT VA TUMANI BILAN) -->
+        <div class="bg-white rounded-3xl border-2 border-emerald-200 shadow-sm overflow-hidden">
+          <div class="p-5 bg-gradient-to-r from-emerald-50 via-teal-50 to-white border-b border-emerald-100 flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <span class="inline-block px-3 py-0.5 rounded-full bg-emerald-700 text-white text-[11px] font-black uppercase tracking-wider mb-1">
+                <i class="fa-solid fa-ranking-star mr-1"></i> Respublika Umumiy Reytingi
+              </span>
+              <h3 class="font-black text-slate-900 text-base flex items-center gap-2">
+                <i class="fa-solid fa-users text-emerald-600"></i> Respublika Bo'yicha Ro'yxatdan O'tgan Barcha O'quvchilar (Viloyati va Tumani bilan)
+              </h3>
+              <p class="text-xs text-slate-600">
+                Barcha 14 ta viloyat va tumanlardan ro'yxatdan o'tgan o'quvchilarning to'liq ro'yxati va to'plagan tangalari reytingi
+              </p>
+            </div>
+            <span id="republic-all-students-count-badge" class="px-3.5 py-1.5 rounded-xl bg-emerald-100 text-emerald-900 font-black text-xs">
+              0 nafar o'quvchi
+            </span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-700">
+              <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="px-4 py-3">O'rin</th>
+                  <th class="px-4 py-3">O'quvchi (F.I.Sh.)</th>
+                  <th class="px-4 py-3">Viloyati</th>
+                  <th class="px-4 py-3">Tumani / Shahri</th>
+                  <th class="px-4 py-3">Maktabi</th>
+                  <th class="px-4 py-3 text-right">Tangalari</th>
+                </tr>
+              </thead>
+              <tbody id="republic-all-students-leaderboard-body" class="divide-y divide-slate-100">
                 <!-- JS to'ldiradi -->
               </tbody>
             </table>
@@ -1319,7 +1543,11 @@
         <i class="fa-solid fa-trophy text-sm text-amber-500"></i>
         <span class="text-[10px] mt-0.5" data-i18n="nav_leaderboard">Reyting</span>
       </button>
-      <button onclick="App.switchTab('staff')" class="mobile-nav-btn flex-1 flex flex-col items-center justify-center py-1 text-slate-500 font-bold transition" id="mobile-nav-staff">
+      <button onclick="App.switchTab('achievements')" class="mobile-nav-btn flex-1 flex flex-col items-center justify-center py-1 text-slate-500 font-bold transition" id="mobile-nav-achievements">
+        <i class="fa-solid fa-medal text-sm text-amber-500"></i>
+        <span class="text-[10px] mt-0.5">Yutuqlarim</span>
+      </button>
+      <button onclick="App.switchTab('staff')" class="mobile-nav-btn hidden flex-1 flex flex-col items-center justify-center py-1 text-slate-500 font-bold transition" id="mobile-nav-staff">
         <i class="fa-solid fa-id-badge text-sm text-blue-500"></i>
         <span class="text-[10px] mt-0.5" data-i18n="nav_staff">Xodimlar</span>
       </button>
@@ -1825,127 +2053,163 @@
         </form>
       </div>
 
-      <!-- 2-PANEL: YANGI PROFIL OCHISH (REGISTER) -->
+      <!-- 2-PANEL: YANGI PROFIL OCHISH (REGISTER - 2 BOSQICHLI: MA'LUMOTLAR + 4 TALIK SMS TASDIQ) -->
       <div id="student-panel-register" class="mt-4 hidden">
-        <form onsubmit="App.handleStudentRegister(event)" class="space-y-4">
-          <!-- O'Z RASMINI YUKLASH -->
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1.5">
-              O'z Rasmingizni Yuklang (Galereya yoki kameradan) *
-            </label>
-            <div class="flex items-center gap-4 p-3 bg-slate-50 border border-slate-200 rounded-2xl">
-              <div id="photo-preview-container" class="w-16 h-16 rounded-2xl bg-slate-200 border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
-                <i class="fa-solid fa-camera text-slate-400 text-xl" id="photo-preview-placeholder"></i>
-                <img id="photo-preview-img" class="w-full h-full object-cover hidden" alt="Rasm">
-              </div>
-              <div class="flex-1">
-                <input type="file" id="std-photo-input" accept="image/*" class="text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer">
-                <p class="text-[11px] text-slate-500 mt-1">O'zingizning aniq rasmingizni tanlang</p>
+        <!-- 1-BOSQICH: MA'LUMOTLARNI TO'LDIRISH VA SMS KOD OLISH -->
+        <div id="student-reg-step1">
+          <form onsubmit="App.handleStudentRegisterSendCode(event)" class="space-y-4">
+            <!-- O'Z RASMINI YUKLASH -->
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                O'z Rasmingizni Yuklang (Galereya yoki kameradan) *
+              </label>
+              <div class="flex items-center gap-4 p-3 bg-slate-50 border border-slate-200 rounded-2xl">
+                <div id="photo-preview-container" class="w-16 h-16 rounded-2xl bg-slate-200 border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden shrink-0 shadow-inner">
+                  <i class="fa-solid fa-camera text-slate-400 text-xl" id="photo-preview-placeholder"></i>
+                  <img id="photo-preview-img" class="w-full h-full object-cover hidden" alt="Rasm">
+                </div>
+                <div class="flex-1">
+                  <input type="file" id="std-photo-input" accept="image/*" class="text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer">
+                  <p class="text-[11px] text-slate-500 mt-1">O'zingizning aniq rasmingizni tanlang</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">To'liq Ism va Familiyangiz *</label>
-              <input type="text" id="std-fullname" required placeholder="Masalan: Azizbek Nazarov" class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">To'liq Ism va Familiyangiz *</label>
+                <input type="text" id="std-fullname" required placeholder="Masalan: Azizbek Nazarov" class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Profil Niki (Taxallus — Noyob) *</label>
+                <div class="relative">
+                  <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">@</span>
+                  <input type="text" id="std-nickname" required oninput="App.checkNicknameAvailabilityUI('std-nickname', 'std-nickname-status')" placeholder="azizbek_art" class="w-full pl-8 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+                </div>
+                <p id="std-nickname-status" class="text-[11px] font-bold mt-1 hidden"></p>
+              </div>
             </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Profil Maxfiy Kodi (Parol) *</label>
+                <div class="relative">
+                  <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                  <input type="text" id="std-pin" required minlength="4" placeholder="Masalan: 1234 yoki maxfiy kod" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+                </div>
+                <p class="text-[10px] text-slate-400 mt-0.5">Boshqa telefondan kirishda shu kod kerak bo'ladi</p>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Yoshingiz *</label>
+                <input type="number" id="std-age" min="7" max="25" value="16" class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">1. Viloyatingizni Tanlang *</label>
+                <select id="std-region" required onchange="App.filterDatalistByRegion(this.value, 'std-district', true)" class="w-full px-3.5 py-2.5 text-sm font-bold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+                  <option value="Buxoro viloyati">Buxoro viloyati</option>
+                  <option value="Toshkent shahri">Toshkent shahri</option>
+                  <option value="Toshkent viloyati">Toshkent viloyati</option>
+                  <option value="Samarqand viloyati">Samarqand viloyati</option>
+                  <option value="Farg'ona viloyati">Farg'ona viloyati</option>
+                  <option value="Andijon viloyati">Andijon viloyati</option>
+                  <option value="Namangan viloyati">Namangan viloyati</option>
+                  <option value="Xorazm viloyati">Xorazm viloyati</option>
+                  <option value="Qashqadaryo viloyati">Qashqadaryo viloyati</option>
+                  <option value="Surxondaryo viloyati">Surxondaryo viloyati</option>
+                  <option value="Navoiy viloyati">Navoiy viloyati</option>
+                  <option value="Jizzax viloyati">Jizzax viloyati</option>
+                  <option value="Sirdaryo viloyati">Sirdaryo viloyati</option>
+                  <option value="Qoraqalpog'iston Respublikasi">Qoraqalpog'iston Respublikasi</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">2. Qaysi Tumansiz? (Tuman/Shahar) *</label>
+                <input list="tumanlar-datalist" id="std-district" required onfocus="App.filterDatalistByRegion(document.getElementById('std-region')?.value, 'std-district')" placeholder="Masalan: Jondor tumani" class="w-full px-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">3. Maktabingiz *</label>
+                <input type="text" id="std-school" required placeholder="Masalan: 15-maktab" class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+              </div>
+            </div>
+
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Profil Niki (Taxallus) *</label>
+              <label class="block text-xs font-bold text-slate-700 mb-1">
+                Jonli Ijro Videongiz — YouTube ssilkasi <span class="text-emerald-700 font-semibold">(xohishiy — keyinchalik tahrirlab qo'yishingiz mumkin)</span>
+              </label>
               <div class="relative">
-                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">@</span>
-                <input type="text" id="std-nickname" required placeholder="azizbek_art" class="w-full pl-8 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+                <i class="fa-brands fa-youtube absolute left-3.5 top-1/2 -translate-y-1/2 text-red-500 text-sm"></i>
+                <input type="text" id="std-video" placeholder="https://youtube.com/... (ixtiyoriy, keyinchalik tahrirlab qo'yishingiz mumkin)" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
               </div>
+              <p class="text-[11px] text-slate-500 mt-1">
+                <i class="fa-solid fa-circle-info text-emerald-600 mr-1"></i> (Xohishiy: Hozir bo'sh qoldirib, keyinchalik profilingizdan "Tahrirlash" tugmasi orqali YouTube video ssilkasini qo'shib qo'yishingiz mumkin)
+              </p>
             </div>
-          </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Profil Maxfiy Kodi (Parol) *</label>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Telefon Raqamingiz (Tasdiqlash kodi borishi uchun) *</label>
               <div class="relative">
-                <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                <input type="text" id="std-pin" required minlength="4" placeholder="Masalan: 1234 yoki maxfiy kod" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+                <i class="fa-solid fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="tel" id="std-phone" required placeholder="99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
               </div>
-              <p class="text-[10px] text-slate-400 mt-0.5">Boshqa telefondan kirishda shu kod kerak bo'ladi</p>
+              <p class="text-[11px] text-emerald-700 mt-1">
+                <i class="fa-solid fa-shield-halved mr-1"></i> Ushbu telefon raqam haqiqatan ham sizniki ekanligini tasdiqlash uchun 4 talik SMS kod yuboriladi.
+              </p>
             </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">Yoshingiz *</label>
-              <input type="number" id="std-age" min="7" max="25" value="16" class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
-            </div>
-          </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">1. Viloyatingizni Tanlang *</label>
-              <select id="std-region" required onchange="App.filterDatalistByRegion(this.value, 'std-district', true)" class="w-full px-3.5 py-2.5 text-sm font-bold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
-                <option value="Buxoro viloyati">Buxoro viloyati</option>
-                <option value="Toshkent shahri">Toshkent shahri</option>
-                <option value="Toshkent viloyati">Toshkent viloyati</option>
-                <option value="Samarqand viloyati">Samarqand viloyati</option>
-                <option value="Farg'ona viloyati">Farg'ona viloyati</option>
-                <option value="Andijon viloyati">Andijon viloyati</option>
-                <option value="Namangan viloyati">Namangan viloyati</option>
-                <option value="Xorazm viloyati">Xorazm viloyati</option>
-                <option value="Qashqadaryo viloyati">Qashqadaryo viloyati</option>
-                <option value="Surxondaryo viloyati">Surxondaryo viloyati</option>
-                <option value="Navoiy viloyati">Navoiy viloyati</option>
-                <option value="Jizzax viloyati">Jizzax viloyati</option>
-                <option value="Sirdaryo viloyati">Sirdaryo viloyati</option>
-                <option value="Qoraqalpog'iston Respublikasi">Qoraqalpog'iston Respublikasi</option>
-              </select>
+              <label class="block text-xs font-bold text-slate-700 mb-1">Avtobiografiyangiz va Yutuqlaringiz (Ixtiyoriy)</label>
+              <textarea id="std-bio" rows="2" placeholder="Qaysi tanlovlarda qatnashgansiz, qanday iqtidoringiz bor..." class="w-full px-4 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none"></textarea>
             </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">2. Qaysi Tumansiz? (Tuman/Shahar) *</label>
-              <input list="tumanlar-datalist" id="std-district" required onfocus="App.filterDatalistByRegion(document.getElementById('std-region')?.value, 'std-district')" placeholder="Masalan: Jondor tumani" class="w-full px-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-700 mb-1">3. Maktabingiz *</label>
-              <input type="text" id="std-school" required placeholder="Masalan: 15-maktab" class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
-            </div>
-          </div>
 
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">
-              Jonli Ijro Videongiz — YouTube ssilkasi <span class="text-emerald-700 font-semibold">(xohishiy — keyinchalik tahrirlab qo'yishingiz mumkin)</span>
-            </label>
-            <div class="relative">
-              <i class="fa-brands fa-youtube absolute left-3.5 top-1/2 -translate-y-1/2 text-red-500 text-sm"></i>
-              <input type="text" id="std-video" placeholder="https://youtube.com/... (ixtiyoriy, keyinchalik tahrirlab qo'yishingiz mumkin)" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+            <button type="submit" class="w-full py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white font-black rounded-2xl text-sm shadow-md transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-paper-plane"></i> 📲 SMS Tasdiqlash Kodini Olish (4 talik kod)
+            </button>
+
+            <div class="text-center pt-2 border-t border-slate-100">
+              <p class="text-xs text-slate-500">
+                Profilingiz bormi? 
+                <button type="button" onclick="App.switchStudentAuthTab('login')" class="text-emerald-700 font-black hover:underline ml-1">
+                  Profilga kirish
+                </button>
+              </p>
             </div>
-            <p class="text-[11px] text-slate-500 mt-1">
-              <i class="fa-solid fa-circle-info text-emerald-600 mr-1"></i> (Xohishiy: Hozir bo'sh qoldirib, keyinchalik profilingizdan "Tahrirlash" tugmasi orqali YouTube video ssilkasini qo'shib qo'yishingiz mumkin)
+          </form>
+        </div>
+
+        <!-- 2-BOSQICH: 4 TALIK SMS KODNI TASDIQLASH VA RO'YXATDAN O'TISH -->
+        <div id="student-reg-step2" class="hidden space-y-4">
+          <div id="student-reg-sms-box" class="p-3.5 bg-emerald-50 border-2 border-emerald-300 rounded-2xl text-xs text-emerald-950 text-center space-y-1.5">
+            <i class="fa-solid fa-mobile-screen-button text-emerald-600 text-2xl"></i>
+            <p class="font-black text-sm text-emerald-900">4 talik SMS tasdiqlash kodi yuborildi!</p>
+            <p id="student-reg-sms-hint" class="text-xs text-emerald-800 leading-relaxed">
+              Telefon raqamingizga 4 talik tasdiqlash kodi yuborildi. Kodni quyidagi maydonga kiriting:
             </p>
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Telefon Raqamingiz (Kodni tiklash uchun) *</label>
-            <div class="relative">
-              <i class="fa-solid fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-              <input type="tel" id="std-phone" required placeholder="99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
-            </div>
-            <p class="text-[11px] text-emerald-700 mt-1">
-              <i class="fa-solid fa-shield-halved mr-1"></i> Parolingiz esdan chiqsa, tasdiqlash kodi faqat shu raqamga yuboriladi.
+            <label class="block text-xs font-bold text-slate-700 mb-1">Telefoningizga borgan 4 talik tasdiqlash kodi *</label>
+            <input type="text" id="std-reg-verify-code" maxlength="4" placeholder="••••" class="otp-digit-input w-full py-3 bg-slate-50 border-2 border-emerald-500 rounded-2xl text-emerald-950 text-center text-2xl font-black tracking-widest focus:bg-white focus:outline-none">
+            <p class="text-[11px] text-slate-500 mt-1 text-center">
+              Raqam haqiqatan ham sizniki ekanligini tasdiqlash uchun 4 talik kodni kiriting
             </p>
           </div>
 
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Avtobiografiyangiz va Yutuqlaringiz (Ixtiyoriy)</label>
-            <textarea id="std-bio" rows="2" placeholder="Qaysi tanlovlarda qatnashgansiz, qanday iqtidoringiz bor..." class="w-full px-4 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none"></textarea>
-          </div>
-
-          <button type="submit" class="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-black rounded-2xl text-sm shadow-md transition flex items-center justify-center gap-2">
-            <i class="fa-solid fa-sparkles"></i> Profilni Yaratish va Kirish (+10 Tanga)
+          <button type="button" onclick="App.handleStudentRegisterVerifyAndSubmit(event)" class="w-full py-3.5 bg-emerald-700 hover:bg-emerald-800 text-white font-black rounded-2xl text-sm shadow-md transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-circle-check"></i> ✅ Kodni Tasdiqlash va Ro'yxatdan O'tish (+10 🪙)
           </button>
 
-          <div class="text-center pt-2 border-t border-slate-100">
-            <p class="text-xs text-slate-500">
-              Profilingiz bormi? 
-              <button type="button" onclick="App.switchStudentAuthTab('login')" class="text-emerald-700 font-black hover:underline ml-1">
-                Profilga kirish
-              </button>
-            </p>
+          <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-100">
+            <button type="button" onclick="App.handleStudentRegisterResendCode()" class="text-xs text-emerald-700 hover:text-emerald-900 font-bold underline flex items-center gap-1">
+              <i class="fa-solid fa-rotate-right"></i> Kodni qayta yuborish
+            </button>
+            <button type="button" onclick="App.backToStudentRegStep1()" class="text-xs text-slate-600 hover:text-slate-900 font-bold flex items-center gap-1">
+              <i class="fa-solid fa-arrow-left"></i> Ma'lumotlarni o'zgartirish (Orqaga)
+            </button>
           </div>
-        </form>
+        </div>
       </div>
 
       <!-- 3-PANEL: PROFIL KODINI TIKLASH (FORGOT PIN / SMS) -->
@@ -2061,11 +2325,12 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">Profil Niki (@taxallus)</label>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Profil Niki (@taxallus — Noyob) *</label>
             <div class="relative">
               <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">@</span>
-              <input type="text" id="edit-nickname" placeholder="taxallus" class="w-full pl-8 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+              <input type="text" id="edit-nickname" required oninput="App.checkNicknameAvailabilityUI('edit-nickname', 'edit-nickname-status', App.state.targetEditCreatorId)" placeholder="taxallus" class="w-full pl-8 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
             </div>
+            <p id="edit-nickname-status" class="text-[11px] font-bold mt-1 hidden"></p>
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-700 mb-1">Telefon Raqami (Yangi raqamga almashtirish) *</label>
@@ -2115,6 +2380,24 @@
           </button>
           <button type="button" onclick="App.closeModal('modal-edit-profile')" class="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl text-xs font-bold">
             Bekor qilish
+          </button>
+        </div>
+
+        <!-- KATTA QIZIL BO'LIM: PROFILNI BUTUNLAY BAZADAN O'CHIRIB YUBORISH -->
+        <div id="edit-profile-delete-zone" class="mt-6 p-5 rounded-3xl bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white shadow-xl border-2 border-red-300 space-y-3">
+          <div class="flex items-start gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-white/20 text-white flex items-center justify-center text-xl shrink-0 shadow">
+              <i class="fa-solid fa-user-xmark"></i>
+            </div>
+            <div>
+              <h4 class="text-sm sm:text-base font-black uppercase tracking-wide">🚨 Profilni Butunlay O'chirish Bo'limi</h4>
+              <p class="text-xs text-red-100 mt-1 leading-relaxed">
+                Agar tizimga qaytib kirmaslikni xohlasangiz, profilingizni shu tugma orqali o'chirib yuborishingiz mumkin. <b>Diqqat:</b> profilingiz butun bazadan va tuman ro'yxatidan butunlay o'chib ketadi!
+              </p>
+            </div>
+          </div>
+          <button type="button" onclick="App.handleDeleteOwnStudentProfile()" class="w-full py-3.5 px-5 rounded-2xl bg-white hover:bg-red-50 text-red-700 font-black text-xs sm:text-sm shadow-lg transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-trash-can"></i> Profilimni Butun Bazadan O'chirib Yuborish
           </button>
         </div>
       </form>
@@ -2190,6 +2473,24 @@
             Bekor qilish
           </button>
         </div>
+
+        <!-- XODIM PROFILINI BUTUNLAY O'CHIRISH (QIZIL BO'LIM) -->
+        <div class="mt-6 p-5 rounded-3xl bg-gradient-to-r from-red-600 via-rose-600 to-red-700 text-white shadow-xl border-2 border-red-300 space-y-3">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-white/20 text-white flex items-center justify-center text-lg shrink-0">
+              <i class="fa-solid fa-user-xmark"></i>
+            </div>
+            <div>
+              <h4 class="text-sm font-black uppercase tracking-wide">🚨 Profilni Butunlay O'chirish</h4>
+              <p class="text-xs text-red-100 mt-0.5 leading-relaxed">
+                Agar tizimga qaytib kirmaslikni xohlasangiz, profilingizni o'chirib yuborishingiz mumkin. Butun bazadan o'chib ketadi.
+              </p>
+            </div>
+          </div>
+          <button type="button" onclick="App.handleDeleteOwnStaffProfile()" class="w-full py-3 px-4 rounded-2xl bg-white hover:bg-red-50 text-red-700 font-black text-xs shadow-md transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-trash-can"></i> Xodim Profilimni Butun Bazadan O'chirish
+          </button>
+        </div>
       </form>
 
     </div>
@@ -2237,13 +2538,29 @@
           </div>
         </div>
 
-        <!-- KIMLAR QATNASHGANLIGI -->
-        <div>
-          <label class="block text-xs font-bold text-slate-900 mb-1 flex items-center gap-1.5">
-            <i class="fa-solid fa-users text-red-600"></i> Video Rolikda Kimlar Qatnashgan? (To'liq Yozing) *
+        <!-- KIMLAR QATNASHGANLIGI (KOLLABORATSIYA — @NICKNAME BILAN) -->
+        <div class="p-4 rounded-2xl bg-indigo-50/70 border-2 border-indigo-200 space-y-2.5">
+          <label class="block text-xs font-black text-indigo-950 flex items-center gap-1.5">
+            <i class="fa-solid fa-handshake-angle text-indigo-600 text-sm"></i>
+            <span>🤝 Jamoaviy Kollaboratsiya: Video Rolikda Qatnashgan O'quvchilar Nikneymlari (@nickname) *</span>
           </label>
-          <textarea id="sub-participants" required rows="3" placeholder="Masalan: 1. Sardor Aliyev (boshlovchi), 2. Malika Karimova (ijrochi), 10-'A' sinf ijodiy guruhi..." class="w-full px-4 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:bg-white focus:outline-none"></textarea>
-          <p class="text-[11px] text-slate-500 mt-1">Admin barcha ishtirokchilarni ko'rib chiqib, ularga tanga taqdim etadi.</p>
+          <p class="text-[11px] text-indigo-800 leading-relaxed">
+            Videoda nechta o'quvchi qatnashgan bo'lsa, ularning <b>@nickname</b>'larini kiriting yoki pastdagi ro'yxatdan bosing. Kollaboratsiyaga qo'shilgan <b>barcha o'quvchilarning shaxsiy akkauntida</b> ushbu video birgalikda joylangandek ko'rinadi, g'olib bo'lganda barchasiga tabriknoma boradi va <b>har bittasiga va'da qilingan tanga to'liq beriladi!</b>
+          </p>
+
+          <!-- Tuman o'quvchilaridan @nickname tezkor tanlash tugmalari -->
+          <div id="sub-collaborators-picker-wrap" class="space-y-1">
+            <span class="text-[10px] font-black uppercase tracking-wider text-indigo-700 block">Tumaningizdagi o'quvchilarni @nickname bilan qo'shish (ustiga bosing):</span>
+            <div id="sub-collaborators-picker" class="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2 rounded-xl bg-white border border-indigo-200">
+              <!-- JS to'ldiradi -->
+            </div>
+          </div>
+
+          <textarea id="sub-participants" oninput="App.updateCollaboratorsPreview()" required rows="2" placeholder="Masalan: @mirzohid, @mehroj, @azizbek" class="w-full px-4 py-2 text-sm font-bold text-indigo-950 bg-white border border-indigo-300 rounded-xl focus:ring-2 focus:ring-indigo-600 focus:outline-none"></textarea>
+
+          <div id="sub-collaborators-preview" class="text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
+            <!-- JS to'ldiradi -->
+          </div>
         </div>
 
         <div>
@@ -2270,8 +2587,8 @@
             <i class="fa-solid fa-video"></i>
           </div>
           <div>
-            <h3 class="text-lg font-black text-slate-900">Yangi Video Chellenj Yaratish</h3>
-            <p class="text-xs text-slate-500">O'quvchilar uchun muddatli video rolik vazifasi</p>
+            <h3 class="text-lg font-black text-slate-900">Respublika Video-Chellenji E'lon Qilish</h3>
+            <p class="text-xs text-slate-500">Faqat Respublika Bosh Koordinatori tomonidan barcha ekranlar uchun qo'yiladi</p>
           </div>
         </div>
         <button onclick="App.closeModal('modal-add-challenge')" class="text-slate-400 hover:text-slate-600 text-lg w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center">
@@ -2280,10 +2597,10 @@
       </div>
 
       <form onsubmit="App.handleAddChallengeSubmit(event)" class="mt-5 space-y-4">
-        <input type="hidden" id="chl-scope" value="district">
-        <div id="chl-scope-banner" class="p-3 rounded-2xl bg-red-50 border border-red-200 text-xs font-bold text-red-900 flex items-center gap-2">
-          <i class="fa-solid fa-location-dot text-red-600"></i>
-          <span id="chl-scope-banner-text">Tuman miqyosidagi video-chellenj</span>
+        <input type="hidden" id="chl-scope" value="republic">
+        <div id="chl-scope-banner" class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-xs font-bold text-rose-900 flex items-center gap-2">
+          <i class="fa-solid fa-earth-asia text-rose-600"></i>
+          <span id="chl-scope-banner-text">🌍 Respublika umumiy video-chellenji (Barcha viloyat va tuman ekranlarida ko'rinadi)</span>
         </div>
         <div>
           <label class="block text-xs font-bold text-slate-700 mb-1">Chellenj Sarlavhasi *</label>
@@ -2483,7 +2800,7 @@
   </div>
 
   <!-- 11. JONLI IJRONI KO'RISH MODAL -->
-  <div id="modal-video" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <div id="modal-video" style="z-index: 80;" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
     <div class="fixed inset-0 modal-backdrop" onclick="App.closeVideoModal()"></div>
     <div class="relative bg-slate-950 text-white rounded-3xl max-w-3xl w-full p-6 shadow-2xl modal-content z-10 border border-slate-800">
       
@@ -2972,6 +3289,161 @@
     </div>
   </div>
 
+  <!-- 18. O'QUVCHILAR UCHUN KATTA EKRANDA G'OLIBLIK VA MOTIVATSION TABRIKNOMA MODALI -->
+  <div id="modal-student-celebration" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="fixed inset-0 bg-slate-950/80 backdrop-blur-md" onclick="App.dismissStudentCelebrationModal()"></div>
+    <div id="modal-student-celebration-card" class="relative bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 text-white rounded-3xl max-w-2xl w-full p-6 sm:p-10 shadow-2xl modal-content z-10 border-2 border-amber-400/60 max-h-[92vh] overflow-y-auto text-center space-y-6">
+      <!-- JS to'ldiradi -->
+    </div>
+  </div>
+
+  <!-- 19. MAVSUM (CHORAK / TA'TIL) TUGAGANDA KATTA EKRANGA CHIQUVCHI YAKUNIY HISOBOT VA OMAD TILASH MODALI -->
+  <div id="modal-season-ended" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="fixed inset-0 bg-slate-950/85 backdrop-blur-md" onclick="App.closeModal('modal-season-ended')"></div>
+    <div id="modal-season-ended-card" class="relative bg-gradient-to-br from-indigo-950 via-slate-900 to-emerald-950 text-white rounded-3xl max-w-2xl w-full p-6 sm:p-10 shadow-2xl modal-content z-10 border-2 border-amber-400/70 max-h-[92vh] overflow-y-auto text-center space-y-6">
+      <!-- JS to'ldiradi -->
+    </div>
+  </div>
+
+  <!-- 20. MADANIYAT XODIMI TANLOVDAGI "+" PLYUSCHA TUGMASINI BOSIB O'QUVCHI TANLASH MODALI -->
+  <div id="modal-contest-select-students" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="fixed inset-0 modal-backdrop" onclick="App.closeModal('modal-contest-select-students')"></div>
+    <div class="relative bg-white text-slate-800 rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl modal-content z-10 border border-slate-100 max-h-[92vh] overflow-y-auto space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xl shadow-md">
+            <i class="fa-solid fa-plus"></i>
+          </div>
+          <div>
+            <h3 id="contest-select-modal-title" class="text-lg font-black text-slate-900">Tanlovga O'quvchilarni Tanlash</h3>
+            <p id="contest-select-modal-subtitle" class="text-xs text-slate-500">O'quvchilarning jonli ijrolarini ko'rib chiqib, bitta-bitta belgilang va oxirida tasdiqlang</p>
+          </div>
+        </div>
+        <button onclick="App.closeModal('modal-contest-select-students')" class="text-slate-400 hover:text-slate-600 text-lg w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <input type="hidden" id="contest-select-target-id">
+
+      <div id="contest-select-info-banner" class="p-3.5 rounded-2xl bg-indigo-50 border border-indigo-200 text-xs text-indigo-950 space-y-1">
+        <!-- JS to'ldiradi -->
+      </div>
+
+      <!-- 1-QADAM: O'QUVCHILAR JONLI IJROLARINI KO'RIB BITTA-BITTA TANLASH (SELECT QILISH) -->
+      <div id="contest-select-step-pick" class="space-y-3">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+          <div class="flex-1">
+            <input type="text" id="select-contest-student-search" oninput="App.renderContestSelectStudentsList()" placeholder="🔍 O'quvchi ismi, @nickname yoki maktabi bo'yicha qidirish..." class="w-full px-4 py-2.5 text-xs bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+          </div>
+          <span id="contest-draft-selected-badge" class="px-3.5 py-2 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 font-black text-xs text-center shrink-0">
+            Tanlanganlar: 0 nafar
+          </span>
+        </div>
+
+        <div id="contest-select-students-list" class="space-y-2.5 max-h-[48vh] overflow-y-auto pr-1">
+          <!-- JS to'ldiradi -->
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <span class="text-[11px] text-slate-500 font-semibold">
+            💡 Avval <b>«▶ Jonli ijro»</b> tugmasini bosib videoni ko'ring va mos o'quvchilarni belgilab, <b>«Tanlanganlarni Tasdiqlash»</b>ni bosing.
+          </span>
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
+            <button type="button" onclick="App.closeModal('modal-contest-select-students')" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition">
+              Bekor qilish
+            </button>
+            <button type="button" onclick="App.openContestSelectionConfirmStep()" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-md transition flex items-center gap-1.5">
+              <i class="fa-solid fa-list-check"></i> Tanlanganlarni Tasdiqlash (<span id="contest-draft-selected-count">0</span>)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2-QADAM: "ISHONCHINGIZ KOMILMI? TANLAGAN ODAMLARINGIZNI BIR MARTA QAYTA KO'RIB CHIQING!" -->
+      <div id="contest-select-step-confirm" class="hidden space-y-4">
+        <div class="p-4 rounded-2xl bg-amber-50 border-2 border-amber-400 text-amber-950 space-y-1.5 shadow-sm">
+          <div class="flex items-center gap-2 font-black text-sm text-amber-900">
+            <i class="fa-solid fa-triangle-exclamation text-amber-600 text-base"></i>
+            <span>Ishonchingiz komilmi? Tanlagan odamlaringizni bir marta qayta ko'rib chiqing!</span>
+          </div>
+          <p class="text-xs text-amber-900/90 leading-relaxed">
+            Adashib boshqa (kerakmas) o'quvchini tadbirga aytib yubormaslik uchun quyidagi tanlangan o'quvchilar ro'yxatini diqqat bilan tekshiring. Tasdiqlashni bosganingizdan so'ng ushbu o'quvchilarga <b>«🎉 Siz tadbirga chaqirildingiz!»</b> degan xabarnoma boradi:
+          </p>
+        </div>
+
+        <div id="contest-confirm-selected-list" class="space-y-2 max-h-[42vh] overflow-y-auto pr-1">
+          <!-- JS to'ldiradi -->
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <button type="button" onclick="App.backToContestSelectionPickStep()" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-xs transition flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-arrow-left"></i> Orqaga qaytib qayta ko'rish
+          </button>
+          <button type="button" onclick="App.confirmAndSaveContestSelectedStudents()" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-lg transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-circle-check text-sm"></i> Ha, ishonchim komil — Tasdiqlash va Chaqiruv Yuborish
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 21. TANLANGAN O'QUVCHI MADANIYAT XODIMI BILAN "KELAJAK IJODKORI" SERTIFIKATI RASMINI JOYLASH MODALI -->
+  <div id="modal-contest-upload-proof" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+    <div class="fixed inset-0 modal-backdrop" onclick="App.closeModal('modal-contest-upload-proof')"></div>
+    <div class="relative bg-white text-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl modal-content z-10 border border-slate-100 max-h-[92vh] overflow-y-auto space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-xl shadow-md">
+            <i class="fa-solid fa-camera-retro"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-black text-slate-900">«Kelajak Ijodkori» Sertifikati Rasmini Joylash</h3>
+            <p id="contest-proof-modal-subtitle" class="text-xs text-slate-500">Madaniyat xodimi bilan sertifikat ushlab tushgan rasmingizni yuklang</p>
+          </div>
+        </div>
+        <button onclick="App.closeModal('modal-contest-upload-proof')" class="text-slate-400 hover:text-slate-600 text-lg w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form onsubmit="App.handleSubmitContestCertificateProof(event)" class="space-y-4">
+        <input type="hidden" id="contest-proof-contest-id">
+
+        <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-950 space-y-1">
+          <div class="font-black flex items-center gap-1.5">
+            <i class="fa-solid fa-award text-amber-600"></i> Ishtirokni tasdiqlash tartibi:
+          </div>
+          <p class="leading-relaxed">
+            Tanlovda qatnashib, <b>«Kelajak ijodkori» sertifikatini</b> qo'lga kiritganingizdan so'ng, <b>madaniyat xodimi bilan sertifikatni ushlab tushgan rasmingizni</b> quyiga yuklang. Tuman koordinatori (admin) rasmingizni ko'rib, qatnashganingizga amin bo'lgach, hisobingizga tangalarni taqdim etadi!
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-black text-slate-800 mb-1.5">
+            📸 Madaniyat xodimi va Sertifikat bilan tushgan rasmingizni tanlang *
+          </label>
+          <div class="p-4 rounded-2xl border-2 border-dashed border-emerald-400 bg-emerald-50/50 text-center space-y-3">
+            <div id="contest-proof-preview-wrap" class="hidden">
+              <img id="contest-proof-preview-img" class="max-h-52 mx-auto rounded-2xl object-cover border-2 border-emerald-500 shadow-md" alt="Sertifikat rasmi">
+            </div>
+            <input type="file" id="contest-proof-file-input" accept="image/*" required onchange="App.handleContestProofPhotoChange(event)" class="w-full text-xs text-slate-700 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer">
+            <p class="text-[11px] text-slate-500">Rasmda siz, madaniyat xodimi va «Kelajak ijodkori» sertifikati ko'rinib turishi kerak</p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Izoh (Tanlov taassurotlari va madaniyat xodimi F.I.Sh.)</label>
+          <input type="text" id="contest-proof-comment" placeholder="Masalan: Madaniyat xodimi bilan «Kelajak ijodkori» sertifikatini oldik!" class="w-full px-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+        </div>
+
+        <button type="submit" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-black text-sm shadow-lg transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Sertifikat Rasmini Tanlov Pastiga Joylash
+        </button>
+      </form>
+    </div>
+  </div>
+
   <!-- Viloyatlar ro'yxati (Datalist) -->
   <datalist id="viloyatlar-datalist">
     <option value="Buxoro viloyati"></option>
@@ -3012,9 +3484,29 @@
   <div id="toast-container"></div>
 
   <!-- SKRIPT FAYLLARI -->
-  <script src="js/i18n.js?v=20261110_3"></script>
-  <script src="js/data.js?v=20261110_3"></script>
-  <script src="js/auth.js?v=20261110_3"></script>
-  <script src="js/app.js?v=20261110_3"></script>
+  <script src="js/i18n.js?v=20261117_6"></script>
+  <script src="js/data.js?v=20261117_6"></script>
+  <script src="js/auth.js?v=20261117_6"></script>
+  <script src="js/app.js?v=20261117_6"></script>
+  <script>
+    // Agar GitHub'ga fayllar js/ papkasisiz to'g'ridan-to'g'ri yuklangan bo'lsa, avtomatik ulash
+    window.addEventListener('DOMContentLoaded', function () {
+      if (typeof window.App === 'undefined') {
+        var files = ['i18n.js', 'data.js', 'auth.js', 'app.js'];
+        var loadNext = function (idx) {
+          if (idx >= files.length) {
+            if (window.App && typeof window.App.init === 'function') window.App.init();
+            return;
+          }
+          var s = document.createElement('script');
+          s.src = files[idx] + '?v=20261117_6';
+          s.onload = function () { loadNext(idx + 1); };
+          s.onerror = function () { loadNext(idx + 1); };
+          document.body.appendChild(s);
+        };
+        loadNext(0);
+      }
+    });
+  </script>
 </body>
 </html>

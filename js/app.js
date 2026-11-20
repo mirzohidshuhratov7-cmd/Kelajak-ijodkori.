@@ -25,10 +25,25 @@ const App = {
     this.setupPhotoUploadListener();
     this.setupEditPhotoUploadListener();
     this.setupPhoneAutoFormat();
+
+    // Agar o'quvchi kirgan bo'lsa, uni online deb yangilab qo'yamiz (30 kunlik nofaollik qora ro'yxatidan himoyalash)
+    try {
+      if (typeof Auth !== 'undefined' && Auth.isStudent()) {
+        const u = Auth.getCurrentUser();
+        if (u && (u.creatorId || u.id)) {
+          DataStore.touchCreatorOnline(u.creatorId || u.id);
+        }
+      }
+    } catch (e) {}
+
     this.renderRoleUI();
+    this.startSeasonCountdownTimer();
     this.renderDistrictFilters();
     this.renderCreators();
     this.renderChallenges();
+    this.renderStudentVictoryAchievements();
+    this.checkStudentCelebrationPopup();
+    this.renderAchievementsSection();
     this.renderContests();
     this.renderLeaderboard();
     this.renderStaffSection();
@@ -121,24 +136,25 @@ const App = {
   },
 
   refreshAllUI() {
-    if (window.I18n) {
-      window.I18n.applyTranslations();
-      window.I18n.updateLanguageUI();
-    }
-    this.renderRoleUI();
-    this.renderDistrictFilters();
-    this.renderCreators();
-    this.renderChallenges();
-    this.renderContests();
-    this.renderLeaderboard();
-    this.renderStaffSection();
-    this.renderAdminSection();
-    this.renderRegionAdminSection();
-    this.renderRepublicAdminSection();
-    this.renderStaffProposals();
-    this.checkStaffApprovedProposals();
-    this.renderStats();
-    this.renderCoordinatorPhone();
+    // 1. Birinchi navbatda asosiy ekranni (#view-gateway yoki #view-app) ochib olamiz!
+    try { this.renderRoleUI(); } catch (e) { console.error(e); }
+    try { this.updateSeasonCountdownUI(); } catch (e) { console.error(e); }
+    try { this.renderDistrictFilters(); } catch (e) { console.error(e); }
+    try { this.renderCreators(); } catch (e) { console.error(e); }
+    try { this.renderChallenges(); } catch (e) { console.error(e); }
+    try { this.renderStudentVictoryAchievements(); } catch (e) { console.error(e); }
+    try { this.checkStudentCelebrationPopup(); } catch (e) { console.error(e); }
+    try { this.renderAchievementsSection(); } catch (e) { console.error(e); }
+    try { this.renderContests(); } catch (e) { console.error(e); }
+    try { this.renderLeaderboard(); } catch (e) { console.error(e); }
+    try { this.renderStaffSection(); } catch (e) { console.error(e); }
+    try { this.renderAdminSection(); } catch (e) { console.error(e); }
+    try { this.renderRegionAdminSection(); } catch (e) { console.error(e); }
+    try { this.renderRepublicAdminSection(); } catch (e) { console.error(e); }
+    try { this.renderStaffProposals(); } catch (e) { console.error(e); }
+    try { this.checkStaffApprovedProposals(); } catch (e) { console.error(e); }
+    try { this.renderStats(); } catch (e) { console.error(e); }
+    try { this.renderCoordinatorPhone(); } catch (e) { console.error(e); }
   },
 
   getActiveDistrictInfo() {
@@ -334,6 +350,7 @@ const App = {
     const navChallenges = document.getElementById('nav-btn-challenges');
     const navContests = document.getElementById('nav-btn-contests');
     const navLeaderboard = document.getElementById('nav-btn-leaderboard');
+    const navAchievements = document.getElementById('nav-btn-achievements');
     const navStaff = document.getElementById('nav-btn-staff');
     const adminNavBtn = document.getElementById('nav-btn-admin');
     const regionAdminNavBtn = document.getElementById('nav-btn-region-admin');
@@ -343,6 +360,7 @@ const App = {
     const mobileChallenges = document.getElementById('mobile-nav-challenges');
     const mobileContests = document.getElementById('mobile-nav-contests');
     const mobileLeaderboard = document.getElementById('mobile-nav-leaderboard');
+    const mobileAchievements = document.getElementById('mobile-nav-achievements');
     const mobileStaff = document.getElementById('mobile-nav-staff');
     const mobileAdminNav = document.getElementById('mobile-nav-admin');
     const mobileRegionAdminNav = document.getElementById('mobile-nav-region-admin');
@@ -374,13 +392,15 @@ const App = {
       appView.classList.add('flex');
     }
 
-    // Default ko'rinishlarni tiklash
-    [navCreators, navChallenges, navContests, navLeaderboard, navStaff].forEach(el => {
+    // Default ko'rinishlarni tiklash ("Xodimlar" tugmasi va bo'limi odatiy holatda yashirin — faqat Madaniyat xodimi sifatida kirilganda ochiladi)
+    [navCreators, navChallenges, navContests, navLeaderboard, navAchievements].forEach(el => {
       if (el) el.classList.remove('hidden');
     });
-    [mobileCreators, mobileChallenges, mobileContests, mobileLeaderboard, mobileStaff].forEach(el => {
+    [mobileCreators, mobileChallenges, mobileContests, mobileLeaderboard, mobileAchievements].forEach(el => {
       if (el) el.classList.remove('hidden');
     });
+    if (navStaff) navStaff.classList.add('hidden');
+    if (mobileStaff) mobileStaff.classList.add('hidden');
     if (adminNavBtn) adminNavBtn.classList.add('hidden');
     if (regionAdminNavBtn) regionAdminNavBtn.classList.add('hidden');
     if (republicAdminNavBtn) republicAdminNavBtn.classList.add('hidden');
@@ -393,14 +413,16 @@ const App = {
     const userDist = this.getActiveDistrictInfo();
     if (userDist.district) {
       this.state.selectedDistrict = userDist.district;
+    } else {
+      this.state.selectedDistrict = 'all';
     }
 
     if (Auth.isRepublicAdmin()) {
       // RESPUBLIKA KOORDINATORI: Faqat Respublika Koordinatori tugmasi va Reyting
-      [navCreators, navChallenges, navContests, navStaff].forEach(el => {
+      [navCreators, navChallenges, navContests, navAchievements, navStaff].forEach(el => {
         if (el) el.classList.add('hidden');
       });
-      [mobileCreators, mobileChallenges, mobileContests, mobileStaff].forEach(el => {
+      [mobileCreators, mobileChallenges, mobileContests, mobileAchievements, mobileStaff].forEach(el => {
         if (el) el.classList.add('hidden');
       });
       if (republicAdminNavBtn) republicAdminNavBtn.classList.remove('hidden');
@@ -418,10 +440,10 @@ const App = {
     } else if (Auth.isRegionAdmin()) {
       // VILOYAT KOORDINATORI: Faqat o'z viloyatidagi tumanlarni kuzatish tugmasi!
       const regInfo = Auth.getUserRegion();
-      [navCreators, navChallenges, navContests, navStaff, navLeaderboard].forEach(el => {
+      [navCreators, navChallenges, navContests, navAchievements, navStaff, navLeaderboard].forEach(el => {
         if (el) el.classList.add('hidden');
       });
-      [mobileCreators, mobileChallenges, mobileContests, mobileStaff, mobileLeaderboard].forEach(el => {
+      [mobileCreators, mobileChallenges, mobileContests, mobileAchievements, mobileStaff, mobileLeaderboard].forEach(el => {
         if (el) el.classList.add('hidden');
       });
       if (regionAdminNavBtn) {
@@ -444,6 +466,8 @@ const App = {
       profileBadge.innerHTML = `<i class="fa-solid fa-crown text-amber-500 text-xs"></i> <span class="truncate">${shortDist || 'Admin'}</span>`;
       profileBadge.className = "flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-[11px] font-black text-amber-950 shrink-0 max-w-[140px]";
       
+      if (navStaff) navStaff.classList.add('hidden');
+      if (mobileStaff) mobileStaff.classList.add('hidden');
       if (adminNavBtn) adminNavBtn.classList.remove('hidden');
       if (mobileAdminNav) mobileAdminNav.classList.remove('hidden');
       if (editProfileBtn) editProfileBtn.classList.add('hidden');
@@ -452,14 +476,21 @@ const App = {
         adminInboxBtn.classList.remove('hidden');
         adminInboxBtn.classList.add('flex');
         const inboxItems = DataStore.getAdminInbox().filter(item =>
-          !userDist.district || !item.district || DataStore.districtsMatch(item.district || item.districtLabel, userDist.district)
+          userDist.district
+            ? ((item.district || item.districtLabel) && DataStore.districtsMatch(item.district || item.districtLabel, userDist.district))
+            : true
         );
         document.getElementById('admin-inbox-badge').textContent = inboxItems.length;
+      }
+      if (this.state.currentTab === 'staff' || this.state.currentTab === 'region_admin' || this.state.currentTab === 'republic_admin') {
+        this.switchTab('admin');
       }
     } else if (Auth.isStaff()) {
       profileBadge.innerHTML = `<i class="fa-solid fa-id-badge text-blue-500 text-xs"></i> <span class="truncate">${user.fullName.split(' ')[0]}</span>`;
       profileBadge.className = "flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-blue-300 bg-blue-50 text-[11px] font-bold text-blue-950 shrink-0 max-w-[140px]";
       
+      if (navStaff) navStaff.classList.remove('hidden');
+      if (mobileStaff) mobileStaff.classList.remove('hidden');
       if (staffProposalBtn) {
         staffProposalBtn.classList.remove('hidden');
         staffProposalBtn.classList.add('inline-flex');
@@ -478,6 +509,11 @@ const App = {
       profileBadge.innerHTML = `<i class="fa-solid fa-user-graduate text-emerald-600 text-xs"></i> <span class="truncate">${creator.fullName.split(' ')[0]}</span> <span class="shrink-0">(🪙 ${creator.coins || 10})</span>`;
       profileBadge.className = "flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-[11px] font-bold text-emerald-950 shrink-0 max-w-[165px]";
       
+      if (navStaff) navStaff.classList.add('hidden');
+      if (mobileStaff) mobileStaff.classList.add('hidden');
+      if (this.state.currentTab === 'staff') {
+        this.switchTab('creators');
+      }
       if (staffProposalBtn) staffProposalBtn.classList.add('hidden');
       if (studentComplaintBtn) {
         studentComplaintBtn.classList.add('hidden');
@@ -540,7 +576,42 @@ const App = {
     }
 
     this.state.targetEditCreatorId = creator.id;
+    const statusEl = document.getElementById('edit-nickname-status');
+    if (statusEl) {
+      statusEl.classList.add('hidden');
+      statusEl.textContent = '';
+    }
     this.openModal('modal-edit-profile');
+  },
+
+  checkNicknameAvailabilityUI(inputId, statusElId, excludeCreatorId = '') {
+    const input = document.getElementById(inputId);
+    const statusEl = document.getElementById(statusElId);
+    if (!input || !statusEl) return true;
+
+    const rawVal = (input.value || '').trim();
+    const cleanNick = DataStore.cleanNickname(rawVal);
+
+    if (!cleanNick) {
+      statusEl.classList.add('hidden');
+      statusEl.textContent = '';
+      return true;
+    }
+
+    const isTaken = DataStore.isNicknameTaken(cleanNick, excludeCreatorId);
+    statusEl.classList.remove('hidden');
+
+    if (isTaken) {
+      statusEl.className = 'text-[11px] font-black text-red-600 mt-1 flex items-center gap-1';
+      statusEl.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> @${cleanNick} niki band! Bir kishi ishlatgan nikneymni ikkinchi kishi ishlata olmaydi.`;
+      input.classList.add('border-red-500', 'bg-red-50/50');
+      return false;
+    } else {
+      statusEl.className = 'text-[11px] font-bold text-emerald-700 mt-1 flex items-center gap-1';
+      statusEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> @${cleanNick} niki bo'sh (foydalanish mumkin)`;
+      input.classList.remove('border-red-500', 'bg-red-50/50');
+      return true;
+    }
   },
 
   handleEditProfileSubmit(e) {
@@ -567,7 +638,19 @@ const App = {
 
     const nickInput = document.getElementById('edit-nickname');
     if (nickInput && nickInput.value !== undefined) {
-      updatedData.nickname = nickInput.value.trim().replace(/^@/, '');
+      const cleanEditNick = DataStore.cleanNickname(nickInput.value);
+      if (!cleanEditNick) {
+        this.showToast("Iltimos, profil nikingizni (@taxallus) kiriting!", "warning");
+        nickInput.focus();
+        return;
+      }
+      if (DataStore.isNicknameTaken(cleanEditNick, creatorId)) {
+        this.checkNicknameAvailabilityUI('edit-nickname', 'edit-nickname-status', creatorId);
+        this.showToast(`⛔ @${cleanEditNick} niki boshqa o'quvchi tomonidan band qilingan! Bir kishi ishlatgan nikneymni ikkinchi kishi ishlata olmaydi.`, "error");
+        nickInput.focus();
+        return;
+      }
+      updatedData.nickname = cleanEditNick;
     }
 
     const phoneInput = document.getElementById('edit-phone');
@@ -593,9 +676,70 @@ const App = {
     }
   },
 
+  handleDeleteOwnStudentProfile() {
+    const user = Auth.getCurrentUser();
+    const creatorId = this.state.targetEditCreatorId || (user && (user.creatorId || user.id));
+    if (!creatorId) return;
+
+    const creator = DataStore.getCreatorById(creatorId);
+    const fullName = creator ? creator.fullName : (user ? user.fullName : "ushbu profil");
+
+    const confirmed = confirm(
+      `⚠️ DIQQAT! "${fullName}" profilini BUTUNLAY O'CHIRIB YUBORMOQCHIMISIZ?\n\n` +
+      `Agar tasdiqlasangiz:\n` +
+      `• Profilingiz, videolaringiz va to'plagan tangalaringiz tuman, viloyat va respublika bazasidan butunlay o'chib ketadi;\n` +
+      `• Ushbu amalni ortga qaytarib bo'lmaydi.\n\n` +
+      `Haqiqatan ham profilni bazadan butunlay o'chirasizmi?`
+    );
+    if (!confirmed) return;
+
+    DataStore.deleteCreator(creatorId);
+
+    // Agar o'quvchi o'z profilini o'chirgan bo'lsa, sessiyadan ham chiqaramiz
+    if (Auth.isStudent() || (user && (user.creatorId === creatorId || user.id === creatorId))) {
+      Auth.logout();
+    }
+
+    this.closeAllModals();
+    this.refreshAllUI();
+    this.showToast("🗑️ Profilingiz va barcha ma'lumotlaringiz bazadan butunlay o'chirildi!", "error");
+  },
+
+  handleDeleteOwnStaffProfile() {
+    const user = Auth.getCurrentUser();
+    if (!user || user.role !== 'staff') return;
+
+    const confirmed = confirm(
+      `⚠️ DIQQAT! "${user.fullName}" xodim profilini bazadan butunlay o'chirib yubormoqchimisiz?\n\n` +
+      `Ushbu amalni ortga qaytarib bo'lmaydi.`
+    );
+    if (!confirmed) return;
+
+    DataStore.deleteStaffMember(user.id || user.staffId);
+    Auth.logout();
+    this.closeAllModals();
+    this.refreshAllUI();
+    this.showToast("🗑️ Xodim profilingiz bazadan butunlay o'chirildi!", "error");
+  },
+
   // ================= 4. TAB NAVIGATSIYASI =================
 
   switchTab(tabName) {
+    const currentUser = Auth.getCurrentUser();
+    // "Xodimlar" bo'limi (#section-staff) faqat Madaniyat xodimi (role === 'staff') uchun ochiladi!
+    // O'quvchilar, adminlar yoki mehmonlar uchun umuman ochilmasin.
+    if (tabName === 'staff' && (!currentUser || currentUser.role !== 'staff')) {
+      if (Auth.isRepublicAdmin()) {
+        tabName = 'republic_admin';
+      } else if (Auth.isRegionAdmin()) {
+        tabName = 'region_admin';
+      } else if (Auth.isAdmin()) {
+        tabName = 'admin';
+      } else {
+        tabName = 'creators';
+      }
+    }
+
     this.state.currentTab = tabName;
 
     const navBtnIdMap = {
@@ -603,6 +747,7 @@ const App = {
       challenges: 'nav-btn-challenges',
       contests: 'nav-btn-contests',
       leaderboard: 'nav-btn-leaderboard',
+      achievements: 'nav-btn-achievements',
       staff: 'nav-btn-staff',
       admin: 'nav-btn-admin',
       region_admin: 'nav-btn-region-admin',
@@ -613,6 +758,7 @@ const App = {
       challenges: 'mobile-nav-challenges',
       contests: 'mobile-nav-contests',
       leaderboard: 'mobile-nav-leaderboard',
+      achievements: 'mobile-nav-achievements',
       staff: 'mobile-nav-staff',
       admin: 'mobile-nav-admin',
       region_admin: 'mobile-nav-region-admin',
@@ -623,6 +769,7 @@ const App = {
       challenges: 'section-challenges',
       contests: 'section-contests',
       leaderboard: 'section-leaderboard',
+      achievements: 'section-achievements',
       staff: 'section-staff',
       admin: 'section-admin',
       region_admin: 'section-region-admin',
@@ -671,6 +818,8 @@ const App = {
       this.renderContests();
     } else if (tabName === 'leaderboard') {
       this.renderLeaderboard();
+    } else if (tabName === 'achievements') {
+      this.renderAchievementsSection();
     } else if (tabName === 'staff') {
       this.renderStaffSection();
     } else if (tabName === 'admin') {
@@ -1168,7 +1317,9 @@ const App = {
     const container = document.getElementById('admin-inbox-items-container');
     const userDist = this.getActiveDistrictInfo();
     const items = DataStore.getAdminInbox().filter(item =>
-      !userDist.district || !item.district || DataStore.districtsMatch(item.district || item.districtLabel, userDist.district)
+      userDist.district
+        ? ((item.district || item.districtLabel) && DataStore.districtsMatch(item.district || item.districtLabel, userDist.district))
+        : true
     );
 
     if (items.length === 0) {
@@ -1311,7 +1462,7 @@ const App = {
     if (res.success) {
       this.closeModal('modal-staff-auth');
       this.refreshAllUI();
-      this.switchTab('creators');
+      this.switchTab('staff');
       this.checkStaffApprovedProposals();
       this.showToast(`Xush kelibsiz, ${res.staff.fullName} (${res.user.districtLabel || ''})!`, "success");
     } else {
@@ -1534,7 +1685,7 @@ const App = {
       this.state.staffForgotSession = null;
       this.closeModal('modal-staff-auth');
       this.refreshAllUI();
-      this.switchTab('creators');
+      this.switchTab('staff');
       this.showToast(`✅ Xodim kodingiz yangilandi va profilingizga kirdingiz!`, "success");
     } else {
       this.showToast(res.message || "Xatolik yuz berdi!", "error");
@@ -1611,6 +1762,10 @@ const App = {
   // ================= 7. O'QUVCHI PROFILI: KIRISH, REGISTRATSIYA VA PAROL TIKLASH =================
 
   openStudentAuthModal(initialTab = 'login') {
+    const stdRegSelect = document.getElementById('std-region');
+    if (stdRegSelect) {
+      this.filterDatalistByRegion(stdRegSelect.value || 'Buxoro viloyati', 'std-district');
+    }
     this.openModal('modal-student-auth');
     this.switchStudentAuthTab(initialTab);
   },
@@ -1651,6 +1806,9 @@ const App = {
       if (panelForgot) panelForgot.classList.add('hidden');
       if (modalTitle) modalTitle.innerText = "Yangi Profil Ochish";
       if (modalSubtitle) modalSubtitle.innerText = "Ma'lumotlaringizni to'ldiring va +10 tanga oling";
+
+      // Ro'yxatdan o'tish bosqichini 1-bosqichga qaytarish
+      this.backToStudentRegStep1();
     } else if (tab === 'forgot') {
       if (tabsContainer) tabsContainer.classList.add('hidden');
       if (panelLogin) panelLogin.classList.add('hidden');
@@ -1672,7 +1830,7 @@ const App = {
     }
   },
 
-  handleStudentLogin(e) {
+  async handleStudentLogin(e) {
     if (e) e.preventDefault();
     const idInput = document.getElementById('std-login-identifier');
     const pinInput = document.getElementById('std-login-pin');
@@ -1688,7 +1846,12 @@ const App = {
       return;
     }
 
-    const res = Auth.loginStudentByCredentials(identifier, pin);
+    let res = Auth.loginStudentByCredentials(identifier, pin);
+    if (!res.success && typeof CloudSync !== 'undefined' && CloudSync.pullFromRest) {
+      await CloudSync.pullFromRest();
+      res = Auth.loginStudentByCredentials(identifier, pin);
+    }
+
     if (res.success) {
       this.closeModal('modal-student-auth');
       this.refreshAllUI();
@@ -1700,12 +1863,24 @@ const App = {
   },
 
   handleStudentRegister(e) {
+    return this.handleStudentRegisterSendCode(e);
+  },
+
+  handleStudentRegisterSendCode(e) {
     if (e) e.preventDefault();
 
     const fullName = (document.getElementById('std-fullname').value || "Yosh Iqtidor").trim();
-    let nick = (document.getElementById('std-nickname').value || '').trim().replace(/^@/, '');
+    const nickInputEl = document.getElementById('std-nickname');
+    let nick = (nickInputEl?.value || '').trim().replace(/^@/, '');
     if (!nick) {
-      nick = fullName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 15) || 'ijodkor';
+      nick = fullName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12) + '_' + Math.floor(100 + Math.random() * 900);
+    }
+    const cleanRegNick = DataStore.cleanNickname(nick);
+    if (DataStore.isNicknameTaken(cleanRegNick)) {
+      this.checkNicknameAvailabilityUI('std-nickname', 'std-nickname-status');
+      this.showToast(`⛔ @${cleanRegNick} niki (taxallusi) allaqachon band! Bir kishi ishlatgan nikneymni ikkinchi kishi ishlata olmaydi. Iltimos, boshqa @nickname tanlang.`, "error");
+      if (nickInputEl) nickInputEl.focus();
+      return;
     }
 
     const pin = (document.getElementById('std-pin').value || '').trim();
@@ -1720,6 +1895,12 @@ const App = {
       return;
     }
 
+    // Telefon raqami ilgari ro'yxatdan o'tganligini tekshirish
+    if (DataStore.isPhoneRegistered(phoneInput)) {
+      this.showToast("Ushbu telefon raqami bilan o'quvchi allaqachon ro'yxatdan o'tgan! Profilga kirish bo'limidan foydalaning yoki profil kodini tiklang.", "warning");
+      return;
+    }
+
     const regionVal = (document.getElementById('std-region')?.value || 'Buxoro viloyati').trim();
     const districtVal = document.getElementById('std-district').value;
     const normDist = DataStore.normalizeDistrict(districtVal || 'jondor', regionVal);
@@ -1731,7 +1912,7 @@ const App = {
 
     const studentData = {
       fullName: fullName,
-      nickname: nick,
+      nickname: cleanRegNick,
       pin: pin,
       age: document.getElementById('std-age').value || "16",
       district: finalDistrictId,
@@ -1746,7 +1927,68 @@ const App = {
       initialCoins: 10
     };
 
-    // Yangi o'quvchini darhol bazaga qo'shish va Firebase'ga uzatish
+    // 4 talik tasdiqlash kodi yaratish
+    const code = String(Math.floor(1000 + Math.random() * 9000));
+    this.state.studentRegSession = {
+      ...studentData,
+      verifyCode: code
+    };
+
+    // Admin Inbox'ga SMS kodni xavfsiz saqlash
+    DataStore.sendToAdminInbox({
+      type: 'student_reg_code',
+      name: studentData.fullName,
+      phone: studentData.phone,
+      district: studentData.district,
+      districtLabel: studentData.districtLabel,
+      position: `Yangi o'quvchi ro'yxatdan o'tish tasdiq kodi (@${studentData.nickname})`,
+      code: code
+    });
+
+    // 2-bosqich oynasini ochish
+    const step1 = document.getElementById('student-reg-step1');
+    const step2 = document.getElementById('student-reg-step2');
+    if (step1) step1.classList.add('hidden');
+    if (step2) step2.classList.remove('hidden');
+
+    const hintEl = document.getElementById('student-reg-sms-hint');
+    if (hintEl) {
+      hintEl.innerHTML = `<strong>${phoneInput}</strong> raqamiga 4 talik tasdiqlash kodi yuborildi:<br><span class="inline-block mt-1 px-3 py-1 bg-white border border-emerald-300 rounded-lg text-emerald-950 font-black tracking-widest text-base shadow-sm">${code}</span>`;
+    }
+
+    const codeInput = document.getElementById('std-reg-verify-code');
+    if (codeInput) {
+      codeInput.value = '';
+      codeInput.focus();
+    }
+
+    this.showToast(`📲 ${phoneInput} raqamiga 4 talik tasdiqlash kodi yuborildi: ${code}`, "info");
+  },
+
+  handleStudentRegisterVerifyAndSubmit(e) {
+    if (e) e.preventDefault();
+
+    if (!this.state.studentRegSession || !this.state.studentRegSession.verifyCode) {
+      this.showToast("Ro'yxatdan o'tish seansi topilmadi. Iltimos, ma'lumotlarni qayta kiritib kod oling!", "warning");
+      this.backToStudentRegStep1();
+      return;
+    }
+
+    const enteredCode = (document.getElementById('std-reg-verify-code')?.value || '').trim();
+    if (!enteredCode) {
+      this.showToast("Iltimos, telefoningizga borgan 4 talik SMS kodni kiriting!", "warning");
+      return;
+    }
+
+    if (enteredCode !== this.state.studentRegSession.verifyCode) {
+      this.showToast("⛔ Xato tasdiqlash kodi! Telefon raqamingizga yuborilgan 4 talik kodni to'g'ri kiriting.", "error");
+      return;
+    }
+
+    // Kod to'g'ri bo'lsa, o'quvchi profilini yaratish va tizimga kiritish
+    const studentData = { ...this.state.studentRegSession };
+    delete studentData.verifyCode;
+
     const newCreator = DataStore.addCreator(studentData);
     Auth.loginStudent(newCreator);
 
@@ -1757,14 +1999,58 @@ const App = {
       district: newCreator.district,
       districtLabel: newCreator.districtLabel,
       position: `${newCreator.school}, ${newCreator.districtLabel} (@${newCreator.nickname})`,
-      code: 'Yangi Profil'
+      code: 'SMS Tasdiqlandi'
     });
 
+    this.state.studentRegSession = null;
     this.closeModal('modal-student-auth');
     this.refreshAllUI();
     this.switchTab('creators');
 
-    this.showToast(`🎉 Tabriklaymiz, ${newCreator.fullName}! Profilingiz yaratildi va +10 tanga berildi!`, "success");
+    this.showToast(`🎉 Tabriklaymiz, ${newCreator.fullName}! Telefon raqamingiz muvaffaqiyatli tasdiqlandi, profilingiz yaratildi va +10 tanga berildi!`, "success");
+  },
+
+  handleStudentRegisterResendCode() {
+    if (!this.state.studentRegSession) {
+      this.showToast("Ro'yxatdan o'tish ma'lumotlari topilmadi!", "warning");
+      this.backToStudentRegStep1();
+      return;
+    }
+
+    const code = String(Math.floor(1000 + Math.random() * 9000));
+    this.state.studentRegSession.verifyCode = code;
+
+    DataStore.sendToAdminInbox({
+      type: 'student_reg_code',
+      name: this.state.studentRegSession.fullName,
+      phone: this.state.studentRegSession.phone,
+      district: this.state.studentRegSession.district,
+      districtLabel: this.state.studentRegSession.districtLabel,
+      position: `Qayta yuborilgan ro'yxatdan o'tish tasdiq kodi (@${this.state.studentRegSession.nickname})`,
+      code: code
+    });
+
+    const hintEl = document.getElementById('student-reg-sms-hint');
+    if (hintEl) {
+      hintEl.innerHTML = `<strong>${this.state.studentRegSession.phone}</strong> raqamiga yangi 4 talik tasdiqlash kodi yuborildi:<br><span class="inline-block mt-1 px-3 py-1 bg-white border border-emerald-300 rounded-lg text-emerald-950 font-black tracking-widest text-base shadow-sm">${code}</span>`;
+    }
+
+    const codeInput = document.getElementById('std-reg-verify-code');
+    if (codeInput) {
+      codeInput.value = '';
+      codeInput.focus();
+    }
+
+    this.showToast(`📲 Yangi 4 talik tasdiqlash kodi yuborildi: ${code}`, "info");
+  },
+
+  backToStudentRegStep1() {
+    const step1 = document.getElementById('student-reg-step1');
+    const step2 = document.getElementById('student-reg-step2');
+    if (step2) step2.classList.add('hidden');
+    if (step1) step1.classList.remove('hidden');
+    const codeInput = document.getElementById('std-reg-verify-code');
+    if (codeInput) codeInput.value = '';
   },
 
   handleStudentForgotSendSms(e) {
@@ -1872,34 +2158,31 @@ const App = {
     const userDist = this.getActiveDistrictInfo();
     const activeFilterDist = userDist.district || (this.state.selectedDistrict !== 'all' ? this.state.selectedDistrict : '');
 
-    let allChallenges = DataStore.getChallenges();
-    if (activeFilterDist) {
-      allChallenges = allChallenges.filter(chl =>
-        chl.scope === 'republic' ||
-        chl.isRepublic ||
-        chl.district === 'all' ||
-        DataStore.districtsMatch(chl.district || chl.districtLabel, activeFilterDist)
-      );
-    }
+    // Barcha video-chellenjlar Respublika tomonidan qo'yiladi va barcha ekranlarda ko'rinadi
+    const allChallenges = DataStore.getChallenges();
 
     const activeChallenges = allChallenges.filter(chl => !DataStore.isChallengeExpired(chl.deadline, chl.status));
     const archivedChallenges = allChallenges.filter(chl => DataStore.isChallengeExpired(chl.deadline, chl.status));
 
     const isAdmin = Auth.isAdmin();
+    const isRegAdmin = Auth.isRegionAdmin();
     const isRepAdmin = Auth.isRepublicAdmin();
 
+    // Video-chellenjni FAQAT Respublika koordinatori e'lon qila oladi!
+    // Tuman va Viloyat koordinatorlarida chellenj e'lon qilish tugmasi bo'lmaydi.
     if (adminAction) {
       if (isRepAdmin) {
         adminAction.innerHTML = `
           <button onclick="App.openAddChallengeModal('republic')" class="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-md transition flex items-center gap-2">
-            <i class="fa-solid fa-earth-asia text-base"></i> Respublika Umumiy Video-Chellenji E'lon Qilish
+            <i class="fa-solid fa-earth-asia text-base"></i> 🌍 Respublika Umumiy Video-Chellenji E'lon Qilish
           </button>
         `;
-      } else if (isAdmin) {
+      } else if (isAdmin || isRegAdmin) {
         adminAction.innerHTML = `
-          <button onclick="App.openAddChallengeModal('district')" class="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-md transition flex items-center gap-2">
-            <i class="fa-solid fa-plus-circle text-base"></i> ${userDist.districtLabel ? `${userDist.districtLabel} Uchun ` : ''}Yangi Chellenj E'lon Qilish
-          </button>
+          <div class="px-4 py-2 rounded-2xl bg-white/15 border border-white/25 text-white text-xs font-bold flex items-center gap-2">
+            <i class="fa-solid fa-earth-asia text-amber-300"></i>
+            <span>Video-chellenjlar Respublika tomonidan qo'yiladi (Tuman → Viloyat → Respublika)</span>
+          </div>
         `;
       } else {
         adminAction.innerHTML = '';
@@ -1999,7 +2282,7 @@ const App = {
 
             <div class="mt-5 pt-4 border-t border-slate-100 space-y-3">
               ${submitButton}
-              ${(isAdmin || isRepAdmin) ? `
+              ${isRepAdmin ? `
                 <div class="flex items-center justify-between pt-1">
                   <button onclick="App.handleArchiveChallenge('${chl.id}')" class="text-xs text-amber-700 hover:text-amber-900 font-bold">
                     <i class="fa-solid fa-box-archive mr-1"></i> Arxivga o'tkazish
@@ -2015,12 +2298,20 @@ const App = {
       }).join('');
     }
 
-    // Topshirilgan video roliklar galereyasi (faqat shu tuman bo'yicha)
+    // Topshirilgan video roliklar galereyasi (faqat shu tuman bo'yicha + joriy o'quvchi kollaboratsiyada qatnashgan barcha videolar)
     const allSubmissions = DataStore.getChallengeSubmissions();
+    const currentUser = Auth.getCurrentUser();
+    const currentCreator = (currentUser && currentUser.role === 'student')
+      ? (DataStore.getCreatorById(currentUser.creatorId) || currentUser)
+      : null;
+
     if (submissionsGrid) {
       let submissions = allSubmissions;
       if (activeFilterDist) {
-        submissions = submissions.filter(sub => DataStore.districtsMatch(sub.district || sub.creatorDistrict, activeFilterDist));
+        submissions = submissions.filter(sub =>
+          DataStore.districtsMatch(sub.district || sub.creatorDistrict, activeFilterDist) ||
+          (currentCreator && DataStore.isCreatorInSubmission(sub, currentCreator))
+        );
       }
       if (submissions.length === 0) {
         submissionsGrid.innerHTML = `
@@ -2029,17 +2320,28 @@ const App = {
           </div>
         `;
       } else {
-        submissionsGrid.innerHTML = submissions.map(sub => `
-          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col justify-between text-xs space-y-3">
+        submissionsGrid.innerHTML = submissions.map(sub => {
+          const isMyCollab = currentCreator ? DataStore.isCreatorInSubmission(sub, currentCreator) : false;
+          const collabInfo = DataStore.resolveSubmissionCollaborators(sub, sub.creatorId, sub.creatorName);
+          const isTeamCollab = collabInfo.collaborators.length > 1 || collabInfo.collaboratorNicknames.length > 1;
+
+          return `
+          <div class="p-4 rounded-2xl ${isMyCollab ? 'bg-emerald-50/70 border-2 border-emerald-400 ring-2 ring-emerald-100' : 'bg-slate-50 border border-slate-200'} flex flex-col justify-between text-xs space-y-3">
             <div>
+              ${isMyCollab ? `
+                <div class="mb-2 px-2.5 py-1 rounded-xl bg-emerald-600 text-white font-black text-[11px] flex items-center justify-between gap-2 shadow-2xs">
+                  <span>🤝 Sizning ${isTeamCollab ? 'kollaboratsiya' : 'ijodiy'} videoroligingiz!</span>
+                  ${sub.status === 'approved' ? `<span>Har biringizga +${sub.coinsAwarded} 🪙</span>` : ''}
+                </div>
+              ` : ''}
               <div class="flex items-center justify-between gap-2">
-                <span class="font-bold text-slate-900 truncate">${sub.creatorName}</span>
+                <span class="font-bold text-slate-900 truncate">${sub.creatorName} ${sub.creatorNickname ? `<span class="text-indigo-600 font-black">(${sub.creatorNickname})</span>` : ''}</span>
                 ${sub.status === 'approved' ? `
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">
-                    🪙 +${sub.coinsAwarded} berildi
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 shrink-0">
+                    🪙 Har biriga +${sub.coinsAwarded}
                   </span>
                 ` : `
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 shrink-0">
                     ⏳ Ko'rib chiqilmoqda
                   </span>
                 `}
@@ -2049,15 +2351,18 @@ const App = {
 
               <!-- 3-BOSQICH MUKOFOT BADGELARI -->
               <div class="flex flex-wrap gap-1 mt-1.5">
-                ${sub.promotedToRegion ? `<span class="px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 font-black text-[10px]">🏅 Tuman tanladi (+5 🪙)</span>` : ''}
-                ${sub.promotedToRepublic ? `<span class="px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 font-black text-[10px]">🌟 Viloyat tanladi (+10 🪙)</span>` : ''}
+                ${sub.promotedToRegion ? `<span class="px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 font-black text-[10px]">🏅 Tuman G'olibi — Viloyatda (+5 🪙)</span>` : ''}
+                ${sub.promotedToRepublic ? `<span class="px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 font-black text-[10px]">🌟 Viloyat G'olibi — Respublikada (+10 🪙)</span>` : ''}
                 ${sub.isRepublicWinner ? `<span class="px-2 py-0.5 rounded-md bg-amber-300 text-slate-950 font-black text-[10px]">🏆 Respublika 1-O'rin (+15 🪙)</span>` : ''}
               </div>
 
-              <!-- KIMLAR QATNASHGANI -->
-              <div class="mt-2.5 p-2.5 bg-white rounded-xl border border-slate-200 text-[11px] text-slate-700">
-                <span class="font-bold text-slate-900 block mb-0.5"><i class="fa-solid fa-users mr-1 text-red-500"></i> Rolikda qatnashganlar:</span>
-                ${sub.participants}
+              <!-- KOLLABORATSIYA VA KIMLAR QATNASHGANI (@NICKNAME BILAN) -->
+              <div class="mt-2.5 p-2.5 bg-white rounded-xl border border-indigo-200 text-[11px] text-slate-700 space-y-1.5">
+                <span class="font-black text-indigo-950 block">
+                  <i class="fa-solid fa-handshake-angle mr-1 text-indigo-600"></i>
+                  ${isTeamCollab ? `Kollaboratsiya jamoasi (${collabInfo.collaborators.length || collabInfo.collaboratorNicknames.length} nafar):` : 'Rolik ishtirokchisi (@nickname):'}
+                </span>
+                ${this.formatSubmissionCollaboratorsHtml(sub)}
               </div>
             </div>
 
@@ -2070,7 +2375,8 @@ const App = {
               </span>
             </div>
           </div>
-        `).join('');
+        `;
+        }).join('');
       }
     }
 
@@ -2132,7 +2438,7 @@ const App = {
                           <div>
                             <span class="font-black text-slate-900">${s.creatorName}</span>
                             <span class="text-slate-500">(${s.creatorSchool})</span>
-                            <span class="block text-[10px] text-slate-600">Qatnashchilar: ${s.participants}</span>
+                            <div class="mt-1">${this.formatSubmissionCollaboratorsHtml(s)}</div>
                           </div>
                           <a href="${s.videoUrl}" target="_blank" rel="noopener noreferrer" class="px-2 py-1 rounded-lg bg-slate-900 text-white font-bold text-[10px] shrink-0">
                             <i class="fa-solid fa-play text-red-400 mr-0.5"></i> Video
@@ -2148,6 +2454,22 @@ const App = {
         }).join('');
       }
     }
+  },
+
+  formatSubmissionCollaboratorsHtml(sub) {
+    if (!sub) return '';
+    const collabInfo = DataStore.resolveSubmissionCollaborators(sub, sub.creatorId, sub.creatorName);
+    if (collabInfo.collaborators.length > 0) {
+      const badges = collabInfo.collaborators.map(c => `
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-900 font-black text-[10px]">
+          <span class="text-indigo-600">@${c.nickname}</span>
+          <span class="text-slate-700 font-bold">(${c.fullName})</span>
+        </span>
+      `).join(' ');
+      const extraText = sub.participants ? `<span class="block text-[10px] text-slate-500 mt-1">${sub.participants}</span>` : '';
+      return `<div class="flex flex-wrap gap-1">${badges}</div>${extraText}`;
+    }
+    return `<span class="text-slate-700 font-semibold">${sub.participants || sub.creatorName || ''}</span>`;
   },
 
   openSubmitChallengeModal(challengeId) {
@@ -2176,20 +2498,100 @@ const App = {
     document.getElementById('submit-challenge-title-text').textContent = chl.title;
 
     const user = Auth.getCurrentUser();
+    let myNick = '';
     if (user.role === 'student') {
       const creator = DataStore.getCreatorById(user.creatorId) || user;
       document.getElementById('sub-creator-name').value = creator.fullName;
       document.getElementById('sub-creator-school').value = creator.school;
+      myNick = DataStore.cleanNickname(creator.nickname || creator.fullName);
     } else {
       document.getElementById('sub-creator-name').value = '';
       document.getElementById('sub-creator-school').value = '';
     }
 
     document.getElementById('sub-video-url').value = '';
-    document.getElementById('sub-participants').value = '';
+    document.getElementById('sub-participants').value = myNick ? `@${myNick}` : '';
     document.getElementById('sub-note').value = '';
 
+    // Tuman o'quvchilarining @nickname ro'yxatini chiqarish (kollaboratsiyaga qo'shish uchun)
+    const pickerEl = document.getElementById('sub-collaborators-picker');
+    if (pickerEl) {
+      const distCreators = DataStore.getCreators().filter(c =>
+        !userDist.district || DataStore.districtsMatch(c.district || c.districtLabel, userDist.district)
+      );
+      if (distCreators.length === 0) {
+        pickerEl.innerHTML = `<span class="text-[11px] text-slate-400">Tumaningizdagi o'quvchilarning @nickname'ini pastga yozing.</span>`;
+      } else {
+        pickerEl.innerHTML = distCreators.map(c => {
+          const nick = DataStore.cleanNickname(c.nickname) || DataStore.cleanNickname(c.fullName).replace(/[^a-z0-9]/g, '');
+          return `
+            <button type="button" onclick="App.toggleCollaboratorNickname('${nick.replace(/'/g, "\\'")}')" class="px-2.5 py-1 rounded-xl text-[11px] font-black border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-600 hover:text-white text-indigo-900 transition flex items-center gap-1">
+              <span>@${nick}</span>
+              <span class="font-normal opacity-80">(${c.fullName})</span>
+            </button>
+          `;
+        }).join('');
+      }
+    }
+
+    this.updateCollaboratorsPreview();
     this.openModal('modal-submit-challenge');
+  },
+
+  toggleCollaboratorNickname(rawNick) {
+    const nick = DataStore.cleanNickname(rawNick);
+    if (!nick) return;
+    const input = document.getElementById('sub-participants');
+    if (!input) return;
+
+    const token = '@' + nick;
+    const current = input.value.trim();
+    const parts = current ? current.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean) : [];
+    const existsIdx = parts.findIndex(p => DataStore.cleanNickname(p.split('(')[0]) === nick);
+
+    if (existsIdx >= 0) {
+      parts.splice(existsIdx, 1);
+    } else {
+      parts.push(token);
+    }
+
+    input.value = parts.join(', ');
+    this.updateCollaboratorsPreview();
+  },
+
+  updateCollaboratorsPreview() {
+    const previewEl = document.getElementById('sub-collaborators-preview');
+    const input = document.getElementById('sub-participants');
+    if (!previewEl || !input) return;
+
+    const user = Auth.getCurrentUser();
+    const creator = (user && user.role === 'student') ? (DataStore.getCreatorById(user.creatorId) || user) : null;
+    const collabInfo = DataStore.resolveSubmissionCollaborators(
+      input.value,
+      creator ? creator.id : '',
+      creator ? creator.fullName : ''
+    );
+
+    if (collabInfo.collaborators.length === 0) {
+      previewEl.innerHTML = `<i class="fa-solid fa-circle-info mr-1"></i> Qatnashgan o'quvchilarning <b>@nickname</b>'ini kiriting — ularning ham profilida ushbu video chiqadi.`;
+      return;
+    }
+
+    const listHtml = collabInfo.collaborators.map(c =>
+      `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-white border border-emerald-300 text-emerald-950 font-black text-[11px]">@${c.nickname} (${c.fullName})</span>`
+    ).join(' ');
+
+    previewEl.innerHTML = `
+      <div class="space-y-1">
+        <div class="font-black text-emerald-900">
+          🤝 Kollaboratsiyaga ulangan o'quvchilar (${collabInfo.collaborators.length} nafar):
+        </div>
+        <div class="flex flex-wrap gap-1">${listHtml}</div>
+        <div class="text-[10px] text-emerald-700 font-semibold pt-0.5">
+          ✅ Ushbu ${collabInfo.collaborators.length} nafar o'quvchining barchasida video ko'rinadi, g'olib bo'lganda barchasiga tabriknoma chiqadi va har bittasiga va'da qilingan tangadan to'liq beriladi!
+        </div>
+      </div>
+    `;
   },
 
   handleSubmitChallenge(e) {
@@ -2199,12 +2601,14 @@ const App = {
     if (!chl) return;
 
     const user = Auth.getCurrentUser();
+    const creator = (user && user.role === 'student') ? (DataStore.getCreatorById(user.creatorId) || user) : null;
     const userDist = this.getActiveDistrictInfo();
     const subData = {
       challengeId: chl.id,
       challengeTitle: chl.title,
       creatorId: user.role === 'student' ? user.creatorId : '',
       creatorName: document.getElementById('sub-creator-name').value,
+      creatorNickname: creator && creator.nickname ? '@' + DataStore.cleanNickname(creator.nickname) : '',
       creatorSchool: document.getElementById('sub-creator-school').value,
       district: userDist.district || (chl.district !== 'all' ? chl.district : 'jondor'),
       creatorDistrict: userDist.districtLabel || chl.districtLabel || 'Jondor tumani',
@@ -2216,24 +2620,30 @@ const App = {
       note: document.getElementById('sub-note').value
     };
 
-    DataStore.submitChallengeVideo(subData);
+    const savedSub = DataStore.submitChallengeVideo(subData);
+    const collabCount = (savedSub.collaborators && savedSub.collaborators.length) || 1;
     this.closeModal('modal-submit-challenge');
     this.renderChallenges();
-    this.showToast(`Video rolik topshirildi! ${userDist.districtLabel || 'Tumaningiz'} admini ko'rib chiqib tangalarni taqdim etadi.`, "success");
+    this.renderStudentVictoryAchievements();
+    this.showToast(
+      collabCount > 1
+        ? `🤝 Jamoaviy kollaboratsiya videoroligi (${collabCount} nafar o'quvchi @nickname bilan) topshirildi! Tuman koordinatoriga va barcha hamkorlaringiz profiliga ulandi.`
+        : `Video rolik topshirildi! ${userDist.districtLabel || 'Tumaningiz'} admini ko'rib chiqib tangalarni taqdim etadi.`,
+      "success"
+    );
   },
 
-  openAddChallengeModal(scope = null) {
-    if (!Auth.isAdmin() && !Auth.isRepublicAdmin()) return;
-    const effectiveScope = scope || (Auth.isRepublicAdmin() ? 'republic' : 'district');
+  openAddChallengeModal() {
+    if (!Auth.isRepublicAdmin()) {
+      this.showToast("Video-chellenjni faqat Respublika Bosh Koordinatori e'lon qila oladi!", "warning");
+      return;
+    }
     const scopeInput = document.getElementById('chl-scope');
     const bannerEl = document.getElementById('chl-scope-banner-text');
-    const userDist = this.getActiveDistrictInfo();
 
-    if (scopeInput) scopeInput.value = effectiveScope;
+    if (scopeInput) scopeInput.value = 'republic';
     if (bannerEl) {
-      bannerEl.textContent = effectiveScope === 'republic'
-        ? "🌍 Respublika umumiy video-chellenji (Barcha viloyat va tuman ekranlarida ko'rinadi)"
-        : `📍 ${userDist.districtLabel || 'Tuman'} miqyosidagi video-chellenj`;
+      bannerEl.textContent = "🌍 Respublika umumiy video-chellenji (Barcha viloyat va tuman ekranlarida ko'rinadi)";
     }
 
     document.getElementById('chl-title').value = '';
@@ -2249,9 +2659,10 @@ const App = {
 
   handleAddChallengeSubmit(e) {
     e.preventDefault();
-    const userDist = this.getActiveDistrictInfo();
-    const scopeVal = document.getElementById('chl-scope')?.value || (Auth.isRepublicAdmin() ? 'republic' : 'district');
-    const isRep = scopeVal === 'republic';
+    if (!Auth.isRepublicAdmin()) {
+      this.showToast("Video-chellenjni faqat Respublika Bosh Koordinatori e'lon qila oladi!", "warning");
+      return;
+    }
     const coinsVal = document.getElementById('chl-coins').value;
     const todayStr = new Date().toISOString().split('T')[0];
 
@@ -2262,35 +2673,30 @@ const App = {
       startDate: todayStr,
       deadline: document.getElementById('chl-deadline').value,
       description: document.getElementById('chl-desc').value,
-      scope: isRep ? 'republic' : 'district',
-      isRepublic: isRep,
-      district: isRep ? 'all' : userDist.district,
-      districtLabel: isRep ? '🌍 Respublika Umumiy Vazifasi' : userDist.districtLabel
+      scope: 'republic',
+      isRepublic: true,
+      district: 'all',
+      districtLabel: '🌍 Respublika Umumiy Vazifasi (Barça tumanlar)'
     };
 
     DataStore.addChallenge(chlData);
     this.closeModal('modal-add-challenge');
-    this.renderChallenges();
-    this.showToast(
-      isRep
-        ? "🌍 Respublika umumiy video-chellenji barcha viloyat va tumanlar uchun e'lon qilindi!"
-        : `Yangi chellenj ${userDist.districtLabel} uchun e'lon qilindi!`,
-      "success"
-    );
+    this.refreshAllUI();
+    this.showToast("🌍 Respublika umumiy video-chellenji barcha viloyat va tumanlar uchun e'lon qilindi!", "success");
   },
 
   handleArchiveChallenge(id) {
-    if (!Auth.isAdmin() && !Auth.isRepublicAdmin()) return;
+    if (!Auth.isRepublicAdmin()) return;
     DataStore.archiveChallenge(id);
-    this.renderChallenges();
+    this.refreshAllUI();
     this.showToast("📦 Video-chellenj arxivga o'tkazildi!", "info");
   },
 
   handleDeleteChallenge(id) {
-    if (!Auth.isAdmin() && !Auth.isRepublicAdmin()) return;
+    if (!Auth.isRepublicAdmin()) return;
     if (confirm("Ushbu chellenjni o'chirmoqchimisiz?")) {
       DataStore.deleteChallenge(id);
-      this.renderChallenges();
+      this.refreshAllUI();
       this.showToast("Chellenj o'chirildi.", "info");
     }
   },
@@ -2305,20 +2711,24 @@ const App = {
     document.getElementById('review-submission-id').value = sub.id;
     document.getElementById('review-coins-amount').value = sub.coinsAwarded || 50;
 
+    const collabInfo = DataStore.resolveSubmissionCollaborators(sub, sub.creatorId, sub.creatorName);
     const content = document.getElementById('review-submission-content');
     content.innerHTML = `
-      <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs space-y-2">
+      <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs space-y-2.5">
         <div>
           <span class="text-slate-500 block">Topshirgan o'quvchi:</span>
-          <span class="font-bold text-slate-900 text-sm">${sub.creatorName}</span> (${sub.creatorSchool})
+          <span class="font-bold text-slate-900 text-sm">${sub.creatorName} ${sub.creatorNickname ? `<span class="text-indigo-600">(${sub.creatorNickname})</span>` : ''}</span> (${sub.creatorSchool})
         </div>
         <div>
           <span class="text-slate-500 block">Chellenj:</span>
           <span class="font-bold text-rose-700">${sub.challengeTitle}</span>
         </div>
-        <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl">
-          <span class="font-black text-amber-900 block mb-1">Rolikda qatnashgan barcha ishtirokchilar:</span>
-          <p class="text-slate-800">${sub.participants}</p>
+        <div class="p-3 bg-indigo-50 border border-indigo-200 rounded-xl space-y-1.5">
+          <span class="font-black text-indigo-950 block">🤝 Kollaboratsiyadagi barcha o'quvchilar (${collabInfo.collaborators.length || 1} nafar):</span>
+          ${this.formatSubmissionCollaboratorsHtml(sub)}
+          <span class="block text-[11px] font-bold text-emerald-800 pt-1">
+            💡 Tasdiqlaganingizda yuqoridagi har bir o'quvchining hisobiga va'da qilingan tanga alohida-alohida to'liq qo'shiladi!
+          </span>
         </div>
         <div class="pt-2">
           <a href="${sub.videoUrl}" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-slate-900 text-white rounded-xl font-bold inline-flex items-center gap-2">
@@ -2341,15 +2751,954 @@ const App = {
     if (res.success) {
       this.closeModal('modal-review-submission');
       this.refreshAllUI();
-      this.showToast(`🪙 ${coins} tanga muvaffaqiyatli taqdim etildi va chellenj tasdiqlandi!`, "success");
+      const count = res.rewardedCount || 1;
+      this.showToast(
+        count > 1
+          ? `🪙 Kollaboratsiyadagi barcha ${count} nafar o'quvchining har biriga +${coins} tangadan taqdim etildi!`
+          : `🪙 ${coins} tanga muvaffaqiyatli taqdim etildi va chellenj tasdiqlandi!`,
+        "success"
+      );
     }
   },
 
-  // ================= 10. TANLOVLAR =================
+  // ================= 9B. O'QUVCHILAR UCHUN G'OLIBLIK TABRIKNOMASI VA KATTA EKRAN MOTIVATSION MODAL =================
+
+  getStudentStageDetails(sub) {
+    if (!sub) return null;
+    const collabInfo = DataStore.resolveSubmissionCollaborators(sub, sub.creatorId, sub.creatorName);
+    const isTeam = collabInfo.collaborators.length > 1;
+    const teamBadgesHtml = collabInfo.collaborators.map(c =>
+      `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-white/15 border border-white/25 text-amber-200 font-black text-xs">@${c.nickname} (${c.fullName})</span>`
+    ).join(' ');
+
+    if (sub.isRepublicWinner) {
+      return {
+        stageKey: 'republic_winner',
+        priority: 4,
+        icon: '🏆👑',
+        badgeText: "RESPUBLIKA 1-O'RIN MUTLAQ G'OLIBI (+15 🪙 BONUS)",
+        gradientClass: 'from-amber-500 via-rose-600 to-purple-800',
+        borderClass: 'border-amber-300',
+        headline: "🎉 TABRIKLAYMIZ! VIDEO-CHELLENJINGIZ RESPUBLIKADA 1-O'RINNI YUTDI!",
+        subheadline: `Siz va jamoangiz "${sub.challengeTitle}" video-chellenjida butun O'zbekiston bo'yicha 1-o'rin mutlaq g'olibi bo'ldingiz!`,
+        motivation: "🌟 Siz haqiqiy Kelajak Ijodkorisiz! Iste'dodingiz butun respublikaga namuna bo'ldi. Aslo to'xtab qolmang, yanada ulkan marralar sari dadil qadam tashlang — kelajak sizniki!",
+        coinsInfo: `Kollaboratsiyada qatnashgan har bir ishtirokchiga jami +${sub.coinsAwarded || 80} 🪙 tangadan (jumladan Respublika 1-o'rin uchun +15 🪙) taqdim etildi!`,
+        isTeam,
+        teamBadgesHtml,
+        collabInfo
+      };
+    }
+    if (sub.promotedToRepublic) {
+      return {
+        stageKey: 'promoted_republic',
+        priority: 3,
+        icon: '🌟🚀',
+        badgeText: "VILOYAT BOSQICHI G'OLIBI — RESPUBLIKA FINALIGA YO'LLANMA (+10 🪙 BONUS)",
+        gradientClass: 'from-purple-700 via-indigo-800 to-rose-700',
+        borderClass: 'border-purple-300',
+        headline: `🎉 TABRIKLAYMIZ! VIDEO-CHELLENJINGIZ ${ (sub.regionLabel || 'VILOYAT').toUpperCase() }DA G'OLIB BO'LDI VA RESPUBLIKAGA O'TDI!`,
+        subheadline: `"${sub.challengeTitle}" bo'yicha videoroligingiz viloyat koordinatori tomonidan eng zo'r deb topilib, Respublika final bosqichiga yuborildi!`,
+        motivation: "🔥 Ajoyib natija! Tuman va viloyatda g'olib bo'ldingiz, endi navbat Respublika shohsupasiga! O'z ustingizda ishlashda davom eting, ijodiy parvozingiz hech qachon to'xtamasin!",
+        coinsInfo: `Kollaboratsiyadagi har bir o'quvchiga +10 🪙 viloyat g'olibligi bonusi (jami +${sub.coinsAwarded || 65} 🪙 tangadan) berildi!`,
+        isTeam,
+        teamBadgesHtml,
+        collabInfo
+      };
+    }
+    if (sub.promotedToRegion) {
+      return {
+        stageKey: 'promoted_region',
+        priority: 2,
+        icon: '🏅✨',
+        badgeText: "TUMAN BOSQICHI G'OLIBI — VILOYAT BOSQICHIGA O'TDI (+5 🪙 BONUS)",
+        gradientClass: 'from-emerald-700 via-teal-700 to-indigo-800',
+        borderClass: 'border-emerald-300',
+        headline: `🎉 TABRIKLAYMIZ! VIDEO-CHELLENJINGIZ ${ (sub.creatorDistrict || sub.districtLabel || 'TUMAN').toUpperCase() }DA G'OLIB BO'LIB, VILOYATGA O'TDI!`,
+        subheadline: `"${sub.challengeTitle}" uchun tayyorlagan videoroligingiz tuman koordinatori tomonidan eng yaxshi deb tanlandi va Viloyat bosqichiga yo'llanma oldi!`,
+        motivation: "💪 Barakalla, ijod qilishda davom eting! Birinchi katta qadam qo'yildi — endi Viloyat va Respublika bosqichlarida ham g'olib bo'lishingizga ishonamiz. Olg'a, yosh ijodkor!",
+        coinsInfo: `Kollaboratsiyada qatnashgan har bir o'quvchiga va'da qilingan tanga va +5 🪙 tuman g'olibligi bonusi (jami +${sub.coinsAwarded || 55} 🪙 tangadan) berildi!`,
+        isTeam,
+        teamBadgesHtml,
+        collabInfo
+      };
+    }
+    if (sub.status === 'approved') {
+      return {
+        stageKey: 'approved',
+        priority: 1,
+        icon: '🤝🎉',
+        badgeText: `VIDEO-CHELLENJ TASDIQLANDI (+${sub.coinsAwarded || 50} 🪙 TANGA)`,
+        gradientClass: 'from-indigo-700 via-blue-700 to-emerald-700',
+        borderClass: 'border-indigo-300',
+        headline: `🎉 TABRIKLAYMIZ! "${sub.challengeTitle}" VIDEOROLIGINGIZ QABUL QILINDI!`,
+        subheadline: `Tuman koordinatori sizning jamoaviy videoroligingizni tasdiqladi va har bir ishtirokchiga va'da qilingan tangalarni taqdim etdi!`,
+        motivation: "✨ Ijodiy faolligingiz uchun rahmat! Do'stlaringiz bilan kollaboratsiya qilishda va yangi cho'qqilarni zabt etishda davom eting!",
+        coinsInfo: `Qatnashgan har bir o'quvchiga +${sub.coinsAwarded || 50} 🪙 tangadan taqdim etildi!`,
+        isTeam,
+        teamBadgesHtml,
+        collabInfo
+      };
+    }
+    return null;
+  },
+
+  // Tabriknoma va @nickname kollaboratsiya yozuvi bosh ekranda faqat 1 kun (24 soat) turishi tekshiruvi
+  isVictoryBannerActiveWithin24h(sub, creator, stageKey = 'collab') {
+    if (!sub) return false;
+    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+    const now = Date.now();
+
+    let stageTime = 0;
+    if (sub.stageUpdatedAt) {
+      stageTime = typeof sub.stageUpdatedAt === 'number'
+        ? sub.stageUpdatedAt
+        : new Date(sub.stageUpdatedAt).getTime();
+      if (isNaN(stageTime)) stageTime = 0;
+    }
+    if (stageTime > 0 && (now - stageTime) > ONE_DAY_MS) {
+      return false;
+    }
+
+    const cKey = (creator && (creator.id || creator.nickname)) || 'student';
+    const seenAtKey = `ijodkor_banner_first_seen_${cKey}_${sub.id}_${stageKey}`;
+    let firstSeen = Number(localStorage.getItem(seenAtKey) || 0);
+    if (!firstSeen || isNaN(firstSeen)) {
+      firstSeen = stageTime > 0 ? stageTime : now;
+      localStorage.setItem(seenAtKey, String(firstSeen));
+    }
+    return (now - firstSeen) <= ONE_DAY_MS;
+  },
+
+  renderStudentVictoryAchievements() {
+    const creatorsBanner = document.getElementById('student-victory-achievements-banner');
+    const challengesBanner = document.getElementById('challenges-victory-achievements-banner');
+
+    if (!Auth.isStudent()) {
+      if (creatorsBanner) {
+        creatorsBanner.innerHTML = '';
+        creatorsBanner.classList.add('hidden');
+      }
+      if (challengesBanner) {
+        challengesBanner.innerHTML = '';
+        challengesBanner.classList.add('hidden');
+      }
+      this.closeModal('modal-student-celebration');
+      return;
+    }
+
+    const user = Auth.getCurrentUser();
+    const creator = DataStore.getCreatorById(user.creatorId);
+    if (!creator) {
+      if (creatorsBanner) {
+        creatorsBanner.innerHTML = '';
+        creatorsBanner.classList.add('hidden');
+      }
+      if (challengesBanner) {
+        challengesBanner.innerHTML = '';
+        challengesBanner.classList.add('hidden');
+      }
+      this.closeModal('modal-student-celebration');
+      return;
+    }
+    // Video-chellenj g'olibligi tabriknomasi katta ekranda (modalda) FAQAT BIR MARTA chiqadi.
+    // "Rahmat, ijod qilishda davom etamiz!" bosilgandan so'ng bosh ekranda boshqa tabriknoma banneri turmaydi — u faqat "Yutuqlarim" bo'limida saqlanadi!
+    // Bosh ekranda faqatgina Madaniyat xodimi tanlovga chaqirgan (hali sertifikat rasmi tasdiqlanmagan) faol chaqiruv xabarnomasi ko'rinadi.
+    const allContests = DataStore.getContests();
+    const mySelectedContests = allContests.filter(c => {
+      if (!DataStore.isStudentSelectedInContest(c, creator)) return false;
+      const myProof = (c.certificateProofs || []).find(p =>
+        String(p.creatorId) === String(creator.id) ||
+        DataStore.phonesMatch(p.creatorPhone, creator.phone)
+      );
+      // Agar sertifikat rasmi allaqachon tasdiqlangan bo'lsa, u ham "Yutuqlarim"ga o'tgan — bosh ekranda turishi shart emas
+      return !(myProof && myProof.status === 'approved');
+    });
+
+    const contestSelectionHtml = mySelectedContests.map(c => {
+      const selInfo = DataStore.getStudentContestSelectionInfo(c, creator) || {};
+      const myProof = (c.certificateProofs || []).find(p =>
+        String(p.creatorId) === String(creator.id) ||
+        DataStore.phonesMatch(p.creatorPhone, creator.phone)
+      );
+      return `
+        <div class="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-emerald-800 via-teal-800 to-blue-900 text-white shadow-xl border-2 border-amber-300 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          <div class="space-y-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="px-3 py-1 rounded-full bg-amber-400 text-slate-950 font-black text-[11px] uppercase tracking-wider shadow-xs">
+                🎉 SIZ TADBIRGA CHAQIRILDINGIZ! (Madaniyat xodimi tanladi)
+              </span>
+              <span class="px-3 py-1 rounded-full bg-white/15 border border-white/30 text-amber-200 font-black text-[11px]">
+                🪙 +${c.awardCoins || 50} tanga mukofot
+              </span>
+            </div>
+            <h3 class="text-lg sm:text-xl font-black leading-snug">
+              🎭 "${c.title}" tadbiriga chaqirildingiz!
+            </h3>
+            <div class="p-3 rounded-2xl bg-black/25 border border-white/20 text-xs space-y-1">
+              <p class="font-black text-amber-300 text-sm">
+                📅 Tanlov sanasi: ${c.eventDate || 'Belgilangan sana'} — Mana shu sanada sizni kutamiz!
+              </p>
+              <p class="text-white/95 font-semibold">
+                📍 Manzil: <strong>${c.location || c.districtLabel || 'Madaniyat markazi'}</strong> | 👤 Tanlagan madaniyat xodimi: <strong>${selInfo.selectedByStaffName || 'Madaniyat xodimi'}</strong>
+              </p>
+            </div>
+            <p class="text-xs text-emerald-100 leading-relaxed">
+              ✨ Tadbirga qatnashib kelganingizdan keyin, <strong>madaniyat xodimi bilan «Kelajak ijodkori» sertifikatini ushlab tushgan rasmingizni</strong> tanlov pastiga joylang! Madaniyat xodimi o'z oynasidan rasm haqiqiyligini tasdiqlab qabul qilgach, sizga <strong>+${c.awardCoins || 50} 🪙 tanga</strong> boradi.
+            </p>
+          </div>
+          <div class="flex flex-col sm:flex-row lg:flex-col gap-2 w-full lg:w-auto shrink-0">
+            ${myProof ? `
+              <span class="px-5 py-3 rounded-2xl bg-emerald-500/30 border-2 border-emerald-300 text-white font-black text-xs text-center flex items-center justify-center gap-2">
+                <i class="fa-solid fa-circle-check text-amber-300"></i> Siz sertifikat rasmini joyladingiz
+              </span>
+            ` : `
+              <button type="button" onclick="App.openUploadContestProofModal('${c.id}')" class="px-5 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-lg transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-camera"></i> Sertifikat Rasmini Joylash
+              </button>
+            `}
+            <button type="button" onclick="App.switchTab('contests')" class="px-4 py-2.5 rounded-2xl bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold text-xs transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-bullhorn text-amber-300"></i> Tanlov oynasiga o'tish
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    if (mySelectedContests.length === 0) {
+      if (creatorsBanner) {
+        creatorsBanner.innerHTML = '';
+        creatorsBanner.classList.add('hidden');
+      }
+      if (challengesBanner) {
+        challengesBanner.innerHTML = '';
+        challengesBanner.classList.add('hidden');
+      }
+      return;
+    }
+
+    if (creatorsBanner) {
+      creatorsBanner.innerHTML = contestSelectionHtml;
+      creatorsBanner.classList.remove('hidden');
+    }
+    if (challengesBanner) {
+      challengesBanner.innerHTML = '';
+      challengesBanner.classList.add('hidden');
+    }
+  },
+
+  checkStudentCelebrationPopup() {
+    if (!Auth.isStudent()) {
+      this.closeModal('modal-student-celebration');
+      return;
+    }
+    const user = Auth.getCurrentUser();
+    const creator = DataStore.getCreatorById(user.creatorId);
+    if (!creator) {
+      this.closeModal('modal-student-celebration');
+      return;
+    }
+
+    const allSubs = DataStore.getChallengeSubmissions();
+    const myWinningSubs = allSubs.filter(sub =>
+      DataStore.isCreatorInSubmission(sub, creator) &&
+      (sub.isRepublicWinner || sub.promotedToRepublic || sub.promotedToRegion || sub.status === 'approved')
+    );
+
+    if (myWinningSubs.length === 0) {
+      this.closeModal('modal-student-celebration');
+      return;
+    }
+
+    // Eng yuqori bosqichdagi g'oliblikni birinchi ko'rsatamiz
+    myWinningSubs.sort((a, b) => {
+      const pa = this.getStudentStageDetails(a)?.priority || 0;
+      const pb = this.getStudentStageDetails(b)?.priority || 0;
+      return pb - pa;
+    });
+
+    for (const sub of myWinningSubs) {
+      const stage = this.getStudentStageDetails(sub);
+      if (!stage) continue;
+      const storageKey = `ijodkor_celeb_seen_${creator.id}_${sub.id}_${stage.stageKey}`;
+      if (!localStorage.getItem(storageKey)) {
+        // Darhol bir martalik ko'rilgan deb belgilaymiz, shunda "Rahmat, ijod qilishda davom etamiz!" bosilgach qayta chiqmaydi
+        this.state.activeCelebrationStorageKey = storageKey;
+        localStorage.setItem(storageKey, 'true');
+        this.openStudentCelebrationModal(sub.id);
+        break;
+      }
+    }
+  },
+
+  openStudentCelebrationModal(submissionId) {
+    const sub = DataStore.getChallengeSubmissions().find(s => s && s.id === submissionId);
+    if (!sub) return;
+    const stage = this.getStudentStageDetails(sub);
+    if (!stage) return;
+
+    const user = Auth.getCurrentUser();
+    const creator = (user && user.role === 'student') ? (DataStore.getCreatorById(user.creatorId) || user) : null;
+    const studentName = creator ? creator.fullName : sub.creatorName;
+    const studentNick = creator && creator.nickname ? '@' + DataStore.cleanNickname(creator.nickname) : (sub.creatorNickname || '');
+
+    const card = document.getElementById('modal-student-celebration-card');
+    if (!card) return;
+
+    card.innerHTML = `
+      <div class="space-y-5">
+        <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-600 text-slate-950 flex items-center justify-center text-5xl mx-auto shadow-2xl border-4 border-white/40">
+          ${stage.icon}
+        </div>
+
+        <div class="inline-block px-4 py-1.5 rounded-full bg-amber-400 text-slate-950 font-black text-xs sm:text-sm uppercase tracking-wider shadow-md">
+          ${stage.badgeText}
+        </div>
+
+        <h2 class="text-2xl sm:text-3xl font-black text-white leading-tight">
+          ${stage.headline}
+        </h2>
+
+        <p class="text-sm sm:text-base text-amber-200 font-bold">
+          Hurmatli <span class="text-white underline decoration-amber-400">${studentName}</span> ${studentNick ? `<span class="text-amber-300">(${studentNick})</span>` : ''}!
+        </p>
+
+        <p class="text-xs sm:text-sm text-indigo-100 max-w-xl mx-auto leading-relaxed">
+          ${stage.subheadline}
+        </p>
+
+        <div class="p-5 rounded-3xl bg-white/10 border-2 border-amber-400/50 text-left space-y-2 shadow-inner">
+          <div class="text-xs font-black uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
+            <i class="fa-solid fa-fire-flame-curved"></i> Motivatsion Chorlov:
+          </div>
+          <p class="text-sm sm:text-base font-bold text-white leading-relaxed">
+            "${stage.motivation}"
+          </p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-emerald-950/80 border border-emerald-400/50 text-left space-y-2">
+          <div class="text-xs sm:text-sm font-black text-emerald-300 flex items-center gap-1.5">
+            <i class="fa-solid fa-coins text-amber-400"></i> Taqdim etilgan tangalar va Jamoa (@nickname):
+          </div>
+          <p class="text-xs text-emerald-100 font-semibold">${stage.coinsInfo}</p>
+          <div class="flex flex-wrap gap-1.5 pt-1">
+            ${stage.teamBadgesHtml}
+          </div>
+        </div>
+
+        <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button type="button" onclick="App.dismissStudentCelebrationModal()" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 hover:from-amber-300 hover:to-yellow-200 text-slate-950 font-black text-sm shadow-xl transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-rocket"></i> Rahmat, ijod qilishda davom etamiz!
+          </button>
+          <a href="${sub.videoUrl}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-5 py-4 rounded-2xl bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold text-xs transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-play text-amber-300"></i> Videomizni Ko'rish
+          </a>
+        </div>
+      </div>
+    `;
+
+    this.openModal('modal-student-celebration');
+  },
+
+  dismissStudentCelebrationModal() {
+    if (this.state.activeCelebrationStorageKey) {
+      localStorage.setItem(this.state.activeCelebrationStorageKey, 'true');
+      this.state.activeCelebrationStorageKey = null;
+    }
+    this.closeModal('modal-student-celebration');
+  },
+
+  // ================= 9C. MAKTAB CHORAKLARI VA TA'TIL MAVSUMLARI TAYMERI HAMDA "YUTUQLARIM" BO'LIMI =================
+
+  startSeasonCountdownTimer() {
+    this.updateSeasonCountdownUI();
+    if (this._seasonTimerInterval) {
+      clearInterval(this._seasonTimerInterval);
+    }
+    this._seasonTimerInterval = setInterval(() => {
+      this.updateSeasonCountdownUI();
+    }, 1000);
+  },
+
+  updateSeasonCountdownUI() {
+    try {
+      if (typeof DataStore === 'undefined' || typeof DataStore.getCurrentSchoolSeason !== 'function') return;
+      const season = DataStore.getCurrentSchoolSeason();
+      if (!season) return;
+
+      const rem = season.remaining || {
+        days: season.days || 0,
+        hours: season.hours || 0,
+        minutes: season.minutes || 0,
+        seconds: season.seconds || 0
+      };
+      const periodStr = season.periodText || season.rangeLabel || '';
+
+      const badgeEl = document.getElementById('season-active-badge');
+      const titleEl = document.getElementById('season-active-title');
+      const datesEl = document.getElementById('season-active-dates');
+      const dEl = document.getElementById('cd-days');
+      const hEl = document.getElementById('cd-hours');
+      const mEl = document.getElementById('cd-mins');
+      const sEl = document.getElementById('cd-secs');
+
+      if (badgeEl) {
+        const bText = season.type === 'vacation' ? "🌴 TA'TIL MAVSUMI" : "📚 CHORAK MAVSUMI";
+        if (badgeEl.textContent !== bText) badgeEl.textContent = bText;
+      }
+      if (titleEl) {
+        const tText = `${season.icon || '📚'} ${season.name}`;
+        if (titleEl.textContent !== tText) titleEl.textContent = tText;
+      }
+      if (datesEl) {
+        const dtText = `(${periodStr})`;
+        if (datesEl.textContent !== dtText) datesEl.textContent = dtText;
+      }
+
+      const dStr = String(rem.days ?? 0).padStart(2, '0');
+      const hStr = String(rem.hours ?? 0).padStart(2, '0');
+      const mStr = String(rem.minutes ?? 0).padStart(2, '0');
+      const sStr = String(rem.seconds ?? 0).padStart(2, '0');
+
+      if (dEl && dEl.textContent !== dStr) dEl.textContent = dStr;
+      if (hEl && hEl.textContent !== hStr) hEl.textContent = hStr;
+      if (mEl && mEl.textContent !== mStr) mEl.textContent = mStr;
+      if (sEl && sEl.textContent !== sStr) sEl.textContent = sStr;
+
+      // Agar avvalgi mavsum tugab, yangi mavsumga o'tilgan bo'lsa — katta ekranga mavsum yakuni xabarini chiqaramiz!
+      const lastSeasonKey = 'ijodkor_active_season_id';
+      const prevSeasonId = localStorage.getItem(lastSeasonKey);
+      if (prevSeasonId && prevSeasonId !== season.id) {
+        localStorage.setItem(lastSeasonKey, season.id);
+        this.openSeasonEndedModal(false, prevSeasonId);
+      } else if (!prevSeasonId) {
+        localStorage.setItem(lastSeasonKey, season.id);
+      }
+    } catch (err) {
+      console.warn('Season countdown update error:', err);
+    }
+  },
+
+  openSeasonEndedModal(isManualPreview = false, completedSeasonId = null) {
+    const card = document.getElementById('modal-season-ended-card');
+    if (!card) return;
+
+    const catalog = DataStore.getSchoolSeasonsCatalog();
+    const currentSeason = DataStore.getCurrentSchoolSeason();
+    const targetSeason = (completedSeasonId && catalog.find(s => s.id === completedSeasonId)) || currentSeason;
+
+    const user = Auth.getCurrentUser();
+    const creator = (user && user.role === 'student') ? (DataStore.getCreatorById(user.creatorId) || user) : null;
+    const studentName = creator ? creator.fullName : (user ? user.fullName : "Yosh Ijodkor");
+
+    const allSubs = DataStore.getChallengeSubmissions();
+    const mySubs = creator ? allSubs.filter(sub => DataStore.isCreatorInSubmission(sub, creator)) : [];
+    const mySeasonSubs = mySubs.filter(sub => !sub.seasonId || sub.seasonId === targetSeason.id);
+    const totalCoins = creator ? (creator.coins || 10) : 0;
+    const seasonCoins = creator && creator.seasonCoins && creator.seasonCoins[targetSeason.id]
+      ? creator.seasonCoins[targetSeason.id]
+      : totalCoins;
+    const activeContestsCount = creator
+      ? DataStore.getContests().filter(c => DataStore.isStudentSelectedInContest(c, creator)).length
+      : 0;
+    const cleanInvsCount = (creator && Array.isArray(creator.invitationsHistory))
+      ? creator.invitationsHistory.filter(inv => {
+          if (!inv) return false;
+          const t = (inv.title || inv.eventName || '').toLowerCase();
+          const s = (inv.seasonName || '').toLowerCase();
+          return !t.includes('tadbirda faol ishtirok') && !s.includes('2-chorak');
+        }).length
+      : 0;
+    const totalInvitesAndEvents = activeContestsCount + cleanInvsCount;
+
+    card.innerHTML = `
+      <div class="space-y-5">
+        <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-600 text-slate-950 flex items-center justify-center text-4xl mx-auto shadow-2xl border-4 border-white/40">
+          ${targetSeason.icon || '🏁'}
+        </div>
+
+        <div class="inline-block px-4 py-1.5 rounded-full bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-md">
+          ${isManualPreview ? '📊 JORIY MAVSUM SARHISOBI VA VAQTI' : '🏁 MAVSUM YAKUNLANDI!'}
+        </div>
+
+        <h2 class="text-2xl sm:text-3xl font-black text-white leading-tight">
+          ${isManualPreview
+            ? `${targetSeason.name} davom etmoqda!`
+            : `🎉 "${targetSeason.name}" tugadi! Keyingi mavsumda sizga omad tilaymiz!`}
+        </h2>
+
+        <p class="text-sm text-indigo-100 max-w-xl mx-auto">
+          Hurmatli <b class="text-amber-300">${studentName}</b>! Ushbu mavsum davomida erishgan natijalaringiz, to'plagan tangalaringiz va yutuqlaringiz bilan tanishing:
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+          <div class="p-4 rounded-2xl bg-white/10 border border-amber-400/40">
+            <span class="text-[11px] font-bold text-amber-200 block">Mavsumda to'plangan tangalar</span>
+            <span class="text-2xl font-black text-amber-300 mt-1 block">🪙 ${seasonCoins} ta</span>
+          </div>
+          <div class="p-4 rounded-2xl bg-white/10 border border-emerald-400/40">
+            <span class="text-[11px] font-bold text-emerald-200 block">Video-chellenj va yutuqlar</span>
+            <span class="text-2xl font-black text-emerald-300 mt-1 block">🏆 ${mySeasonSubs.length} ta</span>
+          </div>
+          <div class="p-4 rounded-2xl bg-white/10 border border-purple-400/40">
+            <span class="text-[11px] font-bold text-purple-200 block">Taklif qilingan tadbirlar</span>
+            <span class="text-2xl font-black text-purple-300 mt-1 block">🎭 ${totalInvitesAndEvents} ta</span>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-emerald-950/80 border border-emerald-400/50 text-xs sm:text-sm text-emerald-100 font-bold leading-relaxed">
+          🌟 "Mana shu mavsumda ajoyib faollik ko'rsatdingiz! Erishgan barcha yutuqlaringiz «🏆 Yutuqlarim» bo'limida abadiy saqlanib qoladi. Keyingi mavsumda sizga yanada ulkan omad va g'alabalar tilaymiz!"
+        </div>
+
+        <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <button type="button" onclick="App.closeModal('modal-season-ended'); App.switchTab('achievements');" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs sm:text-sm shadow-xl transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-medal"></i> "Yutuqlarim" bo'limiga o'tish
+          </button>
+          <button type="button" onclick="App.closeModal('modal-season-ended')" class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white/15 hover:bg-white/25 border border-white/30 text-white font-bold text-xs sm:text-sm transition">
+            Yopish
+          </button>
+        </div>
+      </div>
+    `;
+
+    this.openModal('modal-season-ended');
+  },
+
+  renderAchievementsSection() {
+    const summaryBox = document.getElementById('achievements-summary-box');
+    const seasonsGrid = document.getElementById('achievements-seasons-grid');
+    const victoriesList = document.getElementById('achievements-victories-list');
+    const invitationsList = document.getElementById('achievements-invitations-list');
+    if (!seasonsGrid || !victoriesList || !invitationsList) return;
+
+    const user = Auth.getCurrentUser();
+    let creator = null;
+
+    if (user && user.role === 'student') {
+      creator = DataStore.getCreatorById(user.creatorId) || null;
+    }
+
+    const catalog = DataStore.getSchoolSeasonsCatalog();
+    const currentSeason = DataStore.getCurrentSchoolSeason();
+    const allSubs = DataStore.getChallengeSubmissions();
+    const mySubs = creator ? allSubs.filter(sub => DataStore.isCreatorInSubmission(sub, creator)) : [];
+
+    // Takliflar: FAQAT Madaniyat xodimi tomonidan tanlovga (+) tanlanganlar va bevosita taklif qilinganlar
+    const selectedContests = creator
+      ? DataStore.getContests().filter(c => DataStore.isStudentSelectedInContest(c, creator))
+      : [];
+    const directInvites = (creator && Array.isArray(creator.invitationsHistory))
+      ? creator.invitationsHistory.filter(inv => {
+          if (!inv) return false;
+          const t = (inv.title || inv.eventName || '').toLowerCase();
+          const s = (inv.seasonName || '').toLowerCase();
+          if (t.includes('tadbirda faol ishtirok') || s.includes('2-chorak')) return false;
+          // Tanlov orqali yozilgan takliflar selectedContests ichida chiqadi, ikki marta takrorlanmasin
+          return !selectedContests.some(c => (inv.title || '').includes(c.title));
+        })
+      : [];
+
+    const totalCoins = creator ? (creator.coins || 10) : 0;
+    const totalVictories = mySubs.length;
+    const totalInvites = selectedContests.length + directInvites.length;
+
+    if (summaryBox) {
+      summaryBox.innerHTML = `
+        <div class="px-4 py-3 rounded-2xl bg-white/15 border border-white/25 text-center">
+          <span class="text-[11px] font-bold text-amber-200 block">${creator ? creator.fullName : 'Umumiy hisob'}</span>
+          <span class="text-xl font-black text-amber-300">🪙 ${totalCoins} tanga</span>
+        </div>
+        <div class="px-4 py-3 rounded-2xl bg-white/15 border border-white/25 text-center">
+          <span class="text-[11px] font-bold text-emerald-200 block">Erishilgan yutuqlar</span>
+          <span class="text-xl font-black text-white">🏆 ${totalVictories} ta</span>
+        </div>
+        <div class="px-4 py-3 rounded-2xl bg-white/15 border border-white/25 text-center">
+          <span class="text-[11px] font-bold text-purple-200 block">Tadbir va tanlovlarga chaqiruv</span>
+          <span class="text-sm sm:text-base font-black text-white">${totalInvites > 0 ? `🎭 ${totalInvites} ta tadbir` : '🎭 Chaqirilmagansiz'}</span>
+        </div>
+      `;
+    }
+
+    // 1. To'rtta mavsum (Kuzgi, Qishki, Bahorgi, Yozgi mavsum) kartochkalari
+    const legacySeasonMap = {
+      q1: 'autumn',
+      v_autumn: 'autumn',
+      q2: 'autumn',
+      v_winter: 'winter',
+      q3: 'winter',
+      v_spring: 'spring',
+      q4: 'spring',
+      v_summer: 'summer'
+    };
+    seasonsGrid.innerHTML = catalog.map(s => {
+      const isCurrent = s.id === currentSeason.id;
+      const recordedSeasonCoins = creator && creator.seasonCoins && creator.seasonCoins[s.id] !== undefined
+        ? Number(creator.seasonCoins[s.id])
+        : (isCurrent ? totalCoins : 0);
+      const seasonSubsCount = mySubs.filter(sub => {
+        const mappedId = legacySeasonMap[sub.seasonId] || sub.seasonId;
+        return mappedId === s.id || (!sub.seasonId && isCurrent);
+      }).length;
+
+      return `
+        <div class="p-4 rounded-2xl border-2 transition ${
+          isCurrent
+            ? 'bg-gradient-to-br from-amber-50 via-white to-emerald-50 border-amber-400 shadow-md'
+            : 'bg-slate-50/80 border-slate-200'
+        } flex flex-col justify-between gap-3">
+          <div>
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-2xl">${s.icon}</span>
+              ${isCurrent
+                ? `<span class="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white font-black text-[10px] uppercase animate-pulse">🔥 Joriy Mavsum</span>`
+                : `<span class="px-2 py-0.5 rounded-full bg-slate-200 text-slate-600 font-bold text-[10px]">Mavsum</span>`
+              }
+            </div>
+            <h4 class="font-black text-slate-900 text-sm mt-2">${s.name}</h4>
+            <p class="text-[11px] text-slate-500 font-semibold mt-0.5">📅 Muddati: ${s.periodText}</p>
+          </div>
+          <div class="pt-2 border-t border-slate-200/80 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] text-slate-500 block font-bold">To'plangan tanga:</span>
+              <span class="text-sm font-black text-amber-700">🪙 ${recordedSeasonCoins} tanga</span>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] text-slate-500 block font-bold">Yutuqlar:</span>
+              <span class="text-xs font-black text-emerald-700">🏆 ${seasonSubsCount} ta</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // 2. Erishgan yutuqlar va @nickname kollaboratsiyalar ro'yxati (1 kundan keyin ham doimiy shu yerda turadi!)
+    if (mySubs.length === 0) {
+      victoriesList.innerHTML = `
+        <div class="p-8 text-center bg-slate-50 rounded-2xl border border-slate-200">
+          <div class="text-3xl mb-2">🎬</div>
+          <p class="text-xs sm:text-sm font-bold text-slate-700">Hozircha video-chellenj yutuqlari yoki kollaboratsiyalar yo'q</p>
+          <p class="text-xs text-slate-500 mt-1">Video-chellenjlarda do'stlaringizning <b>@nickname</b>'ini kiritib qatnashing va g'olib bo'ling — barcha yutuqlaringiz shu yerda saqlanadi!</p>
+        </div>
+      `;
+    } else {
+      victoriesList.innerHTML = mySubs.map(sub => {
+        const stage = this.getStudentStageDetails(sub);
+        const collabInfo = DataStore.resolveSubmissionCollaborators(sub, sub.creatorId, sub.creatorName);
+        const collabBadges = collabInfo.collaborators.map(c =>
+          `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-indigo-50 border border-indigo-200 text-indigo-900 font-black text-[11px]">@${c.nickname} (${c.fullName})</span>`
+        ).join(' ');
+
+        const statusBadge = stage
+          ? `<span class="px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-900 font-black text-[11px]">${stage.icon} ${stage.badgeText}</span>`
+          : `<span class="px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-800 font-bold text-[11px]">⏳ Tuman koordinatori ko'rib chiqmoqda</span>`;
+
+        return `
+          <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:border-amber-300 transition">
+            <div class="space-y-2">
+              <div class="flex flex-wrap items-center gap-2">
+                ${statusBadge}
+                <span class="px-2.5 py-0.5 rounded-lg bg-slate-200/80 text-slate-700 font-bold text-[11px]">
+                  📅 ${sub.seasonName || currentSeason.name} • ${sub.submittedAt || ''}
+                </span>
+              </div>
+              <h4 class="font-black text-slate-900 text-sm sm:text-base">🎬 "${sub.challengeTitle}"</h4>
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-[11px] text-slate-500 font-bold">🤝 Jamoa (@nickname):</span>
+                ${collabBadges}
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              ${stage ? `
+                <button type="button" onclick="App.openStudentCelebrationModal('${sub.id}')" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center gap-1.5">
+                  <i class="fa-solid fa-trophy"></i> Tabriknoma
+                </button>
+              ` : ''}
+              <a href="${sub.videoUrl}" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition flex items-center gap-1.5">
+                <i class="fa-solid fa-play text-red-400"></i> Videoni Ko'rish
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 3. Qaysi tadbirlarga taklif qilingani ro'yxati (FAQAT haqiqatan madaniyat xodimi chaqirgan tanlov va tadbirlar)
+    const allInviteCards = [];
+
+    selectedContests.forEach(c => {
+      const selInfo = DataStore.getStudentContestSelectionInfo(c, creator) || {};
+      const myProof = (c.certificateProofs || []).find(p =>
+        creator && (String(p.creatorId) === String(creator.id) || DataStore.phonesMatch(p.creatorPhone, creator.phone))
+      );
+      let statusLabel = `🎯 Madaniyat xodimi tomonidan chaqirilgan (${c.eventDate} sanada kutilmoqda)`;
+      if (myProof) {
+        statusLabel = myProof.status === 'approved'
+          ? `✅ Tadbirda ishtirok etgan (+${myProof.awardedCoins || c.awardCoins} 🪙 tanga taqdim etilgan)`
+          : `📸 Sertifikat rasmi joylangan (Admin tasdig'i kutilmoqda)`;
+      }
+      allInviteCards.push({
+        title: `${c.title} (📍 ${c.location || c.districtLabel || 'Madaniyat markazi'})`,
+        by: `${selInfo.selectedByStaffName || 'Madaniyat xodimi'} tomonidan tanlangan`,
+        season: currentSeason.name,
+        date: c.eventDate || 'Joriy mavsum',
+        status: statusLabel
+      });
+    });
+
+    directInvites.forEach(inv => {
+      if (!inv) return;
+      const t = (inv.title || inv.eventName || '').toLowerCase();
+      const s = (inv.seasonName || '').toLowerCase();
+      if (t.includes('tadbirda faol ishtirok') || s.includes('2-chorak')) return;
+      allInviteCards.push({
+        title: inv.title || inv.eventName || "Madaniy tadbir va bayram dasturiga taklif",
+        by: `${inv.staffName || 'Madaniyat xodimi'} (${inv.staffOrg || inv.staffPosition || "Madaniyat bo'limi"})`,
+        season: inv.seasonName || currentSeason.name,
+        date: inv.date || 'Joriy mavsum',
+        status: "📞 Madaniyat xodimi tomonidan chaqirilgan"
+      });
+    });
+
+    if (allInviteCards.length === 0) {
+      invitationsList.innerHTML = `
+        <div class="p-8 text-center bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+          <div class="text-3xl mb-1">🎭</div>
+          <span class="inline-block px-3.5 py-1 rounded-full bg-slate-200 text-slate-700 font-black text-xs">
+            ⏳ Hozircha chaqirilmagansiz (Ishtirok etmagansiz)
+          </span>
+          <p class="text-xs sm:text-sm font-black text-slate-800 pt-1">
+            Siz hozircha hech qanday tadbirga chaqirilmagansiz va ishtirok etmagansiz
+          </p>
+          <p class="text-xs text-slate-500 max-w-lg mx-auto">
+            Madaniyat xodimi sizni yangi tanlov yoki bayram tadbiriga tanlaganida (<b>«Siz tanlandingiz»</b>) hamda tadbirda qatnashib sertifikat rasmingizni joylaganingizdan so'ng shu yerda chiqadi.
+          </p>
+        </div>
+      `;
+    } else {
+      invitationsList.innerHTML = allInviteCards.map(item => `
+        <div class="p-4 rounded-2xl bg-purple-50/60 border border-purple-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div class="space-y-1">
+            <span class="inline-block px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-900 font-black text-[10px]">
+              📅 ${item.season} • ${item.date}
+            </span>
+            <h4 class="font-black text-slate-900 text-sm">🎭 ${item.title}</h4>
+            <p class="text-xs text-slate-600 font-semibold">Mas'ul: ${item.by}</p>
+          </div>
+          <span class="px-3 py-1.5 rounded-xl bg-white border border-purple-200 text-purple-900 font-black text-xs shrink-0">
+            ${item.status}
+          </span>
+        </div>
+      `).join('');
+    }
+  },
+
+  // ================= 10. TANLOVLAR (MADANIYAT XODIMI '+' TANLOVI, SERTIFIKAT RASMI VA TANGA TAQDIM ETISH) =================
+
+  buildContestCardHtml(c, userDist = {}) {
+    const isAdmin = Auth.isAdmin();
+    const isStaff = Auth.isStaff();
+    const isStudent = Auth.isStudent();
+    const currentUser = Auth.getCurrentUser();
+    const currentCreator = isStudent && currentUser ? (DataStore.getCreatorById(currentUser.creatorId) || currentUser) : null;
+
+    const selectedList = Array.isArray(c.selectedStudents) ? c.selectedStudents : [];
+    const proofsList = Array.isArray(c.certificateProofs) ? c.certificateProofs : [];
+    const isCurrentStudentSelected = currentCreator ? DataStore.isStudentSelectedInContest(c, currentCreator) : false;
+    const mySelectionInfo = currentCreator ? DataStore.getStudentContestSelectionInfo(c, currentCreator) : null;
+    const myProof = currentCreator
+      ? proofsList.find(p => String(p.creatorId) === String(currentCreator.id) || DataStore.phonesMatch(p.creatorPhone, currentCreator.phone))
+      : null;
+
+    const selectedStudentsHtml = selectedList.length > 0 ? `
+      <div class="mt-4 p-3.5 rounded-2xl bg-blue-50/80 border border-blue-200 space-y-2.5">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[11px] font-black text-blue-950 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-star text-amber-500"></i> Madaniyat xodimi tanlagan o'quvchilar (${selectedList.length} nafar)
+          </span>
+          <span class="text-[10px] font-bold text-blue-700 bg-white px-2 py-0.5 rounded-full border border-blue-200">
+            📅 ${c.eventDate} da kutiladi
+          </span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          ${selectedList.map(s => {
+            const cr = DataStore.getCreatorById(s.creatorId) || s;
+            const nick = DataStore.normalizeNickname(cr.nickname || s.nickname || cr.fullName || s.fullName);
+            const hasProof = proofsList.some(p => String(p.creatorId) === String(s.creatorId) || DataStore.phonesMatch(p.creatorPhone, s.phone));
+            return `
+              <div class="p-2 rounded-xl bg-white border border-blue-100 flex items-center justify-between gap-2 shadow-2xs">
+                <div class="flex items-center gap-2 min-w-0">
+                  <img src="${cr.avatar || s.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'}" alt="${s.fullName}" class="w-8 h-8 rounded-full object-cover border border-blue-300 shrink-0" />
+                  <div class="min-w-0">
+                    <p class="text-xs font-black text-slate-900 truncate">${s.fullName}</p>
+                    <p class="text-[10px] font-bold text-indigo-600 truncate">@${nick} • ${s.school || cr.school || ''}</p>
+                    <p class="text-[9px] text-slate-500 truncate">Tanladi: ${s.selectedByStaffName || 'Madaniyat xodimi'}</p>
+                  </div>
+                </div>
+                ${hasProof ? `
+                  <span class="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 font-black text-[9px] shrink-0" title="Sertifikat rasmini joylagan">
+                    📸 Joyladi
+                  </span>
+                ` : `
+                  <span class="px-2 py-0.5 rounded-lg bg-amber-100 text-amber-800 font-bold text-[9px] shrink-0">
+                    🎯 Chaqirilgan
+                  </span>
+                `}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    ` : `
+      <div class="mt-4 p-3 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-center text-[11px] text-slate-500">
+        <i class="fa-solid fa-user-plus text-blue-500 mr-1"></i> Hozircha madaniyat xodimi tomonidan o'quvchilar tanlanmagan.
+        ${(isStaff || isAdmin) ? `<strong class="text-blue-700">Yuqoridagi ➕ tugmasini bosib o'quvchilarni tanlang!</strong>` : ''}
+      </div>
+    `;
+
+    const studentSelectedCalloutHtml = isCurrentStudentSelected ? `
+      <div class="mt-4 p-4 rounded-2xl bg-gradient-to-r from-emerald-700 to-teal-800 text-white shadow-md border-2 border-amber-300 space-y-2">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <span class="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-black text-[10px] uppercase">
+            🎉 SIZ TADBIRGA CHAQIRILDINGIZ! (Madaniyat xodimi tanladi)
+          </span>
+          <span class="text-[11px] font-black text-amber-200">
+            👤 ${mySelectionInfo?.selectedByStaffName || 'Madaniyat xodimi'}
+          </span>
+        </div>
+        <p class="text-xs font-black text-amber-300">
+          📅 Tanlov sanasi: ${c.eventDate} — Mana shu sanada sizni (${c.location}) manzilida kutamiz!
+        </p>
+        <p class="text-[11px] text-emerald-50 leading-relaxed">
+          Tadbirga borib qatnashib kelganingizdan keyin, <strong>madaniyat xodimi bilan «Kelajak ijodkori» sertifikatini ushlab tushgan rasmingizni</strong> shu yerning pastiga joylang! Madaniyat xodimi rasm haqiqiyligini tasdiqlab qabul qilgach, sizga <strong>+${c.awardCoins} 🪙 tanga</strong> boradi.
+        </p>
+        <div class="pt-1">
+          ${myProof ? `
+            <div class="w-full py-2.5 px-4 rounded-xl bg-white/20 border border-amber-300/70 text-amber-200 font-black text-xs text-center flex items-center justify-center gap-2">
+              <i class="fa-solid fa-circle-check text-emerald-300 text-sm"></i>
+              <span>Siz sertifikat rasmini joyladingiz ${myProof.status === 'approved' ? `(Tasdiqlandi: +${myProof.awardedCoins || myProof.coinsAwarded || c.awardCoins} 🪙)` : "(Madaniyat xodimi tasdig'i kutilmoqda)"}</span>
+            </div>
+          ` : `
+            <button type="button" onclick="App.openUploadContestProofModal('${c.id}')" class="w-full py-2.5 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-md transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-camera text-sm"></i> 📸 Madaniyat Xodimi Bilan Sertifikat Rasmini Joylash
+            </button>
+          `}
+        </div>
+      </div>
+    ` : '';
+
+    const proofsHtml = proofsList.length > 0 ? `
+      <div class="mt-4 pt-3 border-t border-slate-200 space-y-2.5">
+        <h4 class="text-xs font-black text-slate-900 flex items-center gap-1.5">
+          <i class="fa-solid fa-award text-emerald-600"></i> Tadbirga chaqirilgan o'quvchilar joylagan sertifikat rasmlari (${proofsList.length})
+        </h4>
+        <div class="space-y-2.5">
+          ${proofsList.map(proof => {
+            const isApproved = proof.status === 'approved';
+            const awardedVal = proof.awardedCoins || proof.coinsAwarded || c.awardCoins;
+            return `
+              <div class="p-3 rounded-2xl ${isApproved ? 'bg-emerald-50/70 border border-emerald-300' : 'bg-amber-50/60 border border-amber-200'} space-y-2">
+                <div class="flex flex-col sm:flex-row items-start gap-3">
+                  <img src="${proof.photoUrl}" alt="${proof.creatorName} sertifikat rasmi" onclick="window.open(this.src, '_blank')" class="w-full sm:w-28 h-36 sm:h-24 object-cover rounded-xl border-2 border-white shadow cursor-pointer shrink-0" title="Kattalashtirib ko'rish uchun bosing" />
+                  <div class="flex-1 min-w-0 space-y-1">
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                      <span class="font-black text-slate-900 text-xs">${proof.creatorName} <span class="text-indigo-600">@${DataStore.normalizeNickname(proof.creatorNickname || proof.creatorName)}</span></span>
+                      ${isApproved ? `
+                        <span class="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white font-black text-[10px]">
+                          ✅ Tasdiqlandi va Qabul qilindi (+${awardedVal} 🪙)
+                        </span>
+                      ` : `
+                        <span class="px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-950 font-black text-[10px]">
+                          ⏳ Madaniyat xodimi tasdig'i kutilmoqda
+                        </span>
+                      `}
+                    </div>
+                    <p class="text-[11px] text-slate-600 font-semibold">🏫 ${proof.creatorSchool || ''} • 📅 Joylandi: ${proof.submittedAt || proof.uploadedAt || ''}</p>
+                    ${proof.comment ? `<p class="text-xs text-slate-700 bg-white/80 p-2 rounded-xl border border-slate-200/70">"${proof.comment}"</p>` : ''}
+                    ${(isStaff || isAdmin) && !isApproved ? `
+                      <div class="pt-1.5">
+                        <button type="button" onclick="App.handleApproveContestCertificateProof('${c.id}', '${proof.id}', ${Number(c.awardCoins) || 50})" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md transition flex items-center justify-center gap-1.5">
+                          <i class="fa-solid fa-circle-check text-amber-300"></i> Rasm Haqiqiyligini Tasdiqlash va Qabul Qilish (+${c.awardCoins} 🪙 Tanga Berish)
+                        </button>
+                      </div>
+                    ` : ''}
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    ` : '';
+
+    return `
+      <div class="bg-white rounded-3xl border ${isCurrentStudentSelected ? 'border-emerald-500 ring-2 ring-emerald-200' : 'border-slate-200'} p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition">
+        <div>
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+              📍 ${c.districtLabel || userDist.districtLabel || "Barcha Umumta'lim Maktablar Uchun"}
+            </span>
+            <div class="flex items-center gap-2">
+              <span class="font-black text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-xl text-xs flex items-center gap-1">
+                🪙 +${c.awardCoins} tanga
+              </span>
+              ${(isStaff || isAdmin) ? `
+                <button type="button" onclick="App.openSelectStudentsForContestModal('${c.id}')" class="w-9 h-9 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-base shadow-md transition flex items-center justify-center" title="Tanlovga o'quvchi tanlash (+)">
+                  <i class="fa-solid fa-plus"></i>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+
+          <h3 class="text-lg font-black text-slate-900 mt-3 leading-snug">
+            ${c.title}
+          </h3>
+
+          <div class="mt-3 space-y-1.5 text-xs text-slate-500">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-calendar-days text-emerald-600"></i>
+              <span>Sanasi: <strong class="text-slate-900">${c.eventDate}</strong></span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-location-dot text-red-500"></i>
+              <span>Manzil: <strong class="text-slate-900">${c.location}</strong></span>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-600 mt-3 leading-relaxed bg-slate-50 p-3 rounded-2xl border border-slate-100">
+            ${c.description}
+          </p>
+
+          ${(isStaff || isAdmin) ? `
+            <div class="mt-3">
+              <button type="button" onclick="App.openSelectStudentsForContestModal('${c.id}')" class="w-full py-2.5 px-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-md transition flex items-center justify-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center font-black text-sm">+</span>
+                <span>Madaniyat xodimi: O'quvchi tanlash (${selectedList.length} nafar tanlangan)</span>
+              </button>
+            </div>
+          ` : ''}
+
+          ${selectedStudentsHtml}
+          ${studentSelectedCalloutHtml}
+          ${proofsHtml}
+        </div>
+
+        <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+          <span class="text-[10px] text-slate-400">${c.districtLabel || userDist.districtLabel || 'Tuman'} Koordinatori tomonidan e'lon qilingan</span>
+          ${isAdmin ? `
+            <button onclick="App.handleDeleteContest('${c.id}')" class="text-xs text-red-500 hover:text-red-700 font-bold flex items-center gap-1">
+              <i class="fa-solid fa-trash"></i> O'chirish
+            </button>
+          ` : `
+            <span class="text-xs text-emerald-700 font-bold">Faol Tanlov</span>
+          `}
+        </div>
+      </div>
+    `;
+  },
 
   renderContests() {
     const grid = document.getElementById('contests-grid');
     const adminAction = document.getElementById('contest-admin-action-block');
+    const studentBanner = document.getElementById('student-selected-contests-banner');
     if (!grid) return;
 
     const userDist = this.getActiveDistrictInfo();
@@ -2374,6 +3723,56 @@ const App = {
       }
     }
 
+    // Tanlangan o'quvchi uchun Tanlovlar bo'limi tepasida katta xabarnoma
+    if (studentBanner) {
+      if (Auth.isStudent()) {
+        const user = Auth.getCurrentUser();
+        const creator = DataStore.getCreatorById(user.creatorId) || user;
+        const selectedContests = contests.filter(c => DataStore.isStudentSelectedInContest(c, creator));
+        if (selectedContests.length > 0) {
+          studentBanner.classList.remove('hidden');
+          studentBanner.innerHTML = selectedContests.map(c => {
+            const selInfo = DataStore.getStudentContestSelectionInfo(c, creator) || {};
+            const myProof = (c.certificateProofs || []).find(p =>
+              String(p.creatorId) === String(creator.id) ||
+              DataStore.phonesMatch(p.creatorPhone, creator.phone)
+            );
+            return `
+              <div class="p-5 rounded-3xl bg-gradient-to-r from-emerald-800 via-teal-800 to-blue-900 text-white shadow-xl border-2 border-amber-300 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="space-y-1.5">
+                  <span class="inline-block px-3 py-1 rounded-full bg-amber-400 text-slate-950 font-black text-xs uppercase">
+                    🎉 SIZ TADBIRGA CHAQIRILDINGIZ! (Madaniyat xodimi tanladi)
+                  </span>
+                  <h4 class="text-lg font-black">🎭 "${c.title}" — Mana shu sanada sizni kutamiz: <span class="text-amber-300 underline">${c.eventDate}</span></h4>
+                  <p class="text-xs text-emerald-100">
+                    📍 Manzil: <strong>${c.location}</strong> | 👤 Tanlagan madaniyat xodimi: <strong>${selInfo.selectedByStaffName || 'Madaniyat xodimi'}</strong>
+                  </p>
+                  <p class="text-xs text-amber-200 font-semibold">
+                    ✨ Tadbirga qatnashib kelganingizdan so'ng, madaniyat xodimi bilan «Kelajak ijodkori» sertifikatini ushlab tushgan rasmingizni pastdagi tanlov kartasiga joylang! Madaniyat xodimi rasm haqiqiyligini tasdiqlab qabul qilgach sizga <strong>+${c.awardCoins} 🪙 tanga</strong> boradi.
+                  </p>
+                </div>
+                ${myProof ? `
+                  <span class="px-5 py-3 rounded-2xl bg-white/20 border-2 border-amber-300 text-amber-200 font-black text-xs shrink-0 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-check text-emerald-300 text-sm"></i> Siz sertifikat rasmini joyladingiz
+                  </span>
+                ` : `
+                  <button type="button" onclick="App.openUploadContestProofModal('${c.id}')" class="px-5 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-lg transition shrink-0 flex items-center gap-2">
+                    <i class="fa-solid fa-camera"></i> Sertifikat Rasmini Joylash
+                  </button>
+                `}
+              </div>
+            `;
+          }).join('');
+        } else {
+          studentBanner.classList.add('hidden');
+          studentBanner.innerHTML = '';
+        }
+      } else {
+        studentBanner.classList.add('hidden');
+        studentBanner.innerHTML = '';
+      }
+    }
+
     if (contests.length === 0) {
       grid.innerHTML = `
         <div class="col-span-full py-10 px-6 text-center bg-white rounded-3xl border border-slate-200 shadow-sm">
@@ -2389,50 +3788,384 @@ const App = {
       return;
     }
 
-    grid.innerHTML = contests.map(c => `
-      <div class="bg-white rounded-3xl border border-slate-200 p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition">
-        <div>
-          <div class="flex items-center justify-between gap-2">
-            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-              📍 ${c.districtLabel || userDist.districtLabel || "Barcha Umumta'lim Maktablar Uchun"}
-            </span>
-            <span class="font-black text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-xl text-xs flex items-center gap-1">
-              🪙 +${c.awardCoins} tanga
-            </span>
-          </div>
+    grid.innerHTML = contests.map(c => this.buildContestCardHtml(c, userDist)).join('');
+  },
 
-          <h3 class="text-lg font-black text-slate-900 mt-3 leading-snug">
-            ${c.title}
-          </h3>
+  openSelectStudentsForContestModal(contestId) {
+    if (!Auth.isStaff() && !Auth.isAdmin()) {
+      this.showToast("O'quvchilarni tanlovga faqat Madaniyat xodimi yoki Tuman koordinatori tanlay oladi!", "warning");
+      return;
+    }
+    const contest = DataStore.getContests().find(c => c.id === contestId);
+    if (!contest) return;
 
-          <div class="mt-3 space-y-1.5 text-xs text-slate-500">
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-calendar-days text-emerald-600"></i>
-              <span>Sanasi: <strong>${c.eventDate}</strong></span>
-            </div>
-            <div class="flex items-center gap-2">
-              <i class="fa-solid fa-location-dot text-red-500"></i>
-              <span>Manzil: <strong>${c.location}</strong></span>
-            </div>
-          </div>
+    this.state.activeContestForSelection = contestId;
+    this.state.draftSelectedCreatorIds = new Set(
+      (Array.isArray(contest.selectedStudents) ? contest.selectedStudents : [])
+        .map(s => s && String(s.creatorId))
+        .filter(Boolean)
+    );
 
-          <p class="text-xs text-slate-600 mt-3 leading-relaxed bg-slate-50 p-3 rounded-2xl border border-slate-100">
-            ${c.description}
-          </p>
+    const idInput = document.getElementById('contest-select-target-id') || document.getElementById('select-contest-id');
+    if (idInput) idInput.value = contestId;
+
+    const subtitleEl = document.getElementById('contest-select-modal-subtitle') || document.getElementById('select-contest-modal-subtitle');
+    if (subtitleEl) {
+      subtitleEl.textContent = `"${contest.title}" (📅 Sanasi: ${contest.eventDate} • 📍 ${contest.location}) uchun o'quvchilarni jonli ijrosini ko'rib tanlang`;
+    }
+
+    const infoBanner = document.getElementById('contest-select-info-banner');
+    if (infoBanner) {
+      infoBanner.innerHTML = `
+        <p class="font-black text-indigo-950">🎭 Tanlov: ${contest.title} (🪙 +${contest.awardCoins} tanga)</p>
+        <p class="text-indigo-800">📅 O'tkazilish sanasi: <strong>${contest.eventDate}</strong> • 📍 Manzil: <strong>${contest.location}</strong></p>
+        <p class="text-indigo-700">💡 Quyidagi ro'yxatdan o'quvchilarning <strong>«▶ Jonli ijro»</strong> videolari bilan tanishib, bitta-bitta belgilang (select qiling) va pastdagi <strong>«Tanlanganlarni Tasdiqlash»</strong> tugmasini bosing.</p>
+      `;
+    }
+
+    const stepPick = document.getElementById('contest-select-step-pick');
+    const stepConfirm = document.getElementById('contest-select-step-confirm');
+    if (stepPick) stepPick.classList.remove('hidden');
+    if (stepConfirm) stepConfirm.classList.add('hidden');
+
+    const searchInput = document.getElementById('select-contest-student-search');
+    if (searchInput) searchInput.value = '';
+
+    this.renderContestSelectStudentsList(contestId);
+    this.openModal('modal-contest-select-students');
+  },
+
+  updateContestDraftCountersUI() {
+    const count = this.state.draftSelectedCreatorIds ? this.state.draftSelectedCreatorIds.size : 0;
+    const countEl = document.getElementById('contest-draft-selected-count');
+    if (countEl) countEl.textContent = String(count);
+    const badgeEl = document.getElementById('contest-draft-selected-badge');
+    if (badgeEl) badgeEl.textContent = `Tanlanganlar: ${count} nafar`;
+  },
+
+  renderContestSelectStudentsList(contestId) {
+    const cid = contestId || this.state.activeContestForSelection || document.getElementById('contest-select-target-id')?.value || document.getElementById('select-contest-id')?.value;
+    const contest = DataStore.getContests().find(c => c.id === cid);
+    const listContainer = document.getElementById('contest-select-students-list') || document.getElementById('select-contest-students-list');
+    if (!contest || !listContainer) return;
+
+    if (!this.state.draftSelectedCreatorIds) {
+      this.state.draftSelectedCreatorIds = new Set(
+        (Array.isArray(contest.selectedStudents) ? contest.selectedStudents : [])
+          .map(s => s && String(s.creatorId))
+          .filter(Boolean)
+      );
+    }
+    this.updateContestDraftCountersUI();
+
+    const userDist = this.getActiveDistrictInfo();
+    const targetDist = contest.district || userDist.district || '';
+    const searchVal = (document.getElementById('select-contest-student-search')?.value || '').trim().toLowerCase();
+
+    let creators = DataStore.getCreators();
+    if (targetDist && targetDist !== 'all') {
+      creators = creators.filter(cr => DataStore.districtsMatch(cr.district || cr.districtLabel, targetDist));
+    }
+    if (searchVal) {
+      creators = creators.filter(cr =>
+        (cr.fullName || '').toLowerCase().includes(searchVal) ||
+        (cr.nickname || '').toLowerCase().includes(searchVal) ||
+        (cr.school || '').toLowerCase().includes(searchVal)
+      );
+    }
+
+    if (creators.length === 0) {
+      listContainer.innerHTML = `
+        <div class="p-6 text-center bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-500">
+          Ushbu tuman bo'yicha o'quvchilar topilmadi.
         </div>
+      `;
+      return;
+    }
 
-        <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
-          <span class="text-[10px] text-slate-400">${c.districtLabel || userDist.districtLabel || 'Tuman'} Admini tomonidan tasdiqlangan</span>
-          ${isAdmin ? `
-            <button onclick="App.handleDeleteContest('${c.id}')" class="text-xs text-red-500 hover:text-red-700 font-bold flex items-center gap-1">
-              <i class="fa-solid fa-trash"></i> O'chirish
+    listContainer.innerHTML = creators.map((cr, idx) => {
+      const isSelected = this.state.draftSelectedCreatorIds.has(String(cr.id));
+      const nick = DataStore.normalizeNickname(cr.nickname || cr.fullName);
+      const avatarSrc = cr.avatarUrl || cr.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80';
+      return `
+        <div class="p-3 rounded-2xl border-2 ${isSelected ? 'bg-emerald-50/90 border-emerald-500 shadow-xs' : 'bg-slate-50 border-slate-200 hover:border-blue-300'} flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 transition">
+          <div class="flex items-center gap-3 min-w-0 cursor-pointer flex-1" onclick="App.toggleDraftSelectStudent('${cr.id}')">
+            <span class="w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black shrink-0 ${isSelected ? 'bg-emerald-600 text-white' : 'bg-white border-2 border-slate-300 text-transparent'}">
+              <i class="fa-solid fa-check"></i>
+            </span>
+            <img src="${avatarSrc}" alt="${cr.fullName}" class="w-11 h-11 rounded-full object-cover border-2 ${isSelected ? 'border-emerald-500' : 'border-slate-300'} shrink-0" />
+            <div class="min-w-0">
+              <p class="text-sm font-black text-slate-900 truncate">${idx + 1}. ${cr.fullName} <span class="text-xs font-bold text-indigo-600">@${nick}</span></p>
+              <p class="text-xs text-slate-600 truncate">🏫 ${cr.school} • 📍 ${cr.districtLabel || ''}</p>
+              <p class="text-[11px] text-emerald-700 font-bold">🪙 ${cr.coins || 0} tanga • 📞 ${cr.phone || ''}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
+            <button type="button" onclick="App.openVideoModal('${cr.id}')" class="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs transition flex items-center gap-1.5" title="O'quvchining jonli ijrosini ko'rish">
+              <i class="fa-solid fa-play text-red-400 text-[10px]"></i> Jonli ijro
             </button>
-          ` : `
-            <span class="text-xs text-emerald-700 font-bold">Faol Tanlov</span>
-          `}
+            <button type="button" onclick="App.toggleDraftSelectStudent('${cr.id}')" class="px-4 py-2 rounded-xl font-black text-xs shadow-sm transition flex items-center gap-1.5 ${isSelected ? 'bg-emerald-600 hover:bg-red-600 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'}">
+              ${isSelected ? `<i class="fa-solid fa-check"></i> Tanlandi` : `<i class="fa-solid fa-plus"></i> Select (Tanlash)`}
+            </button>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
+  },
+
+  toggleDraftSelectStudent(creatorId) {
+    if (!Auth.isStaff() && !Auth.isAdmin()) return;
+    if (!this.state.draftSelectedCreatorIds) {
+      this.state.draftSelectedCreatorIds = new Set();
+    }
+    const idStr = String(creatorId);
+    if (this.state.draftSelectedCreatorIds.has(idStr)) {
+      this.state.draftSelectedCreatorIds.delete(idStr);
+    } else {
+      this.state.draftSelectedCreatorIds.add(idStr);
+    }
+    this.renderContestSelectStudentsList(this.state.activeContestForSelection);
+    const stepConfirm = document.getElementById('contest-select-step-confirm');
+    if (stepConfirm && !stepConfirm.classList.contains('hidden')) {
+      this.renderContestConfirmSelectedList();
+    }
+  },
+
+  openContestSelectionConfirmStep() {
+    if (!Auth.isStaff() && !Auth.isAdmin()) return;
+    const count = this.state.draftSelectedCreatorIds ? this.state.draftSelectedCreatorIds.size : 0;
+    if (count === 0) {
+      this.showToast("Iltimos, tasdiqlashdan oldin kamida bitta o'quvchini tanlang (Select qiling)!", "warning");
+      return;
+    }
+
+    const stepPick = document.getElementById('contest-select-step-pick');
+    const stepConfirm = document.getElementById('contest-select-step-confirm');
+    if (stepPick) stepPick.classList.add('hidden');
+    if (stepConfirm) stepConfirm.classList.remove('hidden');
+
+    this.renderContestConfirmSelectedList();
+  },
+
+  backToContestSelectionPickStep() {
+    const stepPick = document.getElementById('contest-select-step-pick');
+    const stepConfirm = document.getElementById('contest-select-step-confirm');
+    if (stepConfirm) stepConfirm.classList.add('hidden');
+    if (stepPick) stepPick.classList.remove('hidden');
+    this.renderContestSelectStudentsList(this.state.activeContestForSelection);
+  },
+
+  renderContestConfirmSelectedList() {
+    const confirmContainer = document.getElementById('contest-confirm-selected-list');
+    if (!confirmContainer) return;
+
+    const selectedIds = Array.from(this.state.draftSelectedCreatorIds || []);
+    if (selectedIds.length === 0) {
+      confirmContainer.innerHTML = `
+        <div class="p-6 text-center bg-slate-50 rounded-2xl border border-slate-200 text-xs text-slate-500">
+          Tanlangan o'quvchilar qolmadi. Orqaga qaytib o'quvchilarni tanlang.
+        </div>
+      `;
+      return;
+    }
+
+    const allCreators = DataStore.getCreators();
+    const selectedCreators = selectedIds
+      .map(id => allCreators.find(c => String(c.id) === String(id)))
+      .filter(Boolean);
+
+    confirmContainer.innerHTML = selectedCreators.map((cr, idx) => {
+      const nick = DataStore.normalizeNickname(cr.nickname || cr.fullName);
+      const avatarSrc = cr.avatarUrl || cr.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80';
+      return `
+        <div class="p-3 rounded-2xl bg-emerald-50/80 border-2 border-emerald-400 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="w-7 h-7 rounded-full bg-emerald-600 text-white font-black text-xs flex items-center justify-center shrink-0">
+              ${idx + 1}
+            </span>
+            <img src="${avatarSrc}" alt="${cr.fullName}" class="w-10 h-10 rounded-full object-cover border-2 border-emerald-500 shrink-0" />
+            <div class="min-w-0">
+              <p class="text-sm font-black text-slate-900 truncate">${cr.fullName} <span class="text-xs font-bold text-indigo-600">@${nick}</span></p>
+              <p class="text-xs text-slate-600 truncate">🏫 ${cr.school} • 📞 ${cr.phone || ''}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0">
+            <button type="button" onclick="App.openVideoModal('${cr.id}')" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition flex items-center gap-1">
+              <i class="fa-solid fa-play text-red-400 text-[10px]"></i> Jonli ijro
+            </button>
+            <button type="button" onclick="App.toggleDraftSelectStudent('${cr.id}')" class="px-3 py-1.5 rounded-xl bg-red-100 hover:bg-red-600 text-red-700 hover:text-white font-black text-xs transition flex items-center gap-1" title="Adashib qo'shilgan bo'lsa ro'yxatdan chiqarish">
+              <i class="fa-solid fa-xmark"></i> Olib tashlash
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  },
+
+  confirmAndSaveContestSelectedStudents() {
+    if (!Auth.isStaff() && !Auth.isAdmin()) return;
+    const contestId = this.state.activeContestForSelection || document.getElementById('contest-select-target-id')?.value;
+    if (!contestId) return;
+
+    const selectedIds = Array.from(this.state.draftSelectedCreatorIds || []);
+    const user = Auth.getCurrentUser() || {};
+
+    const res = DataStore.saveSelectedStudentsForContest(contestId, selectedIds, {
+      fullName: user.fullName || (Auth.isAdmin() ? `${user.districtLabel || 'Tuman'} Koordinatori` : 'Madaniyat xodimi'),
+      organization: user.organization || user.position || "Madaniyat bo'limi",
+      phone: user.phone || ''
+    });
+
+    if (res.success) {
+      this.closeModal('modal-contest-select-students');
+      this.refreshAllUI();
+      this.showToast(
+        `🎉 Tasdiqlandi! Tanlangan ${res.totalSelected} nafar o'quvchiga "Siz tadbirga chaqirildingiz!" xabari yuborildi va ular ekranda e'lon qilindi.`,
+        "success"
+      );
+    } else {
+      this.showToast(res.message || "Xatolik yuz berdi!", "error");
+    }
+  },
+
+  handleToggleSelectStudentForContest(contestId, creatorId) {
+    this.toggleDraftSelectStudent(creatorId);
+  },
+
+  openUploadContestProofModal(contestId) {
+    if (!Auth.isStudent()) {
+      this.showToast("Sertifikat rasmini joylash uchun o'quvchi profiliga kiring!", "warning");
+      return;
+    }
+    const user = Auth.getCurrentUser();
+    const creator = DataStore.getCreatorById(user.creatorId) || user;
+    const contest = DataStore.getContests().find(c => c.id === contestId);
+    if (!contest) return;
+
+    if (!DataStore.isStudentSelectedInContest(contest, creator)) {
+      this.showToast("Ushbu tanlovga faqat madaniyat xodimi tomonidan chaqirilgan (tanlangan) o'quvchilar sertifikat rasmini joylay oladi!", "warning");
+      return;
+    }
+
+    const existingProof = (contest.certificateProofs || []).find(p =>
+      String(p.creatorId) === String(creator.id) ||
+      DataStore.phonesMatch(p.creatorPhone, creator.phone)
+    );
+    if (existingProof) {
+      this.showToast("✅ Siz ushbu tanlov uchun sertifikat rasmini allaqachon joylagansiz!", "info");
+      return;
+    }
+
+    this.state.pendingContestProofDataUrl = '';
+    const idInput = document.getElementById('contest-proof-contest-id') || document.getElementById('proof-contest-id');
+    if (idInput) idInput.value = contestId;
+
+    const subtitleEl = document.getElementById('contest-proof-modal-subtitle');
+    if (subtitleEl) {
+      subtitleEl.textContent = `"${contest.title}" (📅 ${contest.eventDate}) — Madaniyat xodimi bilan sertifikat rasmingizni yuklang`;
+    }
+
+    const fileInput = document.getElementById('contest-proof-file-input') || document.getElementById('proof-certificate-photo-file');
+    if (fileInput) fileInput.value = '';
+    const commentInput = document.getElementById('contest-proof-comment') || document.getElementById('proof-certificate-comment');
+    if (commentInput) commentInput.value = '';
+    const previewWrap = document.getElementById('contest-proof-preview-wrap') || document.getElementById('proof-photo-preview-wrapper');
+    if (previewWrap) previewWrap.classList.add('hidden');
+
+    this.openModal('modal-contest-upload-proof');
+  },
+
+  handleContestProofPhotoChange(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_DIM = 720;
+        let w = img.width;
+        let h = img.height;
+        if (w > h && w > MAX_DIM) {
+          h = Math.round((h * MAX_DIM) / w);
+          w = MAX_DIM;
+        } else if (h >= w && h > MAX_DIM) {
+          w = Math.round((w * MAX_DIM) / h);
+          h = MAX_DIM;
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.78);
+        this.state.pendingContestProofDataUrl = compressedDataUrl;
+
+        const previewImg = document.getElementById('contest-proof-preview-img') || document.getElementById('proof-photo-preview-img');
+        const previewWrap = document.getElementById('contest-proof-preview-wrap') || document.getElementById('proof-photo-preview-wrapper');
+        if (previewImg) previewImg.src = compressedDataUrl;
+        if (previewWrap) previewWrap.classList.remove('hidden');
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  },
+
+  handleSubmitContestCertificateProof(e) {
+    e.preventDefault();
+    if (!Auth.isStudent()) return;
+
+    const contestId = document.getElementById('contest-proof-contest-id')?.value || document.getElementById('proof-contest-id')?.value;
+    const photoUrl = this.state.pendingContestProofDataUrl;
+    const comment = (document.getElementById('contest-proof-comment')?.value || document.getElementById('proof-certificate-comment')?.value || '').trim();
+
+    if (!photoUrl) {
+      this.showToast("Iltimos, madaniyat xodimi bilan sertifikatni ushlab tushgan rasmingizni tanlang!", "warning");
+      return;
+    }
+
+    const user = Auth.getCurrentUser();
+    const creator = DataStore.getCreatorById(user.creatorId) || user;
+
+    const res = DataStore.submitContestCertificateProof(contestId, {
+      creatorId: creator.id || user.creatorId,
+      creatorName: creator.fullName || user.fullName,
+      creatorNickname: DataStore.normalizeNickname(creator.nickname || creator.fullName),
+      creatorSchool: creator.school || user.school || '',
+      creatorPhone: creator.phone || user.phone || '',
+      photoUrl,
+      comment
+    });
+
+    if (res.success) {
+      this.closeModal('modal-contest-upload-proof');
+      this.refreshAllUI();
+      this.showToast("📸 Sertifikat rasmingiz muvaffaqiyatli joylandi! Madaniyat xodimi rasm haqiqiyligini tasdiqlab qabul qilgach tangalar hisobingizga o'tadi.", "success");
+    } else {
+      this.showToast(res.message || "Xatolik yuz berdi!", "error");
+    }
+  },
+
+  handleApproveContestCertificateProof(contestId, proofId, defaultCoins = 50) {
+    if (!Auth.isStaff() && !Auth.isAdmin()) {
+      this.showToast("Rasm haqiqiyligini faqat Madaniyat xodimi (yoki Tuman koordinatori) tasdiqlay oladi!", "warning");
+      return;
+    }
+    const user = Auth.getCurrentUser() || {};
+    const approverName = user.fullName || (Auth.isStaff() ? 'Madaniyat xodimi' : 'Tuman koordinatori');
+    const res = DataStore.approveContestCertificateProof(
+      contestId,
+      proofId,
+      defaultCoins,
+      `${approverName} tomonidan sertifikat rasmi haqiqiyligi tasdiqlandi va qabul qilindi!`,
+      approverName
+    );
+    if (res.success) {
+      this.refreshAllUI();
+      this.showToast(`✅ ${res.proof.creatorName} joylagan sertifikat rasmi haqiqiyligi tasdiqlandi va hisobiga +${res.coins} 🪙 tanga yuborildi!`, "success");
+    } else {
+      this.showToast(res.message || "Xatolik yuz berdi!", "error");
+    }
   },
 
   openAddContestModal() {
@@ -2461,7 +4194,8 @@ const App = {
     DataStore.addContest(contestData);
     this.closeModal('modal-add-contest');
     this.renderContests();
-    this.showToast(`Yangi tanlov e'loni ${userDist.districtLabel} uchun joylashtirildi!`, "success");
+    this.renderStaffSection();
+    this.showToast(`Yangi tanlov e'loni ${userDist.districtLabel} uchun joylashtirildi! Endi Madaniyat xodimlari (+) tugmasi orqali o'quvchi tanlashi mumkin.`, "success");
   },
 
   handleDeleteContest(id) {
@@ -2469,6 +4203,7 @@ const App = {
     if (confirm("Ushbu tanlov e'lonini ro'yxatdan o'chirmoqchimisiz?")) {
       DataStore.deleteContest(id);
       this.renderContests();
+      this.renderStaffSection();
       this.showToast("Tanlov o'chirildi.", "info");
     }
   },
@@ -2684,7 +4419,7 @@ const App = {
               <div class="flex-1 min-w-0">
                 <div class="flex items-center justify-between gap-1">
                   <span class="px-2 py-0.5 rounded-full text-[10px] font-bold badge-district truncate">
-                    <i class="fa-solid fa-location-dot mr-1"></i>${creator.districtLabel || 'Tuman'}
+                    <i class="fa-solid fa-location-dot mr-1"></i>${creator.regionLabel ? creator.regionLabel + ' • ' : ''}${creator.districtLabel || 'Tuman'}
                   </span>
                   ${editBtn}
                 </div>
@@ -2741,7 +4476,10 @@ const App = {
     if (!podiumContainer || !tableBody) return;
 
     const userDist = this.getActiveDistrictInfo();
-    const activeFilterDist = userDist.district || (this.state.selectedDistrict !== 'all' ? this.state.selectedDistrict : '');
+    const isRepAdmin = Auth.isRepublicAdmin();
+    const activeFilterDist = isRepAdmin
+      ? ''
+      : (userDist.district || (this.state.selectedDistrict !== 'all' ? this.state.selectedDistrict : ''));
 
     let leaderboard = DataStore.getLeaderboard();
     if (activeFilterDist) {
@@ -2754,7 +4492,7 @@ const App = {
           <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-2xl mx-auto mb-3 shadow-inner">
             <i class="fa-solid fa-crown"></i>
           </div>
-          <h4 class="font-bold text-slate-800 text-sm">${userDist.districtLabel ? `${userDist.districtLabel} bo'yicha hozircha` : 'Hozircha'} reyting jadvali shakllanmagan</h4>
+          <h4 class="font-bold text-slate-800 text-sm">${(!isRepAdmin && userDist.districtLabel) ? `${userDist.districtLabel} bo'yicha hozircha` : 'Hozircha'} reyting jadvali shakllanmagan</h4>
           <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">
             O'quvchilar ro'yxatdan o'tib, tanlov va chellenjlarda faol qatnashgach, to'plangan tangalar bo'yicha ushbu shohsupa va reyting jadvali avtomatik hisoblab boriladi.
           </p>
@@ -2776,14 +4514,15 @@ const App = {
       const third = leaderboard[2];
 
       podiumContainer.innerHTML = `
-        <div class="podium-card podium-2 p-5 rounded-3xl text-center flex flex-col justify-between order-2 md:order-1 h-[270px]">
+        <div class="podium-card podium-2 p-5 rounded-3xl text-center flex flex-col justify-between order-2 md:order-1 h-[285px]">
           <div>
             <div class="w-10 h-10 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-black mx-auto mb-2 text-sm border-2 border-white shadow-sm">
               2
             </div>
             <img src="${second.avatarUrl}" class="w-16 h-16 rounded-full mx-auto object-cover border-2 border-slate-300 shadow-sm mb-2" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'">
             <h4 class="font-bold text-slate-900 text-sm truncate">${second.fullName}</h4>
-            <span class="text-[11px] text-slate-500 block truncate">${second.school} • ${second.districtLabel}</span>
+            <span class="text-[11px] font-bold text-purple-800 block truncate">🏛️ ${second.regionLabel || 'Buxoro viloyati'} • 📍 ${second.districtLabel}</span>
+            <span class="text-[10px] text-slate-500 block truncate">${second.school}</span>
           </div>
           <div class="mt-2 bg-slate-100 py-2 rounded-2xl">
             <span class="text-sm font-black text-slate-800">🪙 ${second.coins} Tanga</span>
@@ -2791,14 +4530,15 @@ const App = {
           </div>
         </div>
 
-        <div class="podium-card podium-1 p-6 rounded-3xl text-center flex flex-col justify-between order-1 md:order-2 h-[310px] shadow-lg shadow-amber-500/10">
+        <div class="podium-card podium-1 p-6 rounded-3xl text-center flex flex-col justify-between order-1 md:order-2 h-[325px] shadow-lg shadow-amber-500/10">
           <div>
             <div class="w-12 h-12 rounded-full bg-amber-400 text-amber-950 flex items-center justify-center font-black mx-auto mb-2 text-lg border-2 border-white shadow-md">
               <i class="fa-solid fa-crown text-amber-900"></i>
             </div>
             <img src="${first.avatarUrl}" class="w-20 h-20 rounded-full mx-auto object-cover border-4 border-amber-400 shadow-md mb-2" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'">
             <h4 class="font-black text-slate-900 text-base truncate">${first.fullName}</h4>
-            <span class="text-xs text-amber-800 font-medium block truncate">${first.school} • ${first.districtLabel}</span>
+            <span class="text-xs font-extrabold text-purple-900 block truncate">🏛️ ${first.regionLabel || 'Buxoro viloyati'} • 📍 ${first.districtLabel}</span>
+            <span class="text-[11px] text-amber-800 font-medium block truncate">${first.school}</span>
           </div>
           <div class="mt-2 bg-amber-100/80 py-2.5 rounded-2xl border border-amber-300">
             <span class="text-base font-black text-amber-950">🪙 ${first.coins} TANGA</span>
@@ -2806,14 +4546,15 @@ const App = {
           </div>
         </div>
 
-        <div class="podium-card podium-3 p-5 rounded-3xl text-center flex flex-col justify-between order-3 md:order-3 h-[250px]">
+        <div class="podium-card podium-3 p-5 rounded-3xl text-center flex flex-col justify-between order-3 md:order-3 h-[265px]">
           <div>
             <div class="w-9 h-9 rounded-full bg-amber-700 text-white flex items-center justify-center font-black mx-auto mb-2 text-xs border-2 border-white shadow-sm">
               3
             </div>
             <img src="${third.avatarUrl}" class="w-14 h-14 rounded-full mx-auto object-cover border-2 border-amber-600 shadow-sm mb-2" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'">
             <h4 class="font-bold text-slate-900 text-sm truncate">${third.fullName}</h4>
-            <span class="text-[11px] text-slate-500 block truncate">${third.school} • ${third.districtLabel}</span>
+            <span class="text-[11px] font-bold text-purple-800 block truncate">🏛️ ${third.regionLabel || 'Buxoro viloyati'} • 📍 ${third.districtLabel}</span>
+            <span class="text-[10px] text-slate-500 block truncate">${third.school}</span>
           </div>
           <div class="mt-2 bg-orange-50 py-2 rounded-2xl">
             <span class="text-sm font-black text-orange-950">🪙 ${third.coins} Tanga</span>
@@ -2826,14 +4567,15 @@ const App = {
       const second = leaderboard[1];
       podiumContainer.innerHTML = `
         <div class="col-span-full flex flex-wrap items-center justify-center gap-6 py-4">
-          <div class="podium-card podium-1 p-6 rounded-3xl text-center flex flex-col justify-between w-72 h-[310px] shadow-lg shadow-amber-500/10">
+          <div class="podium-card podium-1 p-6 rounded-3xl text-center flex flex-col justify-between w-72 h-[325px] shadow-lg shadow-amber-500/10">
             <div>
               <div class="w-12 h-12 rounded-full bg-amber-400 text-amber-950 flex items-center justify-center font-black mx-auto mb-2 text-lg border-2 border-white shadow-md">
                 <i class="fa-solid fa-crown text-amber-900"></i>
               </div>
               <img src="${first.avatarUrl}" class="w-20 h-20 rounded-full mx-auto object-cover border-4 border-amber-400 shadow-md mb-2" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'">
               <h4 class="font-black text-slate-900 text-base truncate">${first.fullName}</h4>
-              <span class="text-xs text-amber-800 font-medium block truncate">${first.school} • ${first.districtLabel}</span>
+              <span class="text-xs font-extrabold text-purple-900 block truncate">🏛️ ${first.regionLabel || 'Buxoro viloyati'} • 📍 ${first.districtLabel}</span>
+              <span class="text-[11px] text-amber-800 font-medium block truncate">${first.school}</span>
             </div>
             <div class="mt-2 bg-amber-100/80 py-2.5 rounded-2xl border border-amber-300">
               <span class="text-base font-black text-amber-950">🪙 ${first.coins} TANGA</span>
@@ -2841,14 +4583,15 @@ const App = {
             </div>
           </div>
           ${second ? `
-            <div class="podium-card podium-2 p-5 rounded-3xl text-center flex flex-col justify-between w-64 h-[270px]">
+            <div class="podium-card podium-2 p-5 rounded-3xl text-center flex flex-col justify-between w-64 h-[285px]">
               <div>
                 <div class="w-10 h-10 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-black mx-auto mb-2 text-sm border-2 border-white shadow-sm">
                   2
                 </div>
                 <img src="${second.avatarUrl}" class="w-16 h-16 rounded-full mx-auto object-cover border-2 border-slate-300 shadow-sm mb-2" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'">
                 <h4 class="font-bold text-slate-900 text-sm truncate">${second.fullName}</h4>
-                <span class="text-[11px] text-slate-500 block truncate">${second.school} • ${second.districtLabel}</span>
+                <span class="text-[11px] font-bold text-purple-800 block truncate">🏛️ ${second.regionLabel || 'Buxoro viloyati'} • 📍 ${second.districtLabel}</span>
+                <span class="text-[10px] text-slate-500 block truncate">${second.school}</span>
               </div>
               <div class="mt-2 bg-slate-100 py-2 rounded-2xl">
                 <span class="text-sm font-black text-slate-800">🪙 ${second.coins} Tanga</span>
@@ -2882,9 +4625,14 @@ const App = {
             </div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
-            <span class="px-2.5 py-1 rounded-full text-xs font-semibold badge-district">
-              <i class="fa-solid fa-location-dot mr-1"></i>${creator.districtLabel}
-            </span>
+            <div class="flex flex-col items-start gap-1">
+              <span class="px-2.5 py-0.5 rounded-lg text-[11px] font-black bg-purple-50 text-purple-800 border border-purple-200">
+                🏛️ ${creator.regionLabel || 'Buxoro viloyati'}
+              </span>
+              <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold badge-district">
+                📍 ${creator.districtLabel}
+              </span>
+            </div>
           </td>
           <td class="px-6 py-4 text-xs font-medium text-slate-700">${creator.school}</td>
           <td class="px-6 py-4 text-center font-semibold text-xs text-slate-700">${creator.eventsCount} ta</td>
@@ -2911,6 +4659,17 @@ const App = {
   // ================= 13. MADANIYAT XODIMLARI XIZMATI =================
 
   renderStaffSection() {
+    const user = Auth.getCurrentUser();
+    // O'quvchi, admin yoki mehmon uchun "Xodimlar / Madaniyat Koordinatorlari" bo'limi umuman kerak emas va ko'rsatilmaydi!
+    if (!user || user.role !== 'staff') {
+      const staffSec = document.getElementById('section-staff');
+      if (staffSec) {
+        staffSec.classList.add('hidden');
+        staffSec.classList.remove('block');
+      }
+      return;
+    }
+
     const authStatus = document.getElementById('staff-auth-status');
     const tableContainer = document.getElementById('staff-contacts-table-container');
     const mainTitle = document.getElementById('staff-section-main-title');
@@ -2919,119 +4678,9 @@ const App = {
     const subtitleText = document.getElementById('staff-contacts-subtitle-text');
     if (!authStatus || !tableContainer) return;
 
-    const user = Auth.getCurrentUser();
-    const isStaffOrAdmin = Auth.isStaff();
     const userDist = this.getActiveDistrictInfo();
     const distId = userDist.district || (this.state.selectedDistrict !== 'all' ? this.state.selectedDistrict : 'jondor');
     const distLabel = userDist.districtLabel || DataStore.getDistrictLabel(distId) || 'Jondor tumani';
-
-    // O'QUVCHI YOKI MEHMON KIRGANDA: "Xodim sifatida kirish" tugmasi chiqmaydi!
-    // Faqat shu tumandan ro'yxatdan o'tgan madaniyat koordinatorlari va xodimlarining ism-familiyasi hamda telefon raqamlari ko'rinadi!
-    if (!isStaffOrAdmin) {
-      const proposalsCard = document.getElementById('staff-my-proposals-card');
-      if (proposalsCard) proposalsCard.classList.add('hidden');
-
-      const dAdmin = DataStore.getDistrictAdmin(distId);
-      const coordName = (dAdmin && dAdmin.fullName) ? dAdmin.fullName : `${distLabel} Koordinatori`;
-      const coordPhone = (dAdmin && dAdmin.phone) ? dAdmin.phone : DataStore.getAdminPhone(distId);
-
-      if (mainTitle) {
-        mainTitle.textContent = `${distLabel} Madaniyat Koordinatorlari`;
-      }
-      if (mainSubtitle) {
-        mainSubtitle.textContent = `Ushbu bo'limda faqat ${distLabel} bo'yicha ro'yxatdan o'tgan madaniyat koordinatorlari va xodimlarining ism-familiyasi hamda telefon raqamlari ko'rsatilgan.`;
-      }
-      if (headingText) {
-        headingText.textContent = `${distLabel}da Ro'yxatdan O'tgan Madaniyat Koordinatorlari va Xodimlari`;
-      }
-      if (subtitleText) {
-        subtitleText.textContent = `📍 Faqat ${distLabel} bo'yicha`;
-      }
-
-      authStatus.innerHTML = `
-        <span class="text-[11px] text-amber-300 font-black uppercase tracking-wider block mb-1">
-          <i class="fa-solid fa-crown mr-1"></i> ${distLabel} Koordinatori
-        </span>
-        <span class="text-sm text-white font-black block">${coordName}</span>
-        <a href="tel:${coordPhone.replace(/\s+/g, '')}" class="mt-2 inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow transition">
-          <i class="fa-solid fa-phone"></i> ${coordPhone}
-        </a>
-      `;
-
-      // Shu tumanda ro'yxatdan o'tgan madaniyat xodimlari va tuman koordinatori ro'yxati
-      const districtStaff = DataStore.getStaffList().filter(s =>
-        s && DataStore.districtsMatch(s.district || s.districtLabel, distId)
-      );
-
-      const coordinatorsRows = [
-        {
-          id: (dAdmin && dAdmin.id) || ('adm-' + distId),
-          fullName: coordName,
-          roleBadge: '👑 Tuman Bosh Koordinatori (Admin)',
-          badgeClass: 'bg-amber-100 text-amber-900 border-amber-300',
-          organization: `${distLabel} Madaniyat Bo'limi`,
-          districtLabel: distLabel,
-          phone: coordPhone
-        },
-        ...districtStaff.map(s => ({
-          id: s.id,
-          fullName: s.fullName,
-          roleBadge: `🎭 ${s.position || 'Madaniyat Xodimi'}`,
-          badgeClass: 'bg-blue-100 text-blue-900 border-blue-200',
-          organization: s.organization || 'Madaniyat Markazi',
-          districtLabel: s.districtLabel || distLabel,
-          phone: s.phone
-        }))
-      ];
-
-      tableContainer.innerHTML = `
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm text-slate-700">
-            <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200">
-              <tr>
-                <th class="px-4 py-3">Ism va Familiyasi (F.I.Sh.)</th>
-                <th class="px-4 py-3">Tumani</th>
-                <th class="px-4 py-3">Lavozimi va Ish Joyi</th>
-                <th class="px-4 py-3">Telefon Raqami</th>
-                <th class="px-4 py-3 text-right">Bog'lanish</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              ${coordinatorsRows.map(item => `
-                <tr class="hover:bg-blue-50/40 transition">
-                  <td class="px-4 py-3.5 font-black text-slate-900">
-                    ${item.fullName}
-                  </td>
-                  <td class="px-4 py-3.5 text-xs font-bold text-emerald-700">
-                    📍 ${item.districtLabel}
-                  </td>
-                  <td class="px-4 py-3.5 text-xs">
-                    <span class="inline-block px-2.5 py-0.5 rounded-lg font-bold border ${item.badgeClass}">
-                      ${item.roleBadge}
-                    </span>
-                    <span class="block text-[11px] text-slate-500 mt-0.5">${item.organization}</span>
-                  </td>
-                  <td class="px-4 py-3.5">
-                    <a href="tel:${(item.phone || '').replace(/\s+/g, '')}" class="font-black text-blue-700 hover:underline text-xs sm:text-sm inline-flex items-center gap-1.5">
-                      <i class="fa-solid fa-phone text-blue-500 text-xs"></i> ${item.phone}
-                    </a>
-                  </td>
-                  <td class="px-4 py-3.5 text-right">
-                    <a href="tel:${(item.phone || '').replace(/\s+/g, '')}" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition inline-flex items-center gap-1.5 shadow-xs">
-                      <i class="fa-solid fa-phone"></i> Qo'ng'iroq qilish
-                    </a>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      `;
-      if (window.I18n && window.I18n.currentLang === 'uz') {
-        window.I18n.convertDOMToNewUzbek(document.getElementById('section-staff'));
-      }
-      return;
-    }
 
     if (mainTitle) {
       mainTitle.textContent = "Madaniyat Xodimlari Xonasi";
@@ -3056,6 +4705,29 @@ const App = {
       <span class="text-xs text-white font-black block">${user.fullName}</span>
       <span class="text-[11px] text-blue-200 block">${user.position || ''}</span>
     `;
+
+    // Tuman koordinatori tomonidan kiritilgan tanlovlar (Madaniyat xodimi (+) orqali o'quvchi tanlashi uchun)
+    const staffContestsContainer = document.getElementById('staff-contests-selection-container');
+    if (staffContestsContainer) {
+      let districtContests = DataStore.getContests();
+      if (userDist.district) {
+        districtContests = districtContests.filter(c => DataStore.districtsMatch(c.district || c.districtLabel, userDist.district));
+      }
+      if (districtContests.length === 0) {
+        staffContestsContainer.innerHTML = `
+          <div class="p-6 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-slate-500 text-xs">
+            <i class="fa-solid fa-bullhorn text-amber-500 text-2xl mb-1.5 block"></i>
+            Hozircha ${distLabel} koordinatori tomonidan yangi tanlov kiritilmagan. Koordinator yangi tanlov kiritishi bilan shu yerda <strong>➕ (O'quvchi tanlash)</strong> tugmasi bilan chiqadi!
+          </div>
+        `;
+      } else {
+        staffContestsContainer.innerHTML = `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            ${districtContests.map(c => this.buildContestCardHtml(c, userDist)).join('')}
+          </div>
+        `;
+      }
+    }
 
     let creators = DataStore.getCreators();
     if (userDist.district) {
@@ -3251,7 +4923,7 @@ const App = {
           <tr class="hover:bg-slate-50 transition">
             <td class="px-5 py-3 font-bold text-slate-900">
               <div>
-                <span>${sub.creatorName}</span>
+                <span>${sub.creatorName} ${sub.creatorNickname ? `<span class="text-indigo-600 font-black">(${sub.creatorNickname})</span>` : ''}</span>
                 <span class="block text-[11px] text-slate-400 font-normal">${sub.creatorSchool} (${sub.creatorDistrict || userDist.districtLabel})</span>
                 <span class="inline-flex items-center gap-1 text-[10px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md mt-1 font-bold border border-emerald-200" title="Yuklangan sana">
                   <i class="fa-regular fa-calendar-check text-[10px] text-emerald-600"></i> Sana: ${sub.submittedAt || 'Yangi'}
@@ -3260,9 +4932,7 @@ const App = {
             </td>
             <td class="px-5 py-3 text-xs font-medium text-rose-700">${sub.challengeTitle}</td>
             <td class="px-5 py-3 text-xs text-slate-700 max-w-xs">
-              <span class="line-clamp-2" title="${sub.participants}">
-                ${sub.participants}
-              </span>
+              ${this.formatSubmissionCollaboratorsHtml(sub)}
             </td>
             <td class="px-5 py-3 text-center">
               <a href="${sub.videoUrl}" target="_blank" rel="noopener noreferrer" class="p-1.5 text-red-600 hover:text-red-700 rounded-lg hover:bg-slate-100 transition inline-block" title="Videoni ko'rish">
@@ -3386,9 +5056,76 @@ const App = {
       }
     }
 
+    this.renderAdminBlacklistTable();
     this.renderStaffProposals();
     this.renderAdminComplaints();
     this.renderDistrictSubmittedReports();
+  },
+
+  renderAdminBlacklistTable() {
+    const tbody = document.getElementById('admin-blacklist-table-body');
+    const badge = document.getElementById('admin-blacklist-count-badge');
+    if (!tbody) return;
+
+    const userDist = this.getActiveDistrictInfo();
+    const blacklisted = DataStore.getBlacklistedCreators().filter(c =>
+      !userDist.district || DataStore.districtsMatch(c.district || c.districtLabel, userDist.district)
+    );
+
+    if (badge) {
+      badge.textContent = `${blacklisted.length} nafar qora ro'yxatda (sanalmaydi)`;
+    }
+
+    if (blacklisted.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" class="px-5 py-6 text-center text-slate-400 text-xs">
+            ${userDist.districtLabel || 'Ushbu tuman'} bo'yicha 1 oy (30 kun) davomida kirmagan va qora ro'yxatga tushgan o'quvchilar yo'q. Barcha o'quvchilar faol!
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = blacklisted.map(c => {
+      const inactiveDays = c.lastActiveAt
+        ? Math.max(30, Math.floor((Date.now() - Number(c.lastActiveAt)) / (24 * 60 * 60 * 1000)))
+        : 30;
+      return `
+        <tr class="bg-red-50/40 hover:bg-red-50 transition">
+          <td class="px-5 py-3 font-bold text-slate-900">
+            <div class="flex items-center gap-2">
+              <img src="${c.avatarUrl}" class="w-8 h-8 rounded-full object-cover grayscale" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'">
+              <div>
+                <span class="line-through text-slate-700">${c.fullName}</span>
+                <span class="block text-[10px] text-red-700 font-bold">🚫 Qora ro'yxatda (statistikada sanalmaydi)</span>
+              </div>
+            </div>
+          </td>
+          <td class="px-5 py-3 text-xs font-semibold text-slate-700">${c.school} • ${c.districtLabel}</td>
+          <td class="px-5 py-3 text-xs font-semibold text-slate-700">${c.phone || '-'}</td>
+          <td class="px-5 py-3 text-center">
+            <span class="px-2.5 py-1 rounded-lg bg-red-100 text-red-900 font-black text-[11px]">⏳ ${inactiveDays} kun kirmagan</span>
+          </td>
+          <td class="px-5 py-3 text-right">
+            <div class="flex items-center justify-end gap-1.5">
+              <button onclick="App.handleRestoreBlacklistedCreator('${c.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition" title="Qora ro'yxatdan chiqarish va faollashtirish">
+                <i class="fa-solid fa-rotate-left"></i> Tiklash
+              </button>
+              <button onclick="App.handleDeleteCreator('${c.id}')" class="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-xs transition" title="Bazadan butunlay o'chirish">
+                <i class="fa-solid fa-trash"></i> O'chirish
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  },
+
+  handleRestoreBlacklistedCreator(creatorId) {
+    DataStore.restoreBlacklistedCreator(creatorId);
+    this.refreshAllUI();
+    this.showToast("✅ O'quvchi qora ro'yxatdan chiqarildi va qayta faol ro'yxatga qo'shildi!", "success");
   },
 
   // ================= 14B. O'QUVCHILAR SHIKOYATI (ADMINGA SHIKOYAT VA TANGA TAQDIM ETISH) =================
@@ -3673,6 +5410,116 @@ const App = {
 
   // ================= 14C. MAVSUMIY HISOBOTLAR VA VILOYAT / RESPUBLIKA KOORDINATORLARI =================
 
+  onDistrictReportChallengeChange() {
+    this.populateDistrictReportBestVideoSelect();
+  },
+
+  onDistrictReportBestSubChange() {
+    const bestSubSelect = document.getElementById('dist-report-best-submission-select');
+    const customBlock = document.getElementById('dist-report-custom-video-block');
+    if (!bestSubSelect || !customBlock) return;
+    if (bestSubSelect.value === '__custom__') {
+      customBlock.classList.remove('hidden');
+    } else {
+      customBlock.classList.add('hidden');
+    }
+  },
+
+  selectDistrictCandidateVideo(submissionId) {
+    const bestSubSelect = document.getElementById('dist-report-best-submission-select');
+    const customBlock = document.getElementById('dist-report-custom-video-block');
+    if (bestSubSelect) {
+      bestSubSelect.value = submissionId;
+    }
+    if (customBlock) {
+      customBlock.classList.add('hidden');
+    }
+    this.populateDistrictReportBestVideoSelect(submissionId);
+    this.showToast("🏅 Eng zo'r maktab videoroligi hisobotga biriktirildi!", "info");
+  },
+
+  populateDistrictReportBestVideoSelect(preselectedSubId = '') {
+    const chSelect = document.getElementById('dist-report-challenge-select');
+    const subSelect = document.getElementById('dist-report-best-submission-select');
+    const candidateContainer = document.getElementById('district-report-candidate-videos');
+    if (!chSelect || !subSelect) return;
+
+    const userDist = this.getActiveDistrictInfo();
+    const allChallenges = DataStore.getChallenges();
+    const visibleChallenges = allChallenges.filter(ch =>
+      !ch.district || ch.district === 'all' || DataStore.districtsMatch(ch.district || ch.districtLabel, userDist.district)
+    );
+
+    const prevChId = chSelect.value;
+    chSelect.innerHTML = `<option value="">-- Barcha Respublika va Tuman Video-Chellenjlari --</option>` +
+      visibleChallenges.map(ch => `<option value="${ch.id}">🎬 ${ch.title} (+${ch.awardCoins} 🪙)</option>`).join('');
+    if (prevChId && visibleChallenges.some(c => c.id === prevChId)) {
+      chSelect.value = prevChId;
+    }
+
+    const selectedChId = chSelect.value;
+    const allSubs = DataStore.getChallengeSubmissions();
+    let distSubs = allSubs.filter(sb =>
+      !userDist.district || DataStore.districtsMatch(sb.district || sb.creatorDistrict, userDist.district)
+    );
+    if (selectedChId) {
+      distSubs = distSubs.filter(sb => sb.challengeId === selectedChId);
+    }
+
+    const currentVal = preselectedSubId || subSelect.value;
+    subSelect.innerHTML =
+      `<option value="">-- Tumandagi maktablar videoroliklaridan eng zo'rini tanlang --</option>` +
+      distSubs.map(sb => {
+        const badge = sb.promotedToRegion ? '🏅 [Viloyatga yuborilgan]' : '🎬';
+        return `<option value="${sb.id}">${badge} ${sb.creatorSchool} — ${sb.creatorName} (${sb.challengeTitle})</option>`;
+      }).join('') +
+      `<option value="__custom__">➕ Ro'yxatda yo'q maktab/o'quvchi videoroligini qo'lda kiritish...</option>`;
+
+    if (currentVal && (currentVal === '__custom__' || distSubs.some(s => s.id === currentVal))) {
+      subSelect.value = currentVal;
+    } else if (distSubs.length > 0 && !currentVal) {
+      subSelect.value = distSubs[0].id;
+    }
+
+    if (candidateContainer) {
+      if (distSubs.length === 0) {
+        candidateContainer.innerHTML = `
+          <div class="p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-purple-200 flex items-center justify-between gap-2">
+            <span>ℹ️ Hozircha bu chellenj bo'yicha tuman maktablaridan video topshirilmagan. Pastdan <strong>"➕ Qo'lda kiritish"</strong> orqali g'olib maktab videosini qo'shishingiz mumkin.</span>
+          </div>
+        `;
+      } else {
+        const activeSubId = subSelect.value;
+        candidateContainer.innerHTML = `
+          <div class="text-[11px] font-bold text-amber-200 mb-1">
+            📋 Tumandagi maktablar topshirgan videoroliklar (${distSubs.length} ta) — eng zo'r 1 tasini bosing:
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+            ${distSubs.map(sb => {
+              const isSelected = sb.id === activeSubId;
+              return `
+                <div onclick="App.selectDistrictCandidateVideo('${sb.id}')" class="cursor-pointer p-2.5 rounded-xl border transition flex items-center justify-between gap-2 ${isSelected ? 'bg-amber-400/25 border-amber-300 shadow-sm' : 'bg-white/5 border-white/15 hover:bg-white/10'}">
+                  <div class="min-w-0">
+                    <div class="text-xs font-black text-white truncate">${isSelected ? '✅ ' : '🏫 '}${sb.creatorSchool} — ${sb.creatorName}</div>
+                    <div class="text-[10px] text-purple-200 truncate">🎬 ${sb.challengeTitle} ${sb.promotedToRegion ? '• <span class="text-amber-300 font-black">🏅 Viloyatda (+5 🪙)</span>' : ''}</div>
+                  </div>
+                  <div class="flex items-center gap-1.5 shrink-0">
+                    <a href="${sb.videoUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="px-2 py-1 rounded-lg bg-slate-900/80 hover:bg-slate-900 text-amber-300 text-[10px] font-bold">
+                      <i class="fa-solid fa-play"></i> Ko'rish
+                    </a>
+                    <span class="px-2 py-1 rounded-lg text-[10px] font-black ${isSelected ? 'bg-amber-400 text-slate-950' : 'bg-white/10 text-white'}">
+                      ${isSelected ? 'Tanlandi' : 'Tanlash'}
+                    </span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }
+    }
+  },
+
   handleSubmitDistrictReport(e) {
     if (e) e.preventDefault();
     if (!Auth.isAdmin()) return;
@@ -3681,14 +5528,56 @@ const App = {
     const userDist = this.getActiveDistrictInfo();
     const season = (document.getElementById('dist-report-season')?.value || '2026-yil Kuzgi Mavsum').trim();
     const summary = (document.getElementById('dist-report-summary')?.value || '').trim();
+    const chSelect = document.getElementById('dist-report-challenge-select');
+    const bestSubSelect = document.getElementById('dist-report-best-submission-select');
 
     if (!summary) {
-      this.showToast("Iltimos, hisobotning qisqacha mazmunini kiriting!", "warning");
+      this.showToast("Iltimos, hisobotning qisqacha mazmunini va g'olib maktab tavsifini kiriting!", "warning");
       return;
     }
 
+    let selectedSub = null;
+    const bestSubVal = bestSubSelect ? bestSubSelect.value : '';
+
+    if (bestSubVal === '__custom__') {
+      const customSchool = (document.getElementById('dist-report-custom-school')?.value || '').trim();
+      const customStudent = (document.getElementById('dist-report-custom-student')?.value || '').trim();
+      const customVideo = (document.getElementById('dist-report-custom-video')?.value || '').trim();
+
+      if (!customSchool || !customStudent || !customVideo) {
+        this.showToast("Iltimos, g'olib maktab raqami, o'quvchi F.I.Sh. va video havolasini to'liq kiriting!", "warning");
+        return;
+      }
+
+      const allChallenges = DataStore.getChallenges();
+      const chosenCh = allChallenges.find(c => c.id === (chSelect?.value || '')) || allChallenges[0];
+      selectedSub = DataStore.submitChallengeVideo({
+        challengeId: chosenCh ? chosenCh.id : 'chl-rep',
+        challengeTitle: chosenCh ? chosenCh.title : season,
+        creatorName: customStudent,
+        creatorSchool: customSchool,
+        district: userDist.district,
+        creatorDistrict: userDist.districtLabel,
+        regionId: userDist.regionId || 'buxoro_vil',
+        regionLabel: userDist.regionLabel || 'Buxoro viloyati',
+        videoUrl: customVideo,
+        participants: `${customSchool} jamoasi (${customStudent})`,
+        note: summary
+      });
+    } else if (bestSubVal) {
+      selectedSub = DataStore.getChallengeSubmissions().find(s => s && s.id === bestSubVal) || null;
+    }
+
+    // Agar eng zo'r videorolik tanlangan bo'lsa, uni Viloyat bosqichiga (+5 bonus tanga bilan) chiqaramiz
+    if (selectedSub && !selectedSub.promotedToRegion) {
+      const promRes = DataStore.promoteSubmissionToRegion(selectedSub.id);
+      if (promRes && promRes.submission) {
+        selectedSub = promRes.submission;
+      }
+    }
+
     const creators = DataStore.getCreators().filter(c => DataStore.districtsMatch(c.district || c.districtLabel, userDist.district));
-    const challenges = DataStore.getChallenges().filter(c => DataStore.districtsMatch(c.district || c.districtLabel, userDist.district));
+    const challenges = DataStore.getChallenges().filter(c => !c.district || DataStore.districtsMatch(c.district || c.districtLabel, userDist.district));
     const totalCoins = creators.reduce((sum, c) => sum + (c.coins || 0), 0);
 
     const report = DataStore.addSeasonReport({
@@ -3703,18 +5592,34 @@ const App = {
       summary: summary,
       studentsCount: creators.length,
       challengesCount: challenges.length,
-      totalCoins: totalCoins
+      totalCoins: totalCoins,
+      challengeId: selectedSub ? selectedSub.challengeId : (chSelect?.value || ''),
+      challengeTitle: selectedSub ? selectedSub.challengeTitle : '',
+      bestSubmissionId: selectedSub ? selectedSub.id : '',
+      bestCreatorName: selectedSub ? selectedSub.creatorName : '',
+      bestSchool: selectedSub ? selectedSub.creatorSchool : '',
+      bestDistrict: userDist.districtLabel,
+      bestVideoUrl: selectedSub ? selectedSub.videoUrl : '',
+      bestParticipants: selectedSub ? (selectedSub.participants || '') : ''
     });
 
     const summaryEl = document.getElementById('dist-report-summary');
     if (summaryEl) summaryEl.value = '';
+    const customBlock = document.getElementById('dist-report-custom-video-block');
+    if (customBlock) customBlock.classList.add('hidden');
 
-    this.renderDistrictSubmittedReports();
-    this.renderRegionAdminSection();
-    this.showToast(`📈 ${report.districtLabel} mavsumiy hisoboti ${report.regionLabel} koordinatoriga muvaffaqiyatli yuborildi!`, "success");
+    this.refreshAllUI();
+    this.showToast(
+      selectedSub
+        ? `🏅 ${report.districtLabel} hisoboti va "${selectedSub.creatorSchool} — ${selectedSub.creatorName}" eng zo'r videoroligi (+5 🪙) ${report.regionLabel} koordinatoriga yuborildi!`
+        : `📈 ${report.districtLabel} mavsumiy hisoboti ${report.regionLabel} koordinatoriga muvaffaqiyatli yuborildi!`,
+      "success"
+    );
   },
 
   renderDistrictSubmittedReports() {
+    this.populateDistrictReportBestVideoSelect();
+
     const container = document.getElementById('district-submitted-reports-list');
     if (!container) return;
 
@@ -3730,11 +5635,19 @@ const App = {
     }
 
     container.innerHTML = reports.map(r => `
-      <div class="p-3.5 rounded-2xl bg-white/10 border border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-        <div>
-          <span class="font-black text-amber-300">${r.season}</span> • <span>${r.summary}</span>
-          <div class="text-[11px] text-purple-200 mt-0.5">
-            Ko'rsatkichlar: <strong>${r.studentsCount} ta o'quvchi</strong>, <strong>${r.challengesCount} ta chellenj</strong>, <strong>🪙 ${r.totalCoins} tanga</strong> (${r.submittedAt})
+      <div class="p-3.5 rounded-2xl bg-white/10 border border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div class="space-y-1">
+          <div>
+            <span class="font-black text-amber-300">${r.season || r.seasonTitle}</span> • <span>${r.summary}</span>
+          </div>
+          ${r.bestVideoUrl ? `
+            <div class="inline-flex flex-wrap items-center gap-2 px-2.5 py-1 rounded-xl bg-amber-400/20 border border-amber-300/40 text-amber-200 text-[11px] font-bold">
+              <span>🏅 Tanlangan eng zo'r video: <strong>${r.bestSchool || 'Maktab'} — ${r.bestCreatorName}</strong> (${r.challengeTitle || 'Video-Chellenj'})</span>
+              <a href="${r.bestVideoUrl}" target="_blank" rel="noopener noreferrer" class="underline text-white font-black"><i class="fa-solid fa-play mr-0.5"></i>Videoni ko'rish</a>
+            </div>
+          ` : ''}
+          <div class="text-[11px] text-purple-200">
+            Ko'rsatkichlar: <strong>${r.studentsCount} ta o'quvchi</strong>, <strong>${r.challengesCount || r.eventsCount || 0} ta chellenj</strong>, <strong>🪙 ${r.totalCoins} tanga</strong> (${r.submittedAt})
           </div>
         </div>
         <span class="px-3 py-1 rounded-xl font-black text-[11px] shrink-0 ${r.status === 'approved' ? 'bg-emerald-500 text-slate-950' : 'bg-amber-400/20 text-amber-200 border border-amber-400/40'}">
@@ -3902,7 +5815,7 @@ const App = {
       </tr>
     `).join('');
 
-    // 3. TUMAN KOORDINATORLARIDAN KELGAN MAVSUMIY HISOBOTLAR
+    // 3. TUMAN KOORDINATORLARIDAN KELGAN MAVSUMIY HISOBOTLAR VA ENG ZO'R VIDEO-CHELLENJLAR
     if (receivedReportsBody) {
       const distReports = DataStore.getSeasonReports().filter(r =>
         r.level === 'district_to_region' &&
@@ -3918,33 +5831,58 @@ const App = {
           </tr>
         `;
       } else {
-        receivedReportsBody.innerHTML = distReports.map(r => `
-          <tr class="hover:bg-slate-50 transition">
-            <td class="px-5 py-3 font-black text-slate-900">${r.districtLabel}</td>
-            <td class="px-5 py-3 text-xs font-bold text-slate-700">${r.coordinatorName}</td>
-            <td class="px-5 py-3 max-w-sm">
-              <span class="font-black text-purple-800 text-xs block">${r.season}</span>
-              <p class="text-xs text-slate-600 mt-0.5">${r.summary}</p>
-            </td>
-            <td class="px-5 py-3 text-center text-xs font-bold text-slate-700">
-              ${r.studentsCount} o'quvchi • 🪙 ${r.totalCoins}
-            </td>
-            <td class="px-5 py-3 text-center">
-              ${r.status === 'approved' ? `
-                <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-black">✅ Qabul qilindi</span>
-              ` : `
-                <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-bold">⏳ Yangi hisobot</span>
-              `}
-            </td>
-            <td class="px-5 py-3 text-right">
-              ${r.status !== 'approved' ? `
-                <button onclick="App.handleApproveSeasonReport('${r.id}')" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-xl text-xs shadow-sm transition">
-                  <i class="fa-solid fa-check mr-1"></i> Hisobotni Tasdiqlash
-                </button>
-              ` : `<span class="text-xs text-slate-400">Tasdiqlangan</span>`}
-            </td>
-          </tr>
-        `).join('');
+        receivedReportsBody.innerHTML = distReports.map(r => {
+          const linkedSub = r.bestSubmissionId
+            ? allSubmissions.find(s => s && s.id === r.bestSubmissionId)
+            : null;
+          const isPromotedToRep = linkedSub ? Boolean(linkedSub.promotedToRepublic) : false;
+
+          return `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="px-5 py-3 font-black text-slate-900">
+                ${r.districtLabel}
+                <span class="block text-[10px] font-bold text-slate-500">${r.studentsCount} o'quvchi • 🪙 ${r.totalCoins}</span>
+              </td>
+              <td class="px-5 py-3 text-xs font-bold text-slate-700">${r.coordinatorName}</td>
+              <td class="px-5 py-3 max-w-sm">
+                <span class="font-black text-purple-800 text-xs block">${r.season || r.seasonTitle}</span>
+                <p class="text-xs text-slate-600 mt-0.5">${r.summary}</p>
+              </td>
+              <td class="px-5 py-3 text-center">
+                ${r.bestVideoUrl ? `
+                  <div class="inline-flex flex-col items-center gap-1 bg-purple-50 border border-purple-200 rounded-xl px-3 py-1.5">
+                    <span class="text-[11px] font-black text-purple-900">🏅 ${r.bestSchool || 'Maktab'} — ${r.bestCreatorName}</span>
+                    <span class="text-[10px] text-rose-700 font-semibold">${r.challengeTitle || 'Video-Chellenj'}</span>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                      <a href="${r.bestVideoUrl}" target="_blank" rel="noopener noreferrer" class="px-2 py-0.5 rounded-lg bg-slate-900 text-white text-[10px] font-bold inline-flex items-center gap-1">
+                        <i class="fa-solid fa-play text-red-400"></i> Ko'rish
+                      </a>
+                      ${linkedSub && !isPromotedToRep ? `
+                        <button type="button" onclick="App.handlePromoteSubmissionToRepublic('${linkedSub.id}')" class="px-2 py-0.5 rounded-lg bg-gradient-to-r from-purple-600 to-rose-600 text-white text-[10px] font-black shadow-xs">
+                          🌟 Respublikaga (+10 🪙)
+                        </button>
+                      ` : (isPromotedToRep ? `<span class="text-[10px] font-black text-emerald-700">🌟 Respublikada</span>` : '')}
+                    </div>
+                  </div>
+                ` : `<span class="text-xs text-slate-400">Biriktirilmagan</span>`}
+              </td>
+              <td class="px-5 py-3 text-center">
+                ${r.status === 'approved' ? `
+                  <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-black">✅ Qabul qilindi</span>
+                ` : `
+                  <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-bold">⏳ Yangi hisobot</span>
+                `}
+              </td>
+              <td class="px-5 py-3 text-right">
+                ${r.status !== 'approved' ? `
+                  <button onclick="App.handleApproveSeasonReport('${r.id}')" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-black rounded-xl text-xs shadow-sm transition">
+                    <i class="fa-solid fa-check mr-1"></i> Hisobotni Tasdiqlash
+                  </button>
+                ` : `<span class="text-xs text-slate-400">Tasdiqlangan</span>`}
+              </td>
+            </tr>
+          `;
+        }).join('');
       }
     }
 
@@ -3956,9 +5894,17 @@ const App = {
       );
       submittedReportsList.innerHTML = regReports.map(r => `
         <div class="p-3.5 rounded-2xl bg-white/10 border border-white/15 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-          <div>
-            <span class="font-black text-amber-300">${r.season}</span> • <span>${r.summary}</span>
-            <div class="text-[11px] text-rose-200 mt-0.5">
+          <div class="space-y-1">
+            <div>
+              <span class="font-black text-amber-300">${r.season || r.seasonTitle}</span> • <span>${r.summary}</span>
+            </div>
+            ${r.bestVideoUrl ? `
+              <div class="inline-flex flex-wrap items-center gap-2 px-2.5 py-1 rounded-xl bg-amber-400/20 border border-amber-300/40 text-amber-200 text-[11px] font-bold">
+                <span>🌟 Viloyatdan Respublikaga tanlangan eng zo'r video: <strong>${r.bestDistrict ? r.bestDistrict + ' • ' : ''}${r.bestSchool || ''} — ${r.bestCreatorName}</strong></span>
+                <a href="${r.bestVideoUrl}" target="_blank" rel="noopener noreferrer" class="underline text-white font-black"><i class="fa-solid fa-play mr-0.5"></i>Ko'rish</a>
+              </div>
+            ` : ''}
+            <div class="text-[11px] text-rose-200">
               Viloyat ko'rsatkichi: <strong>${r.studentsCount} ta o'quvchi</strong>, <strong>🪙 ${r.totalCoins} tanga</strong> (${r.submittedAt})
             </div>
           </div>
@@ -3970,14 +5916,70 @@ const App = {
     }
 
     // 5. TUMAN ADMINLARIDAN VILOYATGA TANLAB YUBORILGAN ENG YAXSHI VIDEO ROLIKLAR (+10 TANGA BILAN RESPUBLIKAGA YUBORISH)
+    const regDistIds = regionDistricts.map(d => d.id);
+    const regionSubs = allSubmissions.filter(sub =>
+      sub.promotedToRegion ||
+      regDistIds.some(dId => DataStore.districtsMatch(sub.district || sub.creatorDistrict, dId))
+    );
+
+    const regBestSubSelect = document.getElementById('reg-report-best-submission-select');
+    const regCandidateVideos = document.getElementById('region-report-candidate-videos');
+    if (regBestSubSelect) {
+      const prevVal = regBestSubSelect.value;
+      regBestSubSelect.innerHTML =
+        `<option value="">-- Tumanlardan kelgan eng zo'r videoroliklardan 1 tasini Respublikaga tanlang --</option>` +
+        regionSubs.map(sub => {
+          const st = sub.promotedToRepublic ? '🌟 [Respublikaga yuborilgan]' : (sub.promotedToRegion ? '🏅 [Tuman g\'olibi]' : '🎬');
+          return `<option value="${sub.id}">${st} ${sub.creatorDistrict || sub.district} • ${sub.creatorSchool} — ${sub.creatorName} (${sub.challengeTitle})</option>`;
+        }).join('');
+      if (prevVal && regionSubs.some(s => s.id === prevVal)) {
+        regBestSubSelect.value = prevVal;
+      } else if (regionSubs.length > 0) {
+        const firstPromoted = regionSubs.find(s => s.promotedToRegion) || regionSubs[0];
+        regBestSubSelect.value = firstPromoted.id;
+      }
+    }
+
+    if (regCandidateVideos) {
+      if (regionSubs.length === 0) {
+        regCandidateVideos.innerHTML = `
+          <div class="p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-rose-200">
+            ℹ️ Hozircha tuman koordinatorlaridan g'olib videoroliklar kelib tushmagan.
+          </div>
+        `;
+      } else {
+        const selectedRegSubId = regBestSubSelect ? regBestSubSelect.value : '';
+        regCandidateVideos.innerHTML = `
+          <div class="text-[11px] font-bold text-amber-200 mb-1">
+            📋 Tumanlardan kelgan g'olib videoroliklar (${regionSubs.length} ta) — Viloyat nomidan Respublikaga yuborish uchun eng zo'r 1 tasini tanlang:
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
+            ${regionSubs.map(sb => {
+              const isSelected = sb.id === selectedRegSubId;
+              return `
+                <div onclick="document.getElementById('reg-report-best-submission-select').value='${sb.id}'; App.renderRegionAdminSection();" class="cursor-pointer p-2.5 rounded-xl border transition flex items-center justify-between gap-2 ${isSelected ? 'bg-amber-400/25 border-amber-300 shadow-sm' : 'bg-white/5 border-white/15 hover:bg-white/10'}">
+                  <div class="min-w-0">
+                    <div class="text-xs font-black text-white truncate">${isSelected ? '✅ ' : '📍 '}${sb.creatorDistrict || sb.district} • ${sb.creatorSchool}</div>
+                    <div class="text-[10px] text-rose-200 truncate">👤 ${sb.creatorName} • 🎬 ${sb.challengeTitle}</div>
+                  </div>
+                  <div class="flex items-center gap-1.5 shrink-0">
+                    <a href="${sb.videoUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="px-2 py-1 rounded-lg bg-slate-900/80 hover:bg-slate-900 text-amber-300 text-[10px] font-bold">
+                      <i class="fa-solid fa-play"></i> Ko'rish
+                    </a>
+                    <span class="px-2 py-1 rounded-lg text-[10px] font-black ${isSelected ? 'bg-amber-400 text-slate-950' : 'bg-white/10 text-white'}">
+                      ${isSelected ? 'Tanlandi' : 'Tanlash'}
+                    </span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      }
+    }
+
     const regPromotedBody = document.getElementById('region-promoted-submissions-body');
     if (regPromotedBody) {
-      const regDistIds = regionDistricts.map(d => d.id);
-      const regionSubs = allSubmissions.filter(sub =>
-        sub.promotedToRegion ||
-        regDistIds.some(dId => DataStore.districtsMatch(sub.district || sub.creatorDistrict, dId))
-      );
-
       if (regionSubs.length === 0) {
         regPromotedBody.innerHTML = `
           <tr>
@@ -3992,6 +5994,7 @@ const App = {
             <td class="px-4 py-3 font-bold text-slate-900">
               ${sub.creatorName}
               <span class="block text-[11px] text-slate-500 font-normal">${sub.creatorSchool}</span>
+              <div class="mt-1">${this.formatSubmissionCollaboratorsHtml(sub)}</div>
             </td>
             <td class="px-4 py-3 text-xs font-bold text-purple-800">📍 ${sub.creatorDistrict || sub.district || activeRegionLabel}</td>
             <td class="px-4 py-3 text-xs font-semibold text-rose-700">${sub.challengeTitle}</td>
@@ -4033,10 +6036,22 @@ const App = {
 
     const season = (document.getElementById('reg-report-season')?.value || '2026-yil Kuzgi Mavsum').trim();
     const summary = (document.getElementById('reg-report-summary')?.value || '').trim();
+    const bestSubId = document.getElementById('reg-report-best-submission-select')?.value || '';
 
     if (!summary) {
       this.showToast("Iltimos, viloyat yakuniy hisoboti mazmunini yozing!", "warning");
       return;
+    }
+
+    let selectedSub = null;
+    if (bestSubId) {
+      selectedSub = DataStore.getChallengeSubmissions().find(s => s && s.id === bestSubId) || null;
+      if (selectedSub && !selectedSub.promotedToRepublic) {
+        const promRes = DataStore.promoteSubmissionToRepublic(selectedSub.id);
+        if (promRes && promRes.submission) {
+          selectedSub = promRes.submission;
+        }
+      }
     }
 
     const regionDistricts = DataStore.getDistrictsByRegion(activeRegionId);
@@ -4056,15 +6071,27 @@ const App = {
       summary: summary,
       studentsCount: creators.length,
       challengesCount: regionDistricts.length,
-      totalCoins: totalCoins
+      totalCoins: totalCoins,
+      challengeId: selectedSub ? selectedSub.challengeId : '',
+      challengeTitle: selectedSub ? selectedSub.challengeTitle : '',
+      bestSubmissionId: selectedSub ? selectedSub.id : '',
+      bestCreatorName: selectedSub ? selectedSub.creatorName : '',
+      bestSchool: selectedSub ? selectedSub.creatorSchool : '',
+      bestDistrict: selectedSub ? (selectedSub.creatorDistrict || selectedSub.districtLabel || '') : '',
+      bestVideoUrl: selectedSub ? selectedSub.videoUrl : '',
+      bestParticipants: selectedSub ? (selectedSub.participants || '') : ''
     });
 
     const summaryEl = document.getElementById('reg-report-summary');
     if (summaryEl) summaryEl.value = '';
 
-    this.renderRegionAdminSection();
-    this.renderRepublicAdminSection();
-    this.showToast(`🌍 ${activeRegionLabel} mavsumiy hisoboti Respublika Koordinatoriga yuborildi!`, "success");
+    this.refreshAllUI();
+    this.showToast(
+      selectedSub
+        ? `🌟 ${activeRegionLabel} yakuniy hisoboti va "${selectedSub.creatorDistrict || ''} • ${selectedSub.creatorSchool} — ${selectedSub.creatorName}" eng zo'r videoroligi (+10 🪙) Respublika Koordinatoriga yuborildi!`
+        : `🌍 ${activeRegionLabel} mavsumiy hisoboti Respublika Koordinatoriga yuborildi!`,
+      "success"
+    );
   },
 
   handleApproveSeasonReport(reportId) {
@@ -4378,6 +6405,8 @@ const App = {
       </tr>
     `).join('');
 
+    const allSubmissions = DataStore.getChallengeSubmissions();
+
     if (receivedReportsBody) {
       const repReports = DataStore.getSeasonReports().filter(r => r.level === 'region_to_republic');
       if (repReports.length === 0) {
@@ -4389,41 +6418,94 @@ const App = {
           </tr>
         `;
       } else {
-        receivedReportsBody.innerHTML = repReports.map(r => `
-          <tr class="hover:bg-slate-50 transition">
-            <td class="px-5 py-3 font-black text-slate-900">${r.regionLabel}</td>
-            <td class="px-5 py-3 text-xs font-bold text-slate-700">${r.coordinatorName}</td>
-            <td class="px-5 py-3 max-w-sm">
-              <span class="font-black text-rose-800 text-xs block">${r.season}</span>
-              <p class="text-xs text-slate-600 mt-0.5">${r.summary}</p>
-            </td>
-            <td class="px-5 py-3 text-center text-xs font-bold text-slate-700">
-              ${r.studentsCount} o'quvchi • 🪙 ${r.totalCoins}
-            </td>
-            <td class="px-5 py-3 text-center">
-              ${r.status === 'approved' ? `
-                <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-black">✅ Tasdiqlangan</span>
-              ` : `
-                <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-bold">⏳ Yangi hisobot</span>
-              `}
-            </td>
-            <td class="px-5 py-3 text-right">
-              ${r.status !== 'approved' ? `
-                <button onclick="App.handleApproveSeasonReport('${r.id}')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-black rounded-xl text-xs shadow-sm transition">
-                  <i class="fa-solid fa-check mr-1"></i> Qabul Qilish
-                </button>
-              ` : `<span class="text-xs text-slate-400">Qabul qilingan</span>`}
-            </td>
-          </tr>
-        `).join('');
+        receivedReportsBody.innerHTML = repReports.map(r => {
+          const linkedSub = r.bestSubmissionId
+            ? allSubmissions.find(s => s && s.id === r.bestSubmissionId)
+            : null;
+          const isWinner = linkedSub ? Boolean(linkedSub.isRepublicWinner) : false;
+
+          return `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="px-5 py-3 font-black text-slate-900">
+                ${r.regionLabel}
+                <span class="block text-[10px] font-bold text-slate-500">${r.studentsCount} o'quvchi • 🪙 ${r.totalCoins}</span>
+              </td>
+              <td class="px-5 py-3 text-xs font-bold text-slate-700">${r.coordinatorName}</td>
+              <td class="px-5 py-3 max-w-sm">
+                <span class="font-black text-rose-800 text-xs block">${r.season || r.seasonTitle}</span>
+                <p class="text-xs text-slate-600 mt-0.5">${r.summary}</p>
+              </td>
+              <td class="px-5 py-3 text-center">
+                ${r.bestVideoUrl ? `
+                  <div class="inline-flex flex-col items-center gap-1 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5">
+                    <span class="text-[11px] font-black text-slate-900">🌟 ${r.bestDistrict ? r.bestDistrict + ' • ' : ''}${r.bestSchool || 'Maktab'} — ${r.bestCreatorName}</span>
+                    <span class="text-[10px] text-rose-700 font-semibold">${r.challengeTitle || 'Video-Chellenj'}</span>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                      <a href="${r.bestVideoUrl}" target="_blank" rel="noopener noreferrer" class="px-2 py-0.5 rounded-lg bg-slate-900 text-white text-[10px] font-bold inline-flex items-center gap-1">
+                        <i class="fa-solid fa-play text-red-400"></i> Ko'rish
+                      </a>
+                      ${linkedSub && !isWinner ? `
+                        <button type="button" onclick="App.handleAwardRepublicSubmissionWinner('${linkedSub.id}')" class="px-2 py-0.5 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 text-[10px] font-black shadow-xs">
+                          🏆 1-O'rin (+15 🪙)
+                        </button>
+                      ` : (isWinner ? `<span class="text-[10px] font-black text-amber-800">🏆 1-O'rin G'olibi!</span>` : '')}
+                    </div>
+                  </div>
+                ` : `<span class="text-xs text-slate-400">Biriktirilmagan</span>`}
+              </td>
+              <td class="px-5 py-3 text-center">
+                ${r.status === 'approved' ? `
+                  <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-xs font-black">✅ Tasdiqlangan</span>
+                ` : `
+                  <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-bold">⏳ Yangi hisobot</span>
+                `}
+              </td>
+              <td class="px-5 py-3 text-right">
+                ${r.status !== 'approved' ? `
+                  <button onclick="App.handleApproveSeasonReport('${r.id}')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-black rounded-xl text-xs shadow-sm transition">
+                    <i class="fa-solid fa-check mr-1"></i> Qabul Qilish
+                  </button>
+                ` : `<span class="text-xs text-slate-400">Qabul qilingan</span>`}
+              </td>
+            </tr>
+          `;
+        }).join('');
       }
     }
 
     // VILOYATLARDAN RESPUBLIKAGA TANLAB YUBORILGAN ENG YAXSHI VIDEO ROLIKLAR (1-O'RINNI TANLASH VA +15 TANGA BERISH)
     const repPromotedBody = document.getElementById('republic-promoted-submissions-body');
+    const grandWinnerBanner = document.getElementById('republic-grand-winner-banner');
     if (repPromotedBody) {
-      const allSubmissions = DataStore.getChallengeSubmissions();
       const repSubs = allSubmissions.filter(sub => sub.promotedToRepublic || sub.promotedToRegion || sub.isRepublicWinner);
+      const grandWinners = repSubs.filter(sub => sub.isRepublicWinner);
+
+      if (grandWinnerBanner) {
+        if (grandWinners.length > 0) {
+          const gw = grandWinners[0];
+          grandWinnerBanner.innerHTML = `
+            <div class="p-4 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-slate-950 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-amber-500">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-slate-950 text-amber-400 flex items-center justify-center text-2xl shrink-0 shadow">🏆</div>
+                <div>
+                  <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-950 text-amber-300">Respublika Mutlaq 1-O'rin G'olibi (+15 🪙)</span>
+                  <h5 class="text-base font-black text-slate-950 mt-0.5">${gw.creatorName} — ${gw.creatorSchool} (${gw.creatorDistrict || gw.district}, ${gw.regionLabel || 'Buxoro viloyati'})</h5>
+                  <p class="text-xs font-bold text-slate-800">🎬 Chellenj: "${gw.challengeTitle}" • Jami mukofot: 🪙 ${gw.coinsAwarded} tanga</p>
+                </div>
+              </div>
+              <a href="${gw.videoUrl}" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-xl bg-slate-950 hover:bg-slate-800 text-amber-300 font-black text-xs inline-flex items-center gap-1.5 shrink-0">
+                <i class="fa-solid fa-play text-red-400"></i> G'olib Videoni Ko'rish
+              </a>
+            </div>
+          `;
+        } else {
+          grandWinnerBanner.innerHTML = `
+            <div class="p-3.5 rounded-2xl bg-amber-100/70 border border-amber-300 text-amber-950 text-xs font-bold flex items-center justify-between gap-2">
+              <span>👑 Quyidagi viloyatlar g'oliblaridan <strong>eng zo'r 1 tasini</strong> tanlab <strong>"🏆 1-O'rinni Berish (+15 🪙)"</strong> tugmasini bosing!</span>
+            </div>
+          `;
+        }
+      }
 
       if (repSubs.length === 0) {
         repPromotedBody.innerHTML = `
@@ -4435,10 +6517,11 @@ const App = {
         `;
       } else {
         repPromotedBody.innerHTML = repSubs.map(sub => `
-          <tr class="hover:bg-amber-50/50 transition">
+          <tr class="hover:bg-amber-50/50 transition ${sub.isRepublicWinner ? 'bg-amber-50/90' : ''}">
             <td class="px-4 py-3 font-bold text-slate-900">
               ${sub.creatorName}
               <span class="block text-[11px] text-slate-500 font-normal">${sub.creatorSchool}</span>
+              <div class="mt-1">${this.formatSubmissionCollaboratorsHtml(sub)}</div>
             </td>
             <td class="px-4 py-3 text-xs font-bold text-rose-800">
               📍 ${sub.creatorDistrict || sub.district || 'Tuman'}
@@ -4472,6 +6555,58 @@ const App = {
         `).join('');
       }
     }
+
+    // RESPUBLIKA BO'YICHA BARCHA O'QUVCHILAR UMUMIY REYTINGI (VILOYAT VA TUMANI BILAN)
+    const repAllStudentsBody = document.getElementById('republic-all-students-leaderboard-body');
+    const repAllStudentsCount = document.getElementById('republic-all-students-count-badge');
+    if (repAllStudentsBody) {
+      const fullLeaderboard = DataStore.getLeaderboard();
+      if (repAllStudentsCount) {
+        repAllStudentsCount.textContent = `${fullLeaderboard.length} nafar o'quvchi`;
+      }
+      if (fullLeaderboard.length === 0) {
+        repAllStudentsBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-5 py-6 text-center text-slate-400 text-xs">
+              Hozircha respublika bo'yicha ro'yxatdan o'tgan o'quvchilar mavjud emas.
+            </td>
+          </tr>
+        `;
+      } else {
+        repAllStudentsBody.innerHTML = fullLeaderboard.map((c, idx) => {
+          const rank = idx + 1;
+          const rankHtml = rank === 1 ? '🥇 1' : (rank === 2 ? '🥈 2' : (rank === 3 ? '🥉 3' : `#${rank}`));
+          return `
+            <tr class="hover:bg-emerald-50/40 transition">
+              <td class="px-4 py-3 font-black text-slate-800 whitespace-nowrap">${rankHtml}</td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2.5">
+                  <img src="${c.avatarUrl}" class="w-8 h-8 rounded-full object-cover border border-slate-200" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'">
+                  <div>
+                    <a href="javascript:void(0)" onclick="App.openCreatorDetail('${c.id}')" class="font-black text-slate-900 hover:text-emerald-700 text-xs block">${c.fullName}</a>
+                    <span class="text-[10px] text-slate-400">${c.age} yosh • @${c.nickname || 'ijodkor'}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap">
+                <span class="px-2.5 py-1 rounded-lg bg-purple-100 text-purple-900 font-black text-xs inline-flex items-center gap-1">
+                  🏛️ ${c.regionLabel || 'Buxoro viloyati'}
+                </span>
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap">
+                <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-900 font-black text-xs inline-flex items-center gap-1">
+                  📍 ${c.districtLabel || 'Tuman'}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-xs font-semibold text-slate-700">${c.school}</td>
+              <td class="px-4 py-3 text-right whitespace-nowrap">
+                <span class="px-3 py-1 rounded-xl bg-amber-100 text-amber-950 font-black text-xs">🪙 ${c.coins} tanga</span>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
   },
 
   handlePromoteSubmissionToRegion(submissionId) {
@@ -4479,7 +6614,13 @@ const App = {
     const res = DataStore.promoteSubmissionToRegion(submissionId);
     if (res.success) {
       this.refreshAllUI();
-      this.showToast(`🏅 "${res.submission.creatorName}" videoroligi Viloyat koordinatoriga yuborildi va o'quvchiga +5 qo'shimcha tanga taqdim etildi!`, "success");
+      const count = res.rewardedCount || 1;
+      this.showToast(
+        count > 1
+          ? `🏅 "${res.submission.creatorName}" va kollaboratsiyadagi barcha ${count} nafar o'quvchining videoroligi Viloyat bosqichiga yuborildi hamda har biriga +5 bonus tangadan berildi!`
+          : `🏅 "${res.submission.creatorName}" videoroligi Viloyat koordinatoriga yuborildi va o'quvchiga +5 qo'shimcha tanga taqdim etildi!`,
+        "success"
+      );
     } else {
       this.showToast(res.message || "Xatolik yuz berdi", "warning");
     }
@@ -4490,7 +6631,13 @@ const App = {
     const res = DataStore.promoteSubmissionToRepublic(submissionId);
     if (res.success) {
       this.refreshAllUI();
-      this.showToast(`🌟 "${res.submission.creatorName}" videoroligi Respublika koordinatoriga yuborildi va o'quvchiga +10 qo'shimcha tanga taqdim etildi!`, "success");
+      const count = res.rewardedCount || 1;
+      this.showToast(
+        count > 1
+          ? `🌟 "${res.submission.creatorName}" va kollaboratsiyadagi barcha ${count} nafar o'quvchining videoroligi Respublika bosqichiga yuborildi hamda har biriga +10 bonus tangadan berildi!`
+          : `🌟 "${res.submission.creatorName}" videoroligi Respublika koordinatoriga yuborildi va o'quvchiga +10 qo'shimcha tanga taqdim etildi!`,
+        "success"
+      );
     } else {
       this.showToast(res.message || "Xatolik yuz berdi", "warning");
     }
@@ -4501,7 +6648,13 @@ const App = {
     const res = DataStore.awardRepublicSubmissionWinner(submissionId);
     if (res.success) {
       this.refreshAllUI();
-      this.showToast(`🏆 Tabriklaymiz! "${res.submission.creatorName}" Respublika bo'yicha 1-o'rin g'olibi deb topildi va unga +15 qo'shimcha tanga berildi!`, "success");
+      const count = res.rewardedCount || 1;
+      this.showToast(
+        count > 1
+          ? `🏆 Tabriklaymiz! "${res.submission.creatorName}" va kollaboratsiyadagi barcha ${count} nafar o'quvchi Respublika 1-o'rin g'olibi deb topildi va har biriga +15 bonus tangadan berildi!`
+          : `🏆 Tabriklaymiz! "${res.submission.creatorName}" Respublika bo'yicha 1-o'rin g'olibi deb topildi va unga +15 qo'shimcha tanga berildi!`,
+        "success"
+      );
     } else {
       this.showToast(res.message || "Xatolik yuz berdi", "warning");
     }
@@ -4670,8 +6823,10 @@ const App = {
       category: categoryId,
       title,
       description,
-      district: userDist.district,
-      districtLabel: userDist.districtLabel,
+      district: userDist.district || user.district || '',
+      districtLabel: userDist.districtLabel || user.districtLabel || '',
+      regionId: userDist.regionId || user.regionId || '',
+      regionLabel: userDist.regionLabel || user.regionLabel || '',
       staffId: user.staffId || user.id,
       staffName: user.fullName,
       staffPosition: user.position || 'Madaniyat xodimi',
@@ -4686,11 +6841,13 @@ const App = {
 
     DataStore.addStaffProposal(proposalData);
 
-    // Shu tuman Admini Inboxiga xabar tushadi
+    // Faqat shu tuman Admini Inboxiga xabar tushadi
     DataStore.sendToAdminInbox({
       type: 'staff_proposal',
-      district: userDist.district,
-      districtLabel: userDist.districtLabel,
+      district: userDist.district || user.district || '',
+      districtLabel: userDist.districtLabel || user.districtLabel || '',
+      regionId: userDist.regionId || user.regionId || '',
+      regionLabel: userDist.regionLabel || user.regionLabel || '',
       name: `${user.fullName} (${userDist.districtLabel || ''} - ${user.organization || 'Madaniyat markazi'})`,
       phone: user.phone || 'Xodim',
       position: `Yangi Taklif: ${title}`,
@@ -4712,9 +6869,13 @@ const App = {
     if (!tableBody) return;
 
     const userDist = this.getActiveDistrictInfo();
-    const proposals = DataStore.getStaffProposals().filter(p =>
-      !userDist.district || !p.district || DataStore.districtsMatch(p.district || p.districtLabel, userDist.district)
-    );
+    const proposals = DataStore.getStaffProposals().filter(p => {
+      if (!p || (!p.district && !p.districtLabel)) return false;
+      if (userDist.district) {
+        return DataStore.districtsMatch(p.district || p.districtLabel, userDist.district);
+      }
+      return true;
+    });
     if (badge) {
       badge.textContent = `${proposals.length} ta taklif`;
     }
@@ -4787,12 +6948,6 @@ const App = {
               ${!isApproved ? `
                 <button onclick="App.handleApproveProposal('${p.id}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-sm transition inline-flex items-center gap-1" title="Ma'qullash">
                   <i class="fa-solid fa-check"></i> Ma'qullash
-                </button>
-              ` : ''}
-
-              ${catKey === 'challenge' ? `
-                <button onclick="App.handleConvertProposalToChallenge('${p.id}')" class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-xl text-xs border border-rose-200 transition inline-flex items-center gap-1" title="Chellenjga aylantirish">
-                  <i class="fa-solid fa-film"></i> Chellenj qilish
                 </button>
               ` : ''}
 
@@ -5186,6 +7341,16 @@ const App = {
     const callBtn = document.getElementById('invite-call-btn');
     callBtn.href = `tel:${creator.phone}`;
 
+    // Madaniyat xodimi yoki admin taklif oynasini ochganda o'quvchining "Yutuqlarim" bo'limiga taklifnoma yozib qo'yiladi
+    const user = Auth.getCurrentUser();
+    if (user && (user.role === 'staff' || user.role === 'admin')) {
+      DataStore.recordStudentInvitation(creator.id, {
+        eventName: `${creator.districtLabel || 'Tuman'} madaniy tadbiri va bayram dasturiga taklif`,
+        staffName: user.fullName || "Madaniyat bo'limi",
+        staffPosition: user.position || "Madaniyat xodimi"
+      });
+    }
+
     this.openModal('modal-invite');
   },
 
@@ -5285,7 +7450,12 @@ const App = {
       'modal-creator-detail',
       'modal-invite',
       'modal-admin-inbox',
-      'modal-edit-coordinator'
+      'modal-edit-coordinator',
+      'modal-student-celebration',
+      'modal-season-ended',
+      'modal-edit-staff-profile',
+      'modal-contest-select-students',
+      'modal-contest-upload-proof'
     ].forEach(id => {
       this.closeModal(id);
     });

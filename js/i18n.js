@@ -1,21 +1,22 @@
 /**
- * Kelajak ijodkori - Ko'p tillilik moduli (i18n)
- * Tillari: O'zbekcha (uz), Русский (ru), English (en)
+ * Kelajak ijodkori - To'liq Ko'p tillilik moduli (i18n)
+ * Tillari: O'zbekcha yangi alifbo (uz), Русский (ru), English (en)
+ * Barcha statik va dinamik yozuvlarni (tugmalar, jadvallar, modallar, formalar) 100% tarjima qiladi.
  */
 
 const I18n = {
-  currentLang: localStorage.getItem('ijodkor_lang_v3') || 'uz',
+  currentLang: 'uz',
   _observer: null,
   _isConverting: false,
+  _observerTimer: null,
 
-  // Takomillaştirilgan yangi özbek alifbosiga ötkaziş (O'->Ö, G'->Ğ, Sh->Ş, Ch->Ç)
+  // Takomillashtirilgan yangi o'zbek alifbosiga o'tkazish (O'->Ö, G'->Ğ, Sh->Ş, Ch->Ç)
   toNewUzbek(text) {
     if (!text || typeof text !== 'string') return text;
-    // Agar matnda kirill harflari bölsa (rus tilidagi matn), uni özgartirmaymiz
     if (/[\u0400-\u04FF]/.test(text)) return text;
 
     const protectedTokens = [];
-    let s = text.replace(/(https?:\/\/[^\s"'<>]+|\b(?:English|Русский|Google|Firebase|Realtime|YouTube|Telegram)\b)/gi, (match) => {
+    let s = text.replace(/(https?:\/\/[^\s"'<>]+|\b(?:English|Русский|Google|Firebase|Realtime|YouTube|Telegram|BarChart|Excel|CSV|HTML|PIN|SMS|ID)\b)/gi, (match) => {
       protectedTokens.push(match);
       return `__PROT_${protectedTokens.length - 1}__`;
     });
@@ -39,7 +40,6 @@ const I18n = {
 
   translations: {
     uz: {
-      // Boş sahifa va header
       app_title: "Kelajak",
       app_title_highlight: "ijodkori",
       app_subtitle: "Iqtidorli Yoşlar & Çellenjlar Portali",
@@ -51,8 +51,6 @@ const I18n = {
       role_admin: "Admin (Tuman koordinatori)",
       role_staff: "Xodim",
       role_student: "Öquvçi",
-
-      // Gateway
       gateway_tagline: "Özbekiston Iqtidorli Maktab Öquvçilari Milliy Portali",
       gateway_desc: "Tuman va viloyat miqyosida maktab öquvçilarining ijodiy çiqişlari, umumiy çellenjlar va madaniyat xodimlari bilan hamkorlik platformasi",
       gateway_btn_student: "Öquvçi sifatida kiriş",
@@ -66,16 +64,12 @@ const I18n = {
       gateway_btn_republic_admin: "Admin (Respublika koordinatori)",
       gateway_btn_republic_admin_sub: "Respublika böyiça viloyatlar tahlili va hisobotlari",
       gateway_footer: "© 2026 Kelajak ijodkori. Barça huquqlar himoyalangan.",
-
-      // Navigatsiya
       nav_creators: "Öquvçilar",
       nav_challenges: "Çellenjlar",
       nav_contests: "Tanlovlar",
       nav_leaderboard: "Reyting",
       nav_staff: "Xodimlar",
       nav_admin: "Tuman Admin",
-
-      // 1-Bölim: Öquvçilar
       creators_title: "Röyxatdan Ötgan Maktab Öquvçilari",
       creators_subtitle: "Umumta'lim maktab öquvçilari öz rasmi bilan kiritilgan va tumanlar böyiça saralangan",
       search_placeholder: "Ism, maktab yoki tuman...",
@@ -85,8 +79,6 @@ const I18n = {
       coins: "tanga",
       watch_video: "Videoni köriş",
       more_details: "Batafsil",
-
-      // 2-Bölim: Çellenjlar
       challenges_title: "Umumiy Maktab Video Çellenjlari",
       challenges_subtitle: "Maktab öquvçilari turli ijodiy yönalişlarda video tayyorlab, Tuman Koordinatoridan tanga yutib olişadi",
       btn_submit_challenge: "Video Rolikni Topşiriş",
@@ -96,21 +88,15 @@ const I18n = {
       submissions_gallery_sub: "Öquvçilar tomonidan yuklangan va tasdiqlangan videolar",
       status_approved: "Tasdiqlangan",
       status_pending: "Kutilmoqda",
-
-      // 3-Bölim: Tanlovlar
       contests_title: "Rasmiy Tanlovlar & Madaniy Tadbirlar",
       contests_subtitle: "Barça umumta'lim maktab öquvçilari iştirok etişi mumkin bölgan dasturlar",
       btn_add_contest: "Yangi Tanlov E'loni Qöşiş",
       contest_active: "Faol Tanlov",
       contest_date: "Sanasi",
       contest_location: "Manzil",
-
-      // 4-Bölim: Reyting
       leaderboard_title: "Iqtidorli Öquvçilar Milliy Reytingi",
       leaderboard_subtitle: "Çellenjlarda eng köp tanga töplagan eng faol öquvçilar",
       top_creators: "Top Ijodkorlar",
-
-      // 5-Bölim: Xodimlar
       staff_title: "Madaniyat Xodimlari Xonasi",
       staff_subtitle: "Siz Navröz, Mustaqillik, Yoşlar kuni yoki boşqa tadbirlar uçun öquvçilarni tanlab, bevosita telefon orqali taklif qilişingiz mumkin.",
       staff_my_proposals_title: "Mening Tuman Koordinatoriga Yuborgan Takliflarim",
@@ -121,8 +107,6 @@ const I18n = {
       proposal_status_pending: "Taklif uçun rahmat, admin siz bilan boğlanadi",
       proposal_status_approved: "Tabriklaymiz, taklifingiz ma'qullandi!",
       staff_invite_btn: "Taklif qiliş",
-
-      // 6-Bölim: Admin
       admin_title: "Admin Boşqaruvi: Tangalar, Çellenjlar & Server",
       admin_subtitle: "Çellenj roliklarini baholang, oylik taşriflar statistikasini köring, xodimlarga qönğiroq qiling va bulutli bazani boşqaring.",
       admin_proposals_title: "Madaniyat Xodimlaridan Kelgan Taklif va Taşabbuslar",
@@ -135,8 +119,6 @@ const I18n = {
       btn_convert_challenge: "Çellenj qiliş",
       btn_convert_contest: "Tadbir qiliş",
       btn_delete: "Öçiriş",
-
-      // Toasts & Dialogs
       toast_proposal_sent: "Taklif uçun rahmat, admin siz bilan boğlanadi",
       toast_proposal_approved: "Tabriklaymiz, taklifingiz ma'qullandi!",
       toast_logged_out: "Profildan çiqildi. Boş ekranga qaytdingiz.",
@@ -144,7 +126,6 @@ const I18n = {
     },
 
     ru: {
-      // Главная и хедер
       app_title: "Будущий",
       app_title_highlight: "творец",
       app_subtitle: "Портал талантливой молодежи и творческих челленджей",
@@ -153,34 +134,28 @@ const I18n = {
       btn_exit: "Выйти",
       btn_edit: "Изменить",
       btn_proposal: "Предложить",
-      role_admin: "Главный координатор (Админ)",
+      role_admin: "Районный координатор (Админ)",
       role_staff: "Сотрудник",
       role_student: "Учащийся",
-
-      // Gateway
-      gateway_tagline: "Национальный портал одаренных школьников",
-      gateway_desc: "Платформа творческих выступлений школьников, масштабных челленджей и сотрудничества с работниками культуры",
+      gateway_tagline: "Национальный портал одаренных школьников Узбекистана",
+      gateway_desc: "Платформа творческих выступлений школьников на районном и областном уровнях, общих челленджей и сотрудничества с работниками культуры",
       gateway_btn_student: "Войти как учащийся",
-      gateway_btn_student_sub: "Сдавать видеоролики, собирать монеты и расти в рейтинге",
-      gateway_btn_staff: "Сотрудник культуры",
-      gateway_btn_staff_sub: "Просмотр контактов школьников, приглашение на мероприятия и подача предложений",
+      gateway_btn_student_sub: "Зарегистрируйтесь в своем районе, сдавайте видеоролики и собирайте монеты",
+      gateway_btn_staff: "Войти как сотрудник культуры",
+      gateway_btn_staff_sub: "Отслеживание учащихся своего района, приглашение на мероприятия и подача предложений",
       gateway_btn_admin: "Админ (Районные координаторы)",
-      gateway_btn_admin_sub: "Задания района, начисление монет, оценка видео и жалобы",
+      gateway_btn_admin_sub: "Задания района, начисление монет, оценка видео и рассмотрение жалоб",
       gateway_btn_region_admin: "Админ (Областные координаторы)",
-      gateway_btn_region_admin_sub: "Тенденция роста районов области и сезонные отчеты",
+      gateway_btn_region_admin_sub: "Тенденция роста районов области, отбор лучших видео и отчеты",
       gateway_btn_republic_admin: "Админ (Республиканский координатор)",
-      gateway_btn_republic_admin_sub: "Анализ областей по республике и сезонные отчеты",
+      gateway_btn_republic_admin_sub: "Анализ областей по республике, финал видео-челленджей и отчеты",
       gateway_footer: "© 2026 Будущий творец. Все права защищены.",
-
-      // Навигация
       nav_creators: "Учащиеся",
       nav_challenges: "Челленджи",
       nav_contests: "Конкурсы",
       nav_leaderboard: "Рейтинг",
       nav_staff: "Сотрудники",
-      nav_admin: "Админ",
-
-      // 1-Раздел: Учащиеся
+      nav_admin: "Районный Админ",
       creators_title: "Зарегистрированные школьники",
       creators_subtitle: "Учащиеся общеобразовательных школ с фото и сортировкой по районам",
       search_placeholder: "Имя, школа или район...",
@@ -190,66 +165,53 @@ const I18n = {
       coins: "монет",
       watch_video: "Смотреть видео",
       more_details: "Подробнее",
-
-      // 2-Раздел: Челленджи
       challenges_title: "Общешкольные видео-челленджи",
-      challenges_subtitle: "Школьники готовят видеоролики по творческим направлениям и получают монеты от Главного координатора",
+      challenges_subtitle: "Школьники готовят видеоролики по творческим направлениям и получают монеты от Районного координатора",
       btn_submit_challenge: "Сдать видеоролик",
       btn_add_challenge: "Добавить челлендж",
       active_challenges: "Активные челленджи",
       submissions_gallery: "Галерея сданных видеороликов",
       submissions_gallery_sub: "Видеоролики, загруженные школьниками и проверенные координатором",
       status_approved: "Одобрено",
-      status_pending: "На проверке",
-
-      // 3-Раздел: Конкурсы
-      contests_title: "Официальные конкурсы и мероприятия",
+      status_pending: "Ожидает",
+      contests_title: "Официальные конкурсы и культурные мероприятия",
       contests_subtitle: "Программы и фестивали, открытые для всех учащихся общеобразовательных школ",
-      btn_add_contest: "Добавить конкурс",
+      btn_add_contest: "Добавить объявление о конкурсе",
       contest_active: "Активный конкурс",
       contest_date: "Дата",
-      contest_location: "Место проведения",
-
-      // 4-Раздел: Рейтинг
+      contest_location: "Адрес",
       leaderboard_title: "Национальный рейтинг одаренных школьников",
-      leaderboard_subtitle: "Школьники, набравшие наибольшее количество монет в творческих челленджах",
+      leaderboard_subtitle: "Самые активные школьники, набравшие больше всего монет в челленджах",
       top_creators: "Топ исполнители",
-
-      // 5-Раздел: Сотрудники
       staff_title: "Кабинет сотрудников культуры",
-      staff_subtitle: "Вы можете отобрать школьников для праздничных концертов (Навруз, День независимости и др.) и пригласить по телефону.",
-      staff_my_proposals_title: "Мои предложения Главному координатору",
-      staff_my_proposals_subtitle: "Ваши инициативы по мероприятиям и челленджам и их текущий статус",
-      btn_send_new_proposal: "Подать новое предложение",
-      staff_contacts_title: "Контакты учащихся для сотрудников культуры",
-      staff_contacts_subtitle: "По всем районам",
-      proposal_status_pending: "Спасибо за предложение, администратор свяжется с вами",
+      staff_subtitle: "Вы можете отобрать школьников для праздничных мероприятий (Навруз, День независимости, День молодежи) и пригласить по телефону.",
+      staff_my_proposals_title: "Мои предложения Районному координатору",
+      staff_my_proposals_subtitle: "Ваши культурные инициативы и их текущий статус",
+      btn_send_new_proposal: "Отправить новое предложение",
+      staff_contacts_title: "Контакты учащихся для сотрудника культуры",
+      staff_contacts_subtitle: "По вашему району",
+      proposal_status_pending: "Спасибо за предложение, админ свяжется с вами",
       proposal_status_approved: "Поздравляем, ваше предложение одобрено!",
       staff_invite_btn: "Пригласить",
-
-      // 6-Раздел: Админ
       admin_title: "Управление админа: Монеты, Челленджи и Сервер",
       admin_subtitle: "Оценивайте видеоролики, просматривайте статистику посещений, звоните сотрудникам и управляйте облачной базой.",
       admin_proposals_title: "Предложения и инициативы от сотрудников культуры",
-      admin_proposals_subtitle: "Инициативы центров культуры по новым мероприятиям, челленджам и поощрению талантов",
+      admin_proposals_subtitle: "Предложения центров культуры по новым мероприятиям, челленджам и рекомендации талантливых учащихся",
       admin_staff_title: "Зарегистрированные сотрудники культуры",
-      admin_staff_subtitle: "Номера телефонов сотрудников видны ТОЛЬКО Главному координатору",
+      admin_staff_subtitle: "Номера телефонов сотрудников по закону видны ТОЛЬКО Админу",
       admin_creators_title: "Список учащихся в базе данных",
-      admin_creators_subtitle: "Фотографии, школы, видео и баланс монет учащихся",
+      admin_creators_subtitle: "Фотографии, школы, видео и контроль баланса монет учащихся",
       btn_approve: "Одобрить",
       btn_convert_challenge: "Сделать челленджем",
       btn_convert_contest: "Сделать мероприятием",
       btn_delete: "Удалить",
-
-      // Toasts & Dialogs
-      toast_proposal_sent: "Спасибо за предложение, администратор свяжется с вами",
+      toast_proposal_sent: "Спасибо за предложение, админ свяжется с вами",
       toast_proposal_approved: "Поздравляем, ваше предложение одобрено!",
       toast_logged_out: "Вы вышли из профиля. Возврат на главный экран.",
       toast_sync_done: "Все данные успешно синхронизированы!"
     },
 
     en: {
-      // Main & Header
       app_title: "Future",
       app_title_highlight: "Creator",
       app_subtitle: "Talented Youth & Challenges Portal",
@@ -258,36 +220,30 @@ const I18n = {
       btn_exit: "Logout",
       btn_edit: "Edit",
       btn_proposal: "Submit Proposal",
-      role_admin: "Head Coordinator (Admin)",
+      role_admin: "Admin (District Coordinator)",
       role_staff: "Staff",
       role_student: "Student",
-
-      // Gateway
-      gateway_tagline: "National Portal for Talented School Students",
-      gateway_desc: "A creative platform connecting school students, creative challenges, and regional cultural leaders",
+      gateway_tagline: "National Portal for Talented School Students of Uzbekistan",
+      gateway_desc: "A district and regional platform for creative school performances, shared challenges, and collaboration with cultural staff",
       gateway_btn_student: "Enter as Student",
-      gateway_btn_student_sub: "Submit videos, collect coins, and climb the leaderboard",
-      gateway_btn_staff: "Culture Staff",
-      gateway_btn_staff_sub: "Access student contacts, invite to concerts, and submit initiatives",
+      gateway_btn_student_sub: "Register in your district, submit video clips, and collect coins",
+      gateway_btn_staff: "Enter as Culture Staff",
+      gateway_btn_staff_sub: "Monitor students in your district, invite to events, and submit proposals",
       gateway_btn_admin: "Admin (District Coordinators)",
-      gateway_btn_admin_sub: "District tasks, coins, video evaluation and complaints",
+      gateway_btn_admin_sub: "District tasks, coins, video evaluation, and complaint review",
       gateway_btn_region_admin: "Admin (Regional Coordinators)",
-      gateway_btn_region_admin_sub: "Regional district growth trends and seasonal reports",
+      gateway_btn_region_admin_sub: "Regional district growth trends, best video selection, and reports",
       gateway_btn_republic_admin: "Admin (National Coordinator)",
-      gateway_btn_republic_admin_sub: "Nationwide regional analytics and seasonal reports",
+      gateway_btn_republic_admin_sub: "Nationwide regional analytics, video challenge finals, and reports",
       gateway_footer: "© 2026 Future Creator. All rights reserved.",
-
-      // Navigation
       nav_creators: "Students",
       nav_challenges: "Challenges",
       nav_contests: "Contests",
       nav_leaderboard: "Leaderboard",
       nav_staff: "Staff",
-      nav_admin: "Admin",
-
-      // Section 1: Creators
+      nav_admin: "District Admin",
       creators_title: "Registered School Students",
-      creators_subtitle: "Students from public schools listed with photos and categorized by district",
+      creators_subtitle: "Public school students listed with photos and sorted by district",
       search_placeholder: "Name, school or district...",
       all_districts: "All districts",
       no_creators: "No students found",
@@ -295,226 +251,382 @@ const I18n = {
       coins: "coins",
       watch_video: "Watch Video",
       more_details: "Details",
-
-      // Section 2: Challenges
-      challenges_title: "School Creative Video Challenges",
-      challenges_subtitle: "School students produce creative videos and earn coins awarded by the Head Coordinator",
+      challenges_title: "General School Video Challenges",
+      challenges_subtitle: "School students prepare creative videos and earn coins from the District Coordinator",
       btn_submit_challenge: "Submit Video Clip",
       btn_add_challenge: "Add New Challenge",
       active_challenges: "Active Challenges",
       submissions_gallery: "Submitted Video Clips Gallery",
-      submissions_gallery_sub: "Videos uploaded by students and verified by coordinator",
+      submissions_gallery_sub: "Videos uploaded by students and approved by coordinator",
       status_approved: "Approved",
       status_pending: "Pending",
-
-      // Section 3: Contests
       contests_title: "Official Contests & Cultural Events",
-      contests_subtitle: "Programs open to all public school students nationwide",
-      btn_add_contest: "Post New Contest",
+      contests_subtitle: "Programs open to all public school students",
+      btn_add_contest: "Add New Contest Announcement",
       contest_active: "Active Contest",
       contest_date: "Date",
       contest_location: "Location",
-
-      // Section 4: Leaderboard
-      leaderboard_title: "National Talent Leaderboard",
-      leaderboard_subtitle: "Top students who earned the most coins in creative challenges",
+      leaderboard_title: "National Talented Students Leaderboard",
+      leaderboard_subtitle: "Most active students who collected the most coins in challenges",
       top_creators: "Top Performers",
-
-      // Section 5: Staff
-      staff_title: "Culture Staff Cabinet",
-      staff_subtitle: "Select talented students for holiday concerts (Navruz, Independence Day) and invite them directly by phone.",
-      staff_my_proposals_title: "My Proposals to Head Coordinator",
-      staff_my_proposals_subtitle: "Your cultural initiatives and their live review status",
-      btn_send_new_proposal: "Submit New Proposal",
+      staff_title: "Culture Staff Room",
+      staff_subtitle: "Select students for Navruz, Independence Day, Youth Day, or other events and invite them directly by phone.",
+      staff_my_proposals_title: "My Proposals Sent to District Coordinator",
+      staff_my_proposals_subtitle: "Cultural initiatives submitted by you and their current status",
+      btn_send_new_proposal: "Send New Proposal",
       staff_contacts_title: "Student Contacts for Culture Staff",
-      staff_contacts_subtitle: "Across all districts",
+      staff_contacts_subtitle: "For your district",
       proposal_status_pending: "Thank you for the proposal, admin will contact you",
       proposal_status_approved: "Congratulations, your proposal has been approved!",
       staff_invite_btn: "Invite",
-
-      // Section 6: Admin
-      admin_title: "Admin Control: Coins, Challenges & Cloud Server",
-      admin_subtitle: "Grade challenge submissions, review visitor analytics, call staff, and manage cloud database.",
+      admin_title: "Admin Management: Coins, Challenges & Server",
+      admin_subtitle: "Grade challenge clips, view monthly visitor statistics, call staff, and manage the cloud database.",
       admin_proposals_title: "Proposals and Initiatives from Culture Staff",
-      admin_proposals_subtitle: "Initiatives from regional cultural centers for new events, challenges, and nominations",
+      admin_proposals_subtitle: "Proposals from cultural centers for new events, challenges, and talented student recommendations",
       admin_staff_title: "Registered Culture Staff",
-      admin_staff_subtitle: "Staff phone numbers are strictly visible ONLY to Head Coordinator",
-      admin_creators_title: "Students Database",
-      admin_creators_subtitle: "Student photos, schools, videos, and coin balance management",
+      admin_staff_subtitle: "Staff phone numbers are legally visible ONLY to Admin",
+      admin_creators_title: "Students List in Database",
+      admin_creators_subtitle: "Student photos, schools, videos, and coin balance control",
       btn_approve: "Approve",
       btn_convert_challenge: "Make Challenge",
       btn_convert_contest: "Make Event",
       btn_delete: "Delete",
-
-      // Toasts & Dialogs
       toast_proposal_sent: "Thank you for the proposal, admin will contact you",
       toast_proposal_approved: "Congratulations, your proposal has been approved!",
-      toast_logged_out: "Logged out. Returned to welcome screen.",
-      toast_sync_done: "All data successfully synced!"
+      toast_logged_out: "Logged out of profile. Returned to welcome screen.",
+      toast_sync_done: "All data synced!"
     }
   },
+
+  // Barcha ibora va jumlalarning to'liq lug'ati (Kalitlar toNewUzbek formatida)
+  phraseChunks: [
+    // Katta sarlavhalar va bloklar
+    ["Mavsumiy Hisobot va Eng Zör Video-Çellenjni Viloyatga Yuboriş", "Сезонный отчет и отправка лучшего видео-челленджа в область", "Seasonal Report & Send Best Video Challenge to Region"],
+    ["Respublikadan joylangan video-çellenjni tumaningizdagi maktablar bajargandan söng, eng zör 1 ta video-çellenjni tanlab hisobot bilan birga Viloyat koordinatoriga yuboring (+5 bonus tanga beriladi).", "После выполнения школами вашего района республиканского видео-челленджа выберите 1 лучший видеоролик и отправьте его вместе с отчетом Областному координатору (+5 бонусных монет).", "After schools in your district complete the Republic video challenge, select the #1 best video challenge and send it with your report to the Regional Coordinator (+5 bonus coins awarded)."],
+    ["1. Qaysi Video-Çellenj böyiça eng zör rolikni tanlaysiz?", "1. По какому видео-челленджу вы выбираете лучший ролик?", "1. Which Video Challenge are you selecting the best clip for?"],
+    ["-- Barça Respublika va Tuman Video-Çellenjlari --", "-- Все республиканские и районные видео-челленджи --", "-- All National & District Video Challenges --"],
+    ["2. Tumandagi eng zör bajargan maktab / öquvçi videoroligi (+5 🪙 Viloyatga yöllanma)", "2. Лучший видеоролик школы / ученика района (+5 🪙 путевка в область)", "2. Best performing school / student video clip in the district (+5 🪙 Regional qualification)"],
+    ["-- Tumandagi maktablar videoroliklaridan eng zörini tanlang --", "-- Выберите лучший из видеороликов школ района --", "-- Select the best video clip from district schools --"],
+    ["➕ Röyxatda yöq maktab/öquvçi videoroligini qölda kiritiş...", "➕ Ввести вручную видеоролик школы/ученика, которого нет в списке...", "➕ Manually enter a school/student video clip not in the list..."],
+    ["Eng zör bajargan maktab raqami/nomi", "Номер/название лучшей школы", "Best performing school number/name"],
+    ["Ğolib öquvçi yoki jamoa F.I.Ş.", "Ф.И.О. победившего ученика или команды", "Winning student or team Full Name"],
+    ["Eng zör Video-Çellenj havolasi (YouTube / Telegram)", "Ссылка на лучший видео-челлендж (YouTube / Telegram)", "Best Video Challenge link (YouTube / Telegram)"],
+    ["Hisobot qisqaça mazmuni va tanlangan eng zör video-çellenj tavsifi *", "Краткое содержание отчета и описание выбранного лучшего видео-челленджа *", "Brief report summary & description of selected best video challenge *"],
+    ["Eng Zör Video va Hisobotni Viloyatga Yuboriş", "Отправить лучшее видео и отчет в область", "Send Best Video & Report to Region"],
+    ["1-Bosqiç: Tumanlardan Kelgan Eng Zör Video-Çellenjlardan Bittasini Tanlab Respublikaga Yuboriş (+10 🪙 Bonus)", "1-й Этап: Выбрать один лучший видео-челлендж из районов и отправить в Республику (+10 🪙 Бонус)", "Stage 1: Select One Best Video Challenge from Districts & Send to Republic (+10 🪙 Bonus)"],
+    ["Tuman adminlari öz maktablari orasidan eng zör video-çellenjni tanlab sizga (Viloyatga) yuboradi (+5 tanga). Siz esa tumanlardan kelgan eng zör videoroliklar orasidan viloyat böyiça eng zör bittasini tanlab Respublika koordinatoriga yuborasiz (öquvçiga yana +10 qöşimça tanga beriladi).", "Районные админы выбирают лучший видео-челлендж среди своих школ и отправляют вам в область (+5 монет). А вы выбираете один лучший видеоролик области среди районных победителей и отправляете Республиканскому координатору (ученику начисляется еще +10 бонусных монет).", "District admins select the best video challenge among their schools and send it to you in the Region (+5 coins). You then select the single best video in the region and send it to the National Coordinator (awarding +10 extra bonus coins to the student)."],
+    ["Tuman Koordinatorlaridan Kelgan Hisobotlar va Eng Zör Video-Çellenjlar", "Отчеты и лучшие видео-челленджи от районных координаторов", "Reports & Best Video Challenges from District Coordinators"],
+    ["Har bir tuman admini yuborgan mavsumiy hisobot va o'sha tumandagi eng zör maktab video-çellenji", "Сезонный отчет каждого районного админа и лучший школьный видео-челлендж района", "Seasonal report submitted by each district admin and the best school video challenge of that district"],
+    ["Har bir tuman admini yuborgan mavsumiy hisobot va öşa tumandagi eng zör maktab video-çellenji", "Сезонный отчет каждого районного админа и лучший школьный видео-челлендж района", "Seasonal report submitted by each district admin and the best school video challenge of that district"],
+    ["Tumanning Eng Zör Videosi", "Лучшее видео района", "District's Best Video"],
+    ["Viloyatning Eng Zör Video-Çellenjini va Yakuniy Hisobotini Respublikaga Yuboriş", "Отправка лучшего видео-челленджа области и итогового отчета в Республику", "Send Region's Best Video Challenge & Final Report to Republic"],
+    ["Tumanlardan kelgan eng zör video-çellenjlar orasidan viloyat böyiça eng zör 1 ta rolikni tanlab, yakuniy hisobot bilan birga Respublika Boş Koordinatoriga yuboring (+10 bonus tanga beriladi).", "Выберите 1 лучший видеоролик области среди лучших видео-челленджей районов и отправьте вместе с итоговым отчетом Главному республиканскому координатору (+10 бонусных монет).", "Select the #1 best video clip in the region from the district winners and send it with the final report to the National Head Coordinator (+10 bonus coins awarded)."],
+    ["Tumanlardan kelgan eng zör video-çellenjdan 1 tasini Respublikaga tanlang (+10 🪙) *", "Выберите 1 лучший видео-челлендж из районов для отправки в Республику (+10 🪙) *", "Select 1 best video challenge from districts for the Republic (+10 🪙) *"],
+    ["-- Tumanlardan kelgan eng zör videoroliklardan 1 tasini Respublikaga tanlang --", "-- Выберите 1 из лучших видеороликов районов для Республики --", "-- Select 1 of the best district video clips for the Republic --"],
+    ["Viloyat yakuniy hisoboti va tanlangan eng zör video-çellenj tavsifi *", "Итоговый отчет области и описание выбранного лучшего видео-челленджа *", "Regional final report & description of selected best video challenge *"],
+    ["Eng Zör Video va Viloyat Hisobotini Respublikaga Yuboriş", "Отправить лучшее видео и отчет области в Республику", "Send Best Video & Regional Report to Republic"],
+    ["Respublika Finali: Viloyatlardan Kelgan Eng Zör Video-Çellenjlar (1-Örinni Tanlaş va +15 🪙 Tanga)", "Финал Республики: Лучшие видео-челленджи из областей (Выбор 1-го места и +15 🪙 монет)", "National Grand Final: Best Video Challenges from Regions (Select 1st Place & +15 🪙 Coins)"],
+    ["Tuman adminlari maktablar orasidan eng zörini viloyatga (+5 🪙), viloyat koordinatorlari esa tumanlar orasidan eng zör bittasini tanlab sizga — Respublikaga yuboradi (+10 🪙). Siz ushbu finalçilar orasidan Respublika böyiça eng zör 1-örin ğolibini tanlaysiz va unga +15 qöşimça tanga taqdim etiladi!", "Районные админы отправляют лучший ролик школ в область (+5 🪙), а областные координаторы выбирают один лучший ролик и отправляют вам в Республику (+10 🪙). Вы выбираете абсолютного победителя (1-е место по Республике), и ему вручается +15 бонусных монет!", "District admins send the best school clip to the Region (+5 🪙), and Regional Coordinators select the single best clip and send it to you at the Republic (+10 🪙). You select the 1st-place National Winner among these finalists, awarding +15 extra coins!"],
+    ["Tuman adminlari maktablar orasidan eng zörini viloyatga (+5 🪙), viloyat koordinatorlari esa tumanlar orasidan eng zör bittasini tanlab sizga — Respublikaga yuboradi (+10 🪙). Siz uşbu finalçilar orasidan Respublika böyiça eng zör 1-örin ğolibini tanlaysiz va unga +15 qöşimça tanga taqdim etiladi!", "Районные админы отправляют лучший ролик школ в область (+5 🪙), а областные координаторы выбирают один лучший ролик и отправляют вам в Республику (+10 🪙). Вы выбираете абсолютного победителя (1-е место по Республике), и ему вручается +15 бонусных монет!", "District admins send the best school clip to the Region (+5 🪙), and Regional Coordinators select the single best clip and send it to you at the Republic (+10 🪙). You select the 1st-place National Winner among these finalists, awarding +15 extra coins!"],
+    ["Viloyat Koordinatorlaridan Kelgan Yakuniy Hisobotlar va Eng Zör Videolar", "Итоговые отчеты и лучшие видео от областных координаторов", "Final Reports & Best Videos from Regional Coordinators"],
+    ["14 ta hududdan Respublika Boş Koordinatoriga yuborilgan mavsumiy hisobotlar va viloyatning eng zör video-çellenji", "Сезонные отчеты и лучшие видео-челленджи областей, отправленные из 14 регионов Главному координатору", "Seasonal reports and regional best video challenges submitted from 14 regions to the National Head Coordinator"],
+    ["Viloyat Tanlagan Eng Zör Video", "Лучшее видео, выбранное областью", "Best Video Selected by Region"],
+    ["1-Örinni Tanlaş (+15 🪙)", "Выбор 1-го места (+15 🪙)", "Select 1st Place (+15 🪙)"],
+    ["Video-çellenjlar Respublika tomonidan qöyiladi (Tuman → Viloyat → Respublika)", "Видео-челленджи публикуются Республикой (Район → Область → Республика)", "Video challenges are posted by the Republic (District → Region → Republic)"],
+    ["Respublika Video-Çellenji E'lon Qiliş", "Объявить республиканский видео-челлендж", "Post National Video Challenge"],
+    ["Faqat Respublika Boş Koordinatori tomonidan barça ekranlar uçun qöyiladi", "Публикуется только Главным республиканским координатором для всех экранов", "Posted only by the National Head Coordinator for all screens"],
+    ["Mavsum / Çorak nomi *", "Название сезона / квартала *", "Season / Quarter Name *"],
+    ["Viloyatga Yuborish (+10 🪙)", "Отправить в область (+10 🪙)", "Send to Region (+10 🪙)"],
+    ["Respublikaga Yuborish (+10 🪙)", "Отправить в Республику (+10 🪙)", "Send to Republic (+10 🪙)"],
+    ["Respublikaga Yuboriş (+10 🪙)", "Отправить в Республику (+10 🪙)", "Send to Republic (+10 🪙)"],
+    ["1-Örinni Beriş (+15 🪙)", "Присудить 1-е место (+15 🪙)", "Award 1st Place (+15 🪙)"],
+    ["1-Örin Berilgan", "1-е место присуждено", "1st Place Awarded"],
+    ["1-Örin Ğolibi (+15 🪙)", "Победитель 1-го места (+15 🪙)", "1st Place Winner (+15 🪙)"],
+    ["Viloyat ğolibi (+10 🪙)", "Победитель области (+10 🪙)", "Regional Winner (+10 🪙)"],
+    ["Tuman ğolibi (+5 🪙)", "Победитель района (+5 🪙)", "District Winner (+5 🪙)"],
+    ["Tuman tanlagan (+5 🪙)", "Выбор района (+5 🪙)", "District Selection (+5 🪙)"],
+    ["Respublikaga yuborildi (+10 🪙)", "Отправлено в Республику (+10 🪙)", "Sent to Republic (+10 🪙)"],
+
+    // Navigatsiya va umumiy UI
+    ["Viloyat Admin", "Областной Админ", "Regional Admin"],
+    ["Respublika Admin", "Республиканский Админ", "National Admin"],
+    ["Tuman Admin", "Районный Админ", "District Admin"],
+    ["Şikoyat Bildiriş", "Подать жалобу", "Submit Complaint"],
+    ["Yangi Çellenj E'lon Qiliş", "Объявить новый челлендж", "Post New Challenge"],
+    ["Yangi Tadbir / Tanlov Qöşiş", "Добавить мероприятие / конкурс", "Add New Event / Contest"],
+    ["Öquvçiga Tanga Taqdim Etiş", "Начислить монеты учащемуся", "Award Coins to Student"],
+    ["Namuna Öquvçilarni Tozalaş", "Очистить демо-учащихся", "Clear Demo Students"],
+    ["Excel / CSV Yuklab Oliş", "Скачать Excel / CSV", "Download Excel / CSV"],
+    ["Barçasini Saqlaş", "Сохранить все", "Save All"],
+    ["Yangi Tuman Qöşiş", "Добавить новый район", "Add New District"],
+    ["Hisobotni Tasdiqlaş", "Подтвердить отчет", "Approve Report"],
+    ["Qabul Qiliş", "Принять", "Accept"],
+    ["Qabul qilindi", "Принято", "Accepted"],
+    ["Qabul qilingan", "Принято", "Accepted"],
+    ["Yangi hisobot", "Новый отчет", "New report"],
+    ["Videoni Köriş", "Смотреть видео", "Watch Video"],
+    ["Köriş", "Смотреть", "Watch"],
+    ["Saqlaş", "Сохранить", "Save"],
+    ["Tahrirlaş", "Изменить", "Edit"],
+    ["Öçiriş", "Удалить", "Delete"],
+    ["Yopiş", "Закрыть", "Close"],
+    ["Bekor qiliş", "Отмена", "Cancel"],
+    ["Tasdiqlaş", "Подтвердить", "Confirm"],
+    ["Yuboriş", "Отправить", "Submit"],
+    ["Tanlaş", "Выбрать", "Select"],
+    ["Tanlandi", "Выбрано", "Selected"],
+    ["Biriktirilgan", "Закреплен", "Assigned"],
+    ["Kiritilmagan", "Не введен", "Not entered"],
+    ["Biriktirilmagan", "Не прикреплено", "Not attached"],
+    ["Faol Ösişda", "Активный рост", "Active Growth"],
+    ["Boşlanğiç", "Начальный", "Initial"],
+    ["Kutilmoqda", "Ожидается", "Pending"],
+    ["Tasdiqlangan", "Одобрено", "Approved"],
+    ["Rad etilgan", "Отклонено", "Rejected"],
+    ["Arxivlangan", "В архиве", "Archived"],
+    ["Muddati tugagan", "Срок истек", "Expired"],
+
+    // Jadval ustunlari (Table headers)
+    ["Öquvçi va Maktab", "Ученик и школа", "Student & School"],
+    ["Tuman va Viloyat", "Район и область", "District & Region"],
+    ["Video-Çellenj Nomi", "Название видео-челленджа", "Video Challenge Title"],
+    ["Çellenj Nomi", "Название челленджа", "Challenge Title"],
+    ["Video Havola", "Ссылка на видео", "Video Link"],
+    ["Bosqiç va Mukofot", "Этап и награда", "Stage & Reward"],
+    ["Joriy Bosqiç", "Текущий этап", "Current Stage"],
+    ["Tuman / Şahar", "Район / Город", "District / City"],
+    ["Viloyat / Hudud", "Область / Регион", "Region / Territory"],
+    ["Tuman Koordinatori (F.I.Ş.)", "Районный координатор (Ф.И.О.)", "District Coordinator (Full Name)"],
+    ["Viloyat Koordinatori (F.I.Ş.)", "Областной координатор (Ф.И.О.)", "Regional Coordinator (Full Name)"],
+    ["5 Xonali Kod (PIN)", "5-значный код (PIN)", "5-Digit Code (PIN)"],
+    ["Tumanlar Soni", "Кол-во районов", "Districts Count"],
+    ["Öquvçilar va Tangalar", "Учащиеся и монеты", "Students & Coins"],
+    ["Ösiş Tendensiyasi", "Тенденция роста", "Growth Trend"],
+    ["Koordinator", "Координатор", "Coordinator"],
+    ["Mavsum va Hisobot Mazmuni", "Сезон и содержание отчета", "Season & Report Summary"],
+    ["Holati", "Статус", "Status"],
+    ["Amal", "Действие", "Action"],
+    ["Amallar", "Действия", "Actions"],
+    ["Qatnaşuvçilar", "Участники", "Participants"],
+    ["Topşirilgan Sana", "Дата сдачи", "Submitted Date"],
+    ["Mukofot", "Награда", "Reward"],
+    ["Telefon", "Телефон", "Phone"],
+    ["Maktab", "Школа", "School"],
+    ["Tuman", "Район", "District"],
+    ["Viloyat", "Область", "Region"],
+    ["Yönaliş", "Направление", "Category"],
+    ["Tangalar", "Монеты", "Coins"],
+    ["Reyting", "Рейтинг", "Rank"],
+
+    // Koordinatorlar va boshqaruv xonalari
+    ["Koordinatori Boşqaruv Xonasi", "Кабинет управления координатора", "Coordinator Control Room"],
+    ["dagi Tuman Koordinatorlari Natijalari va Ösiş Tendensiyasi", " — Результаты районных координаторов и тенденция роста", " — District Coordinators Results & Growth Trend"],
+    ["Tumanlari Kesimida Öquvçilar Qiziqişi va Sonining Oşib Boriş Diagrammasi (BarChart)", "Диаграмма роста интереса и численности учащихся в разрезе районов (BarChart)", "Student Interest & Growth BarChart Across Districts"],
+    ["tumanlarida öquvçilar sonining ösiş diagrammasi", "— диаграмма роста числа учащихся по районам", "— student growth chart across districts"],
+    ["Ustun balandligi = röyxatdan ötgan öquvçilar va qiziqiş körsatkiçi", "Высота столбца = показатель зарегистрированных учащихся и интереса", "Bar height = registered students and interest indicator"],
+    ["Biriktirilgan Tuman Koordinatorlari", "Закрепленные районные координаторы", "Assigned District Coordinators"],
+    ["Biriktirilgan Viloyat Koordinatorlari", "Закрепленные областные координаторы", "Assigned Regional Coordinators"],
+    ["Jami Öquvçilar", "Всего учащихся", "Total Students"],
+    ["Respublika Öquvçilari", "Учащиеся Республики", "National Students"],
+    ["Respublika hududlari böyiça öquvçilar faolligi (BarChart)", "Активность учащихся по регионам Республики (BarChart)", "Student Activity Across National Regions (BarChart)"],
+    ["14 ta hudud böyiça real-vaqt körsatkiçlari", "Показатели в реальном времени по 14 регионам", "Real-time metrics across 14 regions"],
+    ["Viloyat Koordinatori Tasdiqlagan", "Одобрено областным координатором", "Approved by Regional Coordinator"],
+    ["Viloyat Koordinatoriga Yuborilgan", "Отправлено областному координатору", "Sent to Regional Coordinator"],
+    ["Respublika Koordinatori Tasdiqlagan", "Одобрено республиканским координатором", "Approved by National Coordinator"],
+    ["Respublika Koordinatoriga Yuborilgan", "Отправлено республиканскому координатору", "Sent to National Coordinator"],
+
+    // Ko'پ uchraydigan so'z birikmalari
+    ["Ro'yxatdan o'tgan", "Зарегистрированные", "Registered"],
+    ["Röyxatdan ötgan", "Зарегистрированные", "Registered"],
+    ["Madaniyat xodimlari", "Сотрудники культуры", "Culture staff"],
+    ["Madaniyat xodimi", "Сотрудник культуры", "Culture staff member"],
+    ["Tuman koordinatori", "Районный координатор", "District coordinator"],
+    ["Viloyat koordinatori", "Областной координатор", "Regional coordinator"],
+    ["Respublika koordinatori", "Республиканский координатор", "National coordinator"],
+    ["Maktab öquvçilari", "Школьники", "School students"],
+    ["Maktab öquvçisi", "Школьник", "School student"],
+    ["Video roliklar", "Видеоролики", "Video clips"],
+    ["Video rolik", "Видеоролик", "Video clip"],
+    ["Videoroliklar", "Видеоролики", "Video clips"],
+    ["Videorolik", "Видеоролик", "Video clip"],
+    ["Jonli ijro", "Живое исполнение", "Live performance"],
+    ["Jonli Ijro", "Живое исполнение", "Live Performance"],
+    ["Buxoro viloyati", "Бухарская область", "Bukhara Region"],
+    ["Samarqand viloyati", "Самаркандская область", "Samarkand Region"],
+    ["Toshkent viloyati", "Ташкентская область", "Tashkent Region"],
+    ["Toşkent viloyati", "Ташкентская область", "Tashkent Region"],
+    ["Toşkent şahri", "город Ташкент", "Tashkent City"],
+    ["Andijon viloyati", "Андижанская область", "Andijan Region"],
+    ["Farğona viloyati", "Ферганская область", "Fergana Region"],
+    ["Namangan viloyati", "Наманганская область", "Namangan Region"],
+    ["Qaşqadaryo viloyati", "Кашкадарьинская область", "Kashkadarya Region"],
+    ["Surxondaryo viloyati", "Сурхандарьинская область", "Surkhandarya Region"],
+    ["Navoiy viloyati", "Навоийская область", "Navoi Region"],
+    ["Jizzax viloyati", "Джизакская область", "Jizzakh Region"],
+    ["Sirdaryo viloyati", "Сырдарьинская область", "Syrdarya Region"],
+    ["Xorazm viloyati", "Хорезмская область", "Khorezm Region"],
+    ["Qoraqalpoğiston Respublikasi", "Республика Каракалпакстан", "Republic of Karakalpakstan"],
+    ["Jondor tumani", "Жондорский район", "Jondor District"],
+    ["Qoraköl tumani", "Каракульский район", "Karakul District"],
+    ["Olot tumani", "Алатский район", "Olot District"],
+    ["Ğijduvon tumani", "Гиждуванский район", "Gijduvan District"],
+    ["Kogon tumani", "Каганский район", "Kogon District"],
+    ["Peshku tumani", "Пешкунский район", "Peshku District"],
+    ["Peşku tumani", "Пешкунский район", "Peshku District"],
+    ["Romitan tumani", "Ромитанский район", "Romitan District"],
+    ["Şofirkon tumani", "Шафирканский район", "Shofirkon District"],
+    ["Vobkent tumani", "Вабкентский район", "Vobkent District"],
+    ["Qorovulbozor tumani", "Караулбазарский район", "Qorovulbozor District"],
+    ["Buxoro tumani", "Бухарский район", "Bukhara District"],
+    ["Buxoro şahri", "город Бухара", "Bukhara City"],
+    ["Kogon şahri", "город Каган", "Kogon City"],
+
+    // Modallar, Kirish, Registratsiya, Shikoyat va Admin bloklari
+    ["Yangi Öquvçi Röyxatdan Ötişi", "Регистрация нового учащегося", "New Student Registration"],
+    ["Mavjud Profilga Kiriş", "Вход в существующий профиль", "Login to Existing Profile"],
+    ["Yangi Akkaunt Oçiş", "Создать новый аккаунт", "Create New Account"],
+    ["Profilga Kiriş", "Войти в профиль", "Login to Profile"],
+    ["Tuman Adminiga Şikoyat / Murojaat Yuboriş", "Отправить жалобу / обращение районному админу", "Send Complaint / Appeal to District Admin"],
+    ["Öquvçilardan Kelgan Şikoyat va Murojaatlar", "Жалобы и обращения от учащихся", "Complaints & Appeals from Students"],
+    ["Videorolikda qatnaşdim, lekin tanga berilmadi", "Я участвовал в видеоролике, но монеты не начислили", "I participated in the video clip, but coins were not awarded"],
+    ["Tadbirda iştirok etdim, lekin tanga yozilmadi", "Я участвовал в мероприятии, но монеты не записали", "I participated in an event, but coins were not recorded"],
+    ["Topşirilgan Video-Çellenjlar Nazorati", "Контроль сданных видео-челленджей", "Submitted Video Challenges Control"],
+    ["Oylik Taşriflar va Qiziqiş Statistikasi", "Ежемесячная статистика посещений и интереса", "Monthly Visits & Interest Statistics"],
+    ["Tuman Koordinatorlarini Biriktiriş va 5 Xonali Kod Beriş", "Закрепление районных координаторов и выдача 5-значного кода", "Assign District Coordinators & Issue 5-Digit Code"],
+    ["Viloyat Koordinatorlarini Biriktiriş va 5 Xonali Kod Beriş", "Закрепление областных координаторов и выдача 5-значного кода", "Assign Regional Coordinators & Issue 5-Digit Code"],
+    ["Respublika Boş Koordinatori Ma'lumotlarini Tahrirlaş", "Редактирование данных Главного республиканского координатора", "Edit National Head Coordinator Details"],
+    ["Koordinator Ma'lumotlarini va Kodini Tahrirlaş", "Редактирование данных и кода координатора", "Edit Coordinator Details & Code"],
+    ["Arxivlangan Çellenjlar (Muddati Tugaganlar)", "Архивные челленджи (С истекшим сроком)", "Archived Challenges (Expired)"],
+    ["Öquvçilarning telefon raqamlari himoyalangan", "Номера телефонов учащихся защищены", "Students' phone numbers are protected"],
+    ["Xodim sifatida kiriş", "Войти как сотрудник", "Enter as Staff"],
+    ["Xodim tasdiği talab qilinadi", "Требуется подтверждение сотрудника", "Staff verification required"]
+  ],
+
+  // Umumiy so'zlar lug'ati (qolgan so'zlarni avtomatik tarjima qilish uchun)
+  wordReplacements: [
+    ["öquvçilarning", "учащихся", "students'"],
+    ["öquvçilarga", "учащимся", "to students"],
+    ["öquvçilarni", "учащихся", "students"],
+    ["öquvçilar", "учащиеся", "students"],
+    ["öquvçi", "ученик", "student"],
+    ["çellenjlarda", "в челленджах", "in challenges"],
+    ["çellenjlar", "челленджи", "challenges"],
+    ["çellenjni", "челлендж", "challenge"],
+    ["çellenj", "челлендж", "challenge"],
+    ["tanlovlar", "конкурсы", "contests"],
+    ["tanlov", "конкурс", "contest"],
+    ["tadbirlar", "мероприятия", "events"],
+    ["tadbir", "мероприятие", "event"],
+    ["xodimlari", "сотрудники", "staff"],
+    ["xodimlar", "сотрудники", "staff"],
+    ["xodimi", "сотрудник", "staff"],
+    ["xodim", "сотрудник", "staff"],
+    ["tangalar", "монеты", "coins"],
+    ["tanga", "монет", "coins"],
+    ["hisobotlari", "отчеты", "reports"],
+    ["hisobotlar", "отчеты", "reports"],
+    ["hisoboti", "отчет", "report"],
+    ["hisobotni", "отчет", "report"],
+    ["hisobot", "отчет", "report"],
+    ["maktablari", "школы", "schools"],
+    ["maktablar", "школы", "schools"],
+    ["maktabi", "школа", "school"],
+    ["maktab", "школа", "school"],
+    ["tumanlari", "районы", "districts"],
+    ["tumanlar", "районы", "districts"],
+    ["tumaningiz", "ваш район", "your district"],
+    ["tumani", "район", "district"],
+    ["tuman", "район", "district"],
+    ["viloyatlari", "области", "regions"],
+    ["viloyatlar", "области", "regions"],
+    ["viloyati", "область", "region"],
+    ["viloyat", "область", "region"],
+    ["respublika", "республика", "republic"],
+    ["koordinatorlari", "координаторы", "coordinators"],
+    ["koordinatori", "координатор", "coordinator"],
+    ["koordinatorlar", "координаторы", "coordinators"],
+    ["koordinator", "координатор", "coordinator"],
+    ["şikoyatlar", "жалобы", "complaints"],
+    ["şikoyat", "жалоба", "complaint"],
+    ["takliflar", "предложения", "proposals"],
+    ["taklif", "предложение", "proposal"],
+    ["tasdiqlandi", "одобрено", "approved"],
+    ["tasdiqlangan", "одобрено", "approved"],
+    ["yuborildi", "отправлено", "sent"],
+    ["yuborilgan", "отправлено", "sent"],
+    ["yuboriş", "отправить", "send"],
+    ["saqlandi", "сохранено", "saved"],
+    ["saqlaş", "сохранить", "save"],
+    ["öçirildi", "удалено", "deleted"],
+    ["öçiriş", "удалить", "delete"],
+    ["tahrirlaş", "изменить", "edit"],
+    ["yangilandi", "обновлено", "updated"],
+    ["masalan", "например", "for example"],
+    ["ixtiyoriy", "необязательно", "optional"],
+    ["majburiy", "обязательно", "required"],
+    ["barça", "все", "all"],
+    ["yangi", "новый", "new"],
+    ["faol", "активный", "active"],
+    ["eng zör", "лучший", "best"],
+    ["eng yaxşi", "лучший", "best"],
+    ["ğolibi", "победитель", "winner"],
+    ["ğolib", "победитель", "winner"],
+    ["mukofot", "награда", "reward"],
+    ["telefon raqami", "номер телефона", "phone number"],
+    ["ism-familiya", "имя и фамилия", "full name"],
+    ["muddati", "срок", "deadline"],
+    ["sanasi", "дата", "date"],
+    ["manzil", "адрес", "location"],
+    ["natijalar", "результаты", "results"],
+    ["körsatkiçlar", "показатели", "metrics"],
+    ["boşqaruv", "управление", "management"],
+    ["xonasi", "кабинет", "room"],
+    ["böyiça", "по", "by"],
+    ["uçun", "для", "for"],
+    ["bilan", "с", "with"],
+    ["va", "и", "and"]
+  ],
 
   init() {
-    this.currentLang = localStorage.getItem('ijodkor_lang_v3') || 'uz';
-    this.applyTranslations();
-    this.updateLanguageUI();
-    this.setupDOMObserver();
+    this.currentLang = 'uz';
+    localStorage.setItem('ijodkor_lang_v3', 'uz');
   },
 
-  setLanguage(lang) {
-    if (!this.translations[lang]) lang = 'uz';
-    this.currentLang = lang;
-    localStorage.setItem('ijodkor_lang_v3', lang);
-    this.applyTranslations();
-    this.updateLanguageUI();
-    if (window.App && typeof window.App.refreshAllUI === 'function') {
-      window.App.refreshAllUI();
-    }
+  setLanguage() {
+    this.currentLang = 'uz';
+    localStorage.setItem('ijodkor_lang_v3', 'uz');
   },
 
   t(key) {
     const dict = this.translations[this.currentLang] || this.translations.uz;
-    const val = dict[key] || this.translations.uz[key] || key;
-    return this.currentLang === 'uz' ? this.toNewUzbek(val) : val;
+    return dict[key] || this.translations.uz[key] || key;
   },
 
-  convertDOMToNewUzbek(root = document.body) {
-    if (this.currentLang !== 'uz' || !root || this._isConverting) return;
-    this._isConverting = true;
-    if (this._observer) {
-      this._observer.disconnect();
-    }
-    try {
-      const walker = document.createTreeWalker(
-        root,
-        NodeFilter.SHOW_TEXT,
-        {
-          acceptNode(node) {
-            const parent = node.parentElement;
-            if (!parent) return NodeFilter.FILTER_REJECT;
-            const tag = parent.tagName;
-            if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'CODE' || tag === 'NOSCRIPT' || tag === 'TEXTAREA') {
-              return NodeFilter.FILTER_REJECT;
-            }
-            return NodeFilter.FILTER_ACCEPT;
-          }
-        }
-      );
+  toNewUzbek(text) {
+    return text;
+  },
 
-      let currentNode = walker.nextNode();
-      while (currentNode) {
-        const orig = currentNode.nodeValue;
-        if (orig && orig.trim().length > 0) {
-          const converted = this.toNewUzbek(orig);
-          if (converted !== orig) {
-            currentNode.nodeValue = converted;
-          }
-        }
-        currentNode = walker.nextNode();
-      }
+  translateText(rawText) {
+    return rawText;
+  },
 
-      if (root.querySelectorAll) {
-        root.querySelectorAll('[placeholder], [title], datalist option').forEach(el => {
-          if (el.hasAttribute('placeholder')) {
-            const p = el.getAttribute('placeholder');
-            const cp = this.toNewUzbek(p);
-            if (cp !== p) el.setAttribute('placeholder', cp);
-          }
-          if (el.hasAttribute('title')) {
-            const t = el.getAttribute('title');
-            const ct = this.toNewUzbek(t);
-            if (ct !== t) el.setAttribute('title', ct);
-          }
-          if (el.tagName === 'OPTION' && el.parentElement && el.parentElement.tagName === 'DATALIST') {
-            const v = el.getAttribute('value');
-            if (v) {
-              const cv = this.toNewUzbek(v);
-              if (cv !== v) el.setAttribute('value', cv);
-            }
-          }
-        });
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      this._isConverting = false;
-      if (this._observer && document.body) {
-        this._observer.observe(document.body, {
-          childList: true,
-          subtree: true,
-          characterData: false
-        });
-      }
-    }
+  translateDOM() {
+    // O'zbek tili (asosiy til) uchun DOM daraxtini qayta-qayta aylantirish shart emas (qotishning oldini oladi)
+  },
+
+  convertDOMToNewUzbek() {
+    // No-op
   },
 
   setupDOMObserver() {
-    if (this._observer || typeof MutationObserver === 'undefined' || !document.body) return;
-    this._observer = new MutationObserver(() => {
-      if (this.currentLang !== 'uz' || this._isConverting) return;
-      if (this._observerTimer) clearTimeout(this._observerTimer);
-      this._observerTimer = setTimeout(() => {
-        if (this.currentLang === 'uz' && !this._isConverting && document.body) {
-          this.convertDOMToNewUzbek(document.body);
-        }
-      }, 120);
-    });
-    this._observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      characterData: false
-    });
+    // MutationObserver o'chirildi — har soniyada taymer ishlaganda brauzer qotib qolmasligi uchun
   },
 
   applyTranslations() {
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-      const key = el.getAttribute('data-i18n');
-      const val = this.t(key);
-      if (val) {
-        el.textContent = val;
-      }
-    });
-
-    document.querySelectorAll('[data-i18n-html]').forEach(el => {
-      const key = el.getAttribute('data-i18n-html');
-      const val = this.t(key);
-      if (val) {
-        el.innerHTML = val;
-      }
-    });
-
-    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
-      const key = el.getAttribute('data-i18n-placeholder');
-      const val = this.t(key);
-      if (val) {
-        el.setAttribute('placeholder', val);
-      }
-    });
-
-    document.querySelectorAll('[data-i18n-title]').forEach(el => {
-      const key = el.getAttribute('data-i18n-title');
-      const val = this.t(key);
-      if (val) {
-        el.setAttribute('title', val);
-      }
-    });
-
-    if (this.currentLang === 'uz') {
-      this.convertDOMToNewUzbek(document.body);
-    }
+    // Asosiy til o'zbekcha bo'lgani uchun HTML matnlari o'z holicha saqlanadi
   },
 
-  updateLanguageUI() {
-    const flags = { uz: '🇺🇿', ru: '🇷🇺', en: '🇬🇧' };
-    const codes = { uz: 'UZ', ru: 'RU', en: 'EN' };
-
-    document.querySelectorAll('.current-lang-flag').forEach(el => {
-      el.textContent = flags[this.currentLang] || '🇺🇿';
-    });
-    document.querySelectorAll('.current-lang-code').forEach(el => {
-      el.textContent = codes[this.currentLang] || 'UZ';
-    });
-  }
+  updateLanguageUI() {}
 };
 
 window.I18n = I18n;

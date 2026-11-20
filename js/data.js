@@ -117,7 +117,17 @@ const TUMANLAR = [
   { id: 'nukus', name: 'Nukus şahri', icon: '🏜️', regionId: 'qoraqalpogiston', regionName: 'Qoraqalpoğiston Respublikasi' },
   // Jizzax, Sirdaryo, Navoiy
   { id: 'jizzax', name: 'Jizzax şahri', icon: '🌾', regionId: 'jizzax_vil', regionName: 'Jizzax viloyati' },
-  { id: 'guliston', name: 'Guliston şahri', icon: '🌱', regionId: 'sirdaryo_vil', regionName: 'Sirdaryo viloyati' },
+  { id: 'zomin', name: 'Zomin tumani', icon: '🌾', regionId: 'jizzax_vil', regionName: 'Jizzax viloyati' },
+  { id: 'guliston', name: 'Guliston tumani', icon: '🌱', regionId: 'sirdaryo_vil', regionName: 'Sirdaryo viloyati' },
+  { id: 'guliston-shahri', name: 'Guliston şahri', icon: '🌱', regionId: 'sirdaryo_vil', regionName: 'Sirdaryo viloyati' },
+  { id: 'sirdaryo-tumani', name: 'Sirdaryo tumani', icon: '🌱', regionId: 'sirdaryo_vil', regionName: 'Sirdaryo viloyati' },
+  { id: 'boyovut', name: 'Boyovut tumani', icon: '🌱', regionId: 'sirdaryo_vil', regionName: 'Sirdaryo viloyati' },
+  { id: 'yangiyer', name: 'Yangiyer şahri', icon: '🌱', regionId: 'sirdaryo_vil', regionName: 'Sirdaryo viloyati' },
+  { id: 'sayxunobod', name: 'Sayxunobod tumani', icon: '🌱', regionId: 'sirdaryo_vil', regionName: 'Sirdaryo viloyati' },
+  { id: 'mirzaobod', name: 'Mirzaobod tumani', icon: '🌱', regionId: 'sirdaryo_vil', regionName: 'Sirdaryo viloyati' },
+  { id: 'oqoltin', name: 'Oqoltin tumani', icon: '🌱', regionId: 'sirdaryo_vil', regionName: 'Sirdaryo viloyati' },
+  { id: 'sardoba', name: 'Sardoba tumani', icon: '🌱', regionId: 'sirdaryo_vil', regionName: 'Sirdaryo viloyati' },
+  { id: 'xovos', name: 'Xovos tumani', icon: '🌱', regionId: 'sirdaryo_vil', regionName: 'Sirdaryo viloyati' },
   { id: 'navoiy', name: 'Navoiy şahri', icon: '⚡', regionId: 'navoiy_vil', regionName: 'Navoiy viloyati' },
   { id: 'karmana', name: 'Karmana tumani', icon: '⚡', regionId: 'navoiy_vil', regionName: 'Navoiy viloyati' }
 ];
@@ -388,16 +398,12 @@ const CloudSync = {
       if (item && item.id) mergedMap.set(item.id, item);
     });
 
-    const now = Date.now();
     localList.forEach(localItem => {
       if (!localItem || !localItem.id || localItem._deleted) return;
       const remoteItem = mergedMap.get(localItem.id);
       if (!remoteItem) {
-        // Agar lokal element oxirgi 30 soniya ichida yaratilgan/yangilangan bo'lsa (hali serverga yetib bormagan bo'lsa), uni saqlab qolamiz
-        const localTime = new Date(localItem.updatedAt || localItem.createdAt || localItem.registeredAt || 0).getTime();
-        if (now - localTime < 30000) {
-          mergedMap.set(localItem.id, localItem);
-        }
+        // Lokal bazada ro'yxatdan o'tgan elementlar hech qachon yo'qolib ketmasligi uchun ularni har doim saqlab qolamiz
+        mergedMap.set(localItem.id, localItem);
       } else {
         const localTime = new Date(localItem.updatedAt || 0).getTime();
         const remoteTime = new Date(remoteItem.updatedAt || 0).getTime();
@@ -435,8 +441,12 @@ const CloudSync = {
 
   async pullFromRest() {
     try {
-      const res = await fetch(`${this.dbUrl}/.json`);
+      const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      const timer = controller ? setTimeout(() => controller.abort(), 3000) : null;
+      const res = await fetch(`${this.dbUrl}/.json`, controller ? { signal: controller.signal } : {});
+      if (timer) clearTimeout(timer);
       if (res.ok) {
+        this.notify({ status: 'connected', text: 'Server: Ulangan', mode: 'Cloud' });
         const root = await res.json();
         if (root) {
           const changed = this.applyRemoteRoot(root);
@@ -444,17 +454,22 @@ const CloudSync = {
             window.App.refreshAllUI();
           }
         }
+      } else {
+        this.notify({ status: 'connected', text: 'Server: Faol (Mahalliy+Bulut)', mode: 'Hybrid' });
       }
     } catch (e) {
-      console.warn('REST pull xatosi:', e);
+      this.notify({ status: 'connected', text: 'Server: Faol (Avtonom)', mode: 'Local' });
     }
   },
 
   async pullAndSync() {
     if (this.db) {
       try {
-        const snap = await this.db.ref('/').once('value');
-        const root = snap.val();
+        const snap = await Promise.race([
+          this.db.ref('/').once('value'),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000))
+        ]);
+        const root = snap && typeof snap.val === 'function' ? snap.val() : null;
         if (root) {
           const changed = this.applyRemoteRoot(root);
           if (changed && window.App && typeof window.App.refreshAllUI === 'function' && !this.isTypingInCoordinatorInput()) {
@@ -465,7 +480,7 @@ const CloudSync = {
           this.pushAllToCloud();
         }
       } catch (e) {
-        console.warn(e);
+        this.notify({ status: 'connected', text: 'Server: Faol', mode: 'Hybrid' });
       }
     }
   },
@@ -874,6 +889,52 @@ const DataStore = {
       console.warn('Migratsiya xatosi:', e);
     }
 
+    // 0B. Eski "Tadbirda faol ishtirok" va "2-Chorak Mavsumi" soxta/namuna yozuvlarini butunlay tozalash
+    try {
+      if (localStorage.getItem('ijodkor_clean_fake_events_v3') !== 'done') {
+        let rawCreators = localStorage.getItem(STORAGE_KEY_CREATORS);
+        if (rawCreators) {
+          let creators = JSON.parse(rawCreators);
+          if (Array.isArray(creators)) {
+            let changed = false;
+            creators = creators.map(c => {
+              if (!c) return c;
+              let invs = Array.isArray(c.invitationsHistory) ? c.invitationsHistory : [];
+              let evs = Array.isArray(c.eventsHistory) ? c.eventsHistory : [];
+              const cleanInvs = invs.filter(inv => {
+                if (!inv) return false;
+                const t = (inv.title || inv.eventName || '').toLowerCase();
+                const s = (inv.seasonName || '').toLowerCase();
+                return !t.includes('tadbirda faol ishtirok') && !s.includes('2-chorak');
+              });
+              const cleanEvs = evs.filter(ev => {
+                if (!ev) return false;
+                const t = (ev.eventName || '').toLowerCase();
+                const s = (ev.seasonName || '').toLowerCase();
+                return !t.includes('tadbirda faol ishtirok') && !s.includes('2-chorak');
+              });
+              if (cleanInvs.length !== invs.length || cleanEvs.length !== evs.length) {
+                changed = true;
+                return {
+                  ...c,
+                  invitationsHistory: cleanInvs,
+                  eventsHistory: cleanEvs,
+                  eventsCount: cleanEvs.length
+                };
+              }
+              return c;
+            });
+            if (changed) {
+              localStorage.setItem(STORAGE_KEY_CREATORS, JSON.stringify(creators));
+            }
+          }
+        }
+        localStorage.setItem('ijodkor_clean_fake_events_v3', 'done');
+      }
+    } catch (e) {
+      console.warn('Fake events cleaning error:', e);
+    }
+
     // 1. Dastlabki namuna o'quvchilarni (cre-1...cre-10) avtomatik tozalash
     try {
       let rawCreators = localStorage.getItem(STORAGE_KEY_CREATORS);
@@ -1089,12 +1150,32 @@ const DataStore = {
     if (!/\b(tumani|tuman|shahri|shahar|şahri|şahar)\b/i.test(formattedLabel)) {
       formattedLabel += ' tumani';
     }
-    return {
-      id: slug || lower,
-      label: formattedLabel,
-      regionId: inferredReg.id || 'buxoro_vil',
-      regionLabel: inferredReg.label || 'Buxoro viloyati'
-    };
+      let resolvedRegId = inferredReg.id;
+      let resolvedRegLabel = inferredReg.label;
+      if (!resolvedRegId) {
+        try {
+          const allLocal = [
+            ...(JSON.parse(localStorage.getItem(STORAGE_KEY_CREATORS) || '[]') || []),
+            ...(JSON.parse(localStorage.getItem(STORAGE_KEY_ADMINS) || '[]') || []),
+            ...(JSON.parse(localStorage.getItem(STORAGE_KEY_STAFF) || '[]') || [])
+          ];
+          const foundWithReg = allLocal.find(item =>
+            item && item.regionId && item.regionId !== 'buxoro_vil' &&
+            (item.district === (slug || lower) || this.toCanonicalUzbek(item.districtLabel || '') === lower)
+          );
+          if (foundWithReg) {
+            resolvedRegId = foundWithReg.regionId;
+            resolvedRegLabel = foundWithReg.regionLabel;
+          }
+        } catch (e) {}
+      }
+
+      return {
+        id: slug || lower,
+        label: formattedLabel,
+        regionId: resolvedRegId || 'buxoro_vil',
+        regionLabel: resolvedRegLabel || 'Buxoro viloyati'
+      };
   },
 
   districtsMatch(distA, distB) {
@@ -1495,6 +1576,7 @@ const DataStore = {
   addSeasonReport(reportData) {
     const reports = this.getSeasonReports();
     const nowIso = new Date().toISOString();
+    const seasonStr = (reportData.season || reportData.seasonTitle || '2026-yil Mavsumiy Hisoboti').trim();
     const newReport = {
       id: 'rep-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
       level: reportData.level || 'district_to_region', // 'district_to_region' yoki 'region_to_republic'
@@ -1504,12 +1586,22 @@ const DataStore = {
       regionLabel: reportData.regionLabel || 'Buxoro viloyati',
       coordinatorName: (reportData.coordinatorName || 'Koordinator').trim(),
       coordinatorPhone: (reportData.coordinatorPhone || '').trim(),
-      seasonTitle: (reportData.seasonTitle || '2026-yil Mavsumiy Hisoboti').trim(),
+      season: seasonStr,
+      seasonTitle: seasonStr,
       studentsCount: parseInt(reportData.studentsCount) || 0,
-      eventsCount: parseInt(reportData.eventsCount) || 0,
+      challengesCount: parseInt(reportData.challengesCount) || parseInt(reportData.eventsCount) || 0,
+      eventsCount: parseInt(reportData.eventsCount) || parseInt(reportData.challengesCount) || 0,
       totalCoins: parseInt(reportData.totalCoins) || 0,
       districtsCount: parseInt(reportData.districtsCount) || 1,
       summary: (reportData.summary || '').trim(),
+      challengeId: reportData.challengeId || '',
+      challengeTitle: (reportData.challengeTitle || '').trim(),
+      bestSubmissionId: reportData.bestSubmissionId || '',
+      bestCreatorName: (reportData.bestCreatorName || '').trim(),
+      bestSchool: (reportData.bestSchool || '').trim(),
+      bestDistrict: (reportData.bestDistrict || reportData.districtLabel || '').trim(),
+      bestVideoUrl: (reportData.bestVideoUrl || '').trim(),
+      bestParticipants: (reportData.bestParticipants || '').trim(),
       status: 'submitted', // 'submitted' | 'approved'
       reviewerNote: '',
       submittedAt: nowIso.split('T')[0],
@@ -1624,8 +1716,10 @@ const DataStore = {
     if (!remoteCreator || !remoteCreator.id) return;
     const demoIds = ['cre-1', 'cre-2', 'cre-3', 'cre-4', 'cre-5', 'cre-6', 'cre-7', 'cre-8', 'cre-9', 'cre-10'];
     if (demoIds.includes(remoteCreator.id)) return;
-    if (remoteCreator._deleted) {
-      let creators = this.getCreators().filter(c => c.id !== remoteCreator.id);
+    const deletedIds = this.getDeletedCreatorIds ? this.getDeletedCreatorIds() : [];
+    if (remoteCreator._deleted || deletedIds.includes(remoteCreator.id)) {
+      this.markCreatorIdDeleted && this.markCreatorIdDeleted(remoteCreator.id);
+      let creators = this.getAllCreatorsNormalized().filter(c => c.id !== remoteCreator.id);
       localStorage.setItem(STORAGE_KEY_CREATORS, JSON.stringify(creators));
       if (window.App && typeof window.App.refreshAllUI === 'function') {
         window.App.refreshAllUI();
@@ -1705,25 +1799,260 @@ const DataStore = {
     }
   },
 
-  // 3. O'QUVCHILAR BAZASI
-  getCreators() {
+  // ================= 4 TA YILLIK MAVSUM TIZIMI (KUZGI, QISHKI, BAHORGI, YOZGI MAVSUM) =================
+  getSchoolSeasonsCatalog() {
+    return [
+      { id: 'autumn', name: 'Kuzgi Mavsum', shortName: 'Kuzgi mavsum', icon: '🍁', type: 'season', rangeLabel: '1-sentabr — 30-noyabr', periodText: '1-sentabr — 30-noyabr', startMonth: 9, startDay: 1, endMonth: 11, endDay: 30 },
+      { id: 'winter', name: 'Qishki Mavsum', shortName: 'Qishki mavsum', icon: '❄️', type: 'season', rangeLabel: '1-dekabr — 28-fevral', periodText: '1-dekabr — 28-fevral', startMonth: 12, startDay: 1, endMonth: 2, endDay: 28 },
+      { id: 'spring', name: 'Bahorgi Mavsum', shortName: 'Bahorgi mavsum', icon: '🌸', type: 'season', rangeLabel: '1-mart — 31-may', periodText: '1-mart — 31-may', startMonth: 3, startDay: 1, endMonth: 5, endDay: 31 },
+      { id: 'summer', name: 'Yozgi Mavsum', shortName: 'Yozgi mavsum', icon: '☀️', type: 'season', rangeLabel: '1-iyun — 31-avgust', periodText: '1-iyun — 31-avgust', startMonth: 6, startDay: 1, endMonth: 8, endDay: 31 }
+    ];
+  },
+
+  getSeasonForDate(dateInput) {
+    const d = dateInput ? new Date(dateInput) : new Date();
+    const validDate = isNaN(d.getTime()) ? new Date() : d;
+    const month = validDate.getMonth() + 1; // 1..12
+    const catalog = this.getSchoolSeasonsCatalog();
+
+    if (month >= 9 && month <= 11) return catalog[0]; // Kuzgi Mavsum
+    if (month === 12 || month === 1 || month === 2) return catalog[1]; // Qishki Mavsum
+    if (month >= 3 && month <= 5) return catalog[2]; // Bahorgi Mavsum
+    return catalog[3]; // Yozgi Mavsum (6..8)
+  },
+
+  getCurrentSchoolSeason(nowInput) {
+    const now = nowInput ? new Date(nowInput) : new Date();
+    const season = this.getSeasonForDate(now);
+    const catalog = this.getSchoolSeasonsCatalog();
+    const idx = catalog.findIndex(s => s.id === season.id);
+    const prevSeason = catalog[(idx - 1 + catalog.length) % catalog.length];
+    const nextSeason = catalog[(idx + 1) % catalog.length];
+
+    const y = now.getFullYear();
+    const m = now.getMonth() + 1;
+    let endYear = y;
+    if (season.id === 'winter' && m === 12) {
+      endYear = y + 1;
+    }
+    const endDayActual = season.endMonth === 2 ? new Date(endYear, 2, 0).getDate() : season.endDay;
+    const endDateObj = new Date(endYear, season.endMonth - 1, endDayActual, 23, 59, 59, 999);
+    const diffMs = Math.max(0, endDateObj.getTime() - now.getTime());
+
+    const totalSeconds = Math.floor(diffMs / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return {
+      ...season,
+      periodText: season.periodText || season.rangeLabel,
+      endDateObj,
+      endTimestamp: endDateObj.getTime(),
+      remainingMs: diffMs,
+      days,
+      hours,
+      minutes,
+      seconds,
+      remaining: {
+        days,
+        hours,
+        minutes,
+        seconds
+      },
+      previousSeason: prevSeason,
+      nextSeason: nextSeason
+    };
+  },
+
+  // 3. O'QUVCHILAR BAZASI (VA 1 OY ONLINE BO'LMAGANLARNI AVTOMATIK QORA RO'YXATGA CHIQARISH)
+  _creatorsRawCache: null,
+  _creatorsNormCache: null,
+
+  invalidateCreatorsCache() {
+    this._creatorsRawCache = null;
+    this._creatorsNormCache = null;
+  },
+
+  getDeletedCreatorIds() {
+    try {
+      const arr = JSON.parse(localStorage.getItem('ijodkor_deleted_creator_ids') || '[]');
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) {
+      return [];
+    }
+  },
+
+  markCreatorIdDeleted(id) {
+    if (!id) return;
+    const list = this.getDeletedCreatorIds();
+    if (!list.includes(id)) {
+      list.push(id);
+      localStorage.setItem('ijodkor_deleted_creator_ids', JSON.stringify(list));
+    }
+    this.invalidateCreatorsCache();
+  },
+
+  getAllCreatorsNormalized() {
     this.init();
     try {
-      const data = JSON.parse(localStorage.getItem(STORAGE_KEY_CREATORS));
-      return Array.isArray(data) ? data : INITIAL_CREATORS;
+      const rawStr = localStorage.getItem(STORAGE_KEY_CREATORS);
+      if (!rawStr) return INITIAL_CREATORS;
+      if (this._creatorsRawCache === rawStr && Array.isArray(this._creatorsNormCache)) {
+        return this._creatorsNormCache;
+      }
+
+      const data = JSON.parse(rawStr);
+      if (!Array.isArray(data)) return INITIAL_CREATORS;
+      const deletedIds = this.getDeletedCreatorIds();
+      const nowMs = Date.now();
+      const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+      let autoBlacklistedChanged = false;
+
+      const seenNicks = new Set();
+
+      const normalized = data
+        .filter(c => c && c.id && !c._deleted && !deletedIds.includes(c.id))
+        .map((c, idx) => {
+          const normDist = this.normalizeDistrict(
+            c.districtLabel || c.district || 'jondor',
+            (c.regionLabel && c.regionLabel !== 'Buxoro viloyati') ? c.regionLabel : (c.regionId && c.regionId !== 'buxoro_vil' ? c.regionId : '')
+          );
+          const lastActiveAt = c.lastActiveAt || c.updatedAt || (c.createdAt ? `${c.createdAt}T12:00:00.000Z` : '2026-11-15T12:00:00.000Z');
+          const lastActiveMs = new Date(lastActiveAt).getTime();
+          let isBlacklisted = Boolean(c.isBlacklisted);
+          let blacklistedAt = c.blacklistedAt || '';
+          let blacklistReason = c.blacklistReason || '';
+
+          if (!isBlacklisted && !isNaN(lastActiveMs) && (nowMs - lastActiveMs > THIRTY_DAYS_MS)) {
+            isBlacklisted = true;
+            blacklistedAt = blacklistedAt || new Date(nowMs).toISOString();
+            blacklistReason = "1 oy (30 kun) davomida tizimga kirmagani (online bo'lmagani) sababli avtomatik qora ro'yxatga o'tkazildi";
+            autoBlacklistedChanged = true;
+          }
+
+          // Har bir o'quvchining @nickname'i takrorlanmas (noyob) bo'lishini ta'minlash
+          let baseNick = this.cleanNickname(c.nickname) || this.cleanNickname(c.fullName).replace(/[^a-z0-9_]/g, '').slice(0, 14) || `ijodkor_${idx + 1}`;
+          let uniqueNick = baseNick;
+          let suffix = 2;
+          while (seenNicks.has(uniqueNick)) {
+            uniqueNick = `${baseNick}_${suffix}`;
+            suffix++;
+          }
+          seenNicks.add(uniqueNick);
+          if (c.nickname !== uniqueNick) {
+            autoBlacklistedChanged = true;
+          }
+
+          // Har doim eski "Tadbirda faol ishtirok" yoki "2-Chorak Mavsumi" soxta takliflarini chiqarib tashlash
+          let cleanedInvites = Array.isArray(c.invitationsHistory) ? c.invitationsHistory.filter(inv => {
+            if (!inv) return false;
+            const t = (inv.title || inv.eventName || '').toLowerCase();
+            const s = (inv.seasonName || '').toLowerCase();
+            return !t.includes('tadbirda faol ishtirok') && !s.includes('2-chorak');
+          }) : [];
+
+          let cleanedEvents = Array.isArray(c.eventsHistory) ? c.eventsHistory.filter(ev => {
+            if (!ev) return false;
+            const t = (ev.eventName || '').toLowerCase();
+            const s = (ev.seasonName || '').toLowerCase();
+            return !t.includes('tadbirda faol ishtirok') && !s.includes('2-chorak');
+          }) : [];
+
+          if ((c.invitationsHistory && c.invitationsHistory.length !== cleanedInvites.length) ||
+              (c.eventsHistory && c.eventsHistory.length !== cleanedEvents.length)) {
+            autoBlacklistedChanged = true;
+          }
+
+          return {
+            ...c,
+            nickname: uniqueNick,
+            district: normDist.id || c.district || 'jondor',
+            districtLabel: normDist.label || c.districtLabel || 'Jondor tumani',
+            regionId: normDist.regionId || c.regionId || 'buxoro_vil',
+            regionLabel: normDist.regionLabel || c.regionLabel || 'Buxoro viloyati',
+            invitationsHistory: cleanedInvites,
+            eventsHistory: cleanedEvents,
+            eventsCount: cleanedEvents.length,
+            lastActiveAt,
+            isBlacklisted,
+            blacklistedAt,
+            blacklistReason
+          };
+        });
+
+      if (autoBlacklistedChanged) {
+        const savedStr = JSON.stringify(normalized);
+        localStorage.setItem(STORAGE_KEY_CREATORS, savedStr);
+        this._creatorsRawCache = savedStr;
+      } else {
+        this._creatorsRawCache = rawStr;
+      }
+      this._creatorsNormCache = normalized;
+      return normalized;
     } catch (e) {
       return INITIAL_CREATORS;
     }
   },
 
+  // Faol o'quvchilar ro'yxati (Qora ro'yxatga tushganlar sanalmaydi va chiqmaydi!)
+  getCreators() {
+    return this.getAllCreatorsNormalized().filter(c => !c.isBlacklisted);
+  },
+
+  // Qora ro'yxatga tushgan (1 oy online bo'lmagan) o'quvchilar
+  getBlacklistedCreators() {
+    return this.getAllCreatorsNormalized().filter(c => Boolean(c.isBlacklisted));
+  },
+
+  // O'quvchi tizimga kirganda yoki faol bo'lganda online vaqtini yangilash
+  touchCreatorOnline(creatorId) {
+    if (!creatorId) return null;
+    const all = this.getAllCreatorsNormalized();
+    const idx = all.findIndex(c => c && c.id === creatorId);
+    if (idx === -1) return null;
+    all[idx].lastActiveAt = new Date().toISOString();
+    all[idx].isBlacklisted = false;
+    all[idx].blacklistedAt = '';
+    all[idx].blacklistReason = '';
+    const savedStr = JSON.stringify(all);
+    localStorage.setItem(STORAGE_KEY_CREATORS, savedStr);
+    this._creatorsRawCache = savedStr;
+    this._creatorsNormCache = all;
+    return all[idx];
+  },
+
+  restoreBlacklistedCreator(creatorId) {
+    return this.touchCreatorOnline(creatorId);
+  },
+
   saveCreators(creators) {
-    localStorage.setItem(STORAGE_KEY_CREATORS, JSON.stringify(creators));
+    // Qora ro'yxatdagi o'quvchilar yo'qolib qolmasligi uchun ularni ham birga saqlaymiz
+    const blacklisted = this.getBlacklistedCreators().filter(b => !creators.some(c => c && c.id === b.id));
+    const combined = [...creators, ...blacklisted];
+    const savedStr = JSON.stringify(combined);
+    localStorage.setItem(STORAGE_KEY_CREATORS, savedStr);
+    this.invalidateCreatorsCache();
     CloudSync.push();
   },
 
   getCreatorById(id) {
     const creators = this.getCreators();
     return creators.find(c => c.id === id);
+  },
+
+  // Bir kishi ishlatgan @nickname'ni ikkinchi kishi ishlata olmasligini tekshirish
+  isNicknameTaken(rawNickname, excludeCreatorId = '') {
+    const clean = this.cleanNickname(rawNickname);
+    if (!clean) return false;
+    const all = this.getAllCreatorsNormalized();
+    return all.some(c =>
+      c &&
+      (!excludeCreatorId || String(c.id) !== String(excludeCreatorId)) &&
+      c.nickname &&
+      this.cleanNickname(c.nickname) === clean
+    );
   },
 
   getDistrictLabel(districtId) {
@@ -1768,8 +2097,9 @@ const DataStore = {
     const nick = (creatorData.nickname || '').trim() || (creatorData.fullName || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 15) || 'ijodkor';
     const pin = (creatorData.pin || '').trim() || '1234';
 
+    const nowIso = new Date().toISOString();
     const newCreator = {
-      id: 'cre-' + Date.now(),
+      id: 'cre-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
       fullName: (creatorData.fullName || '').trim() || "Yangi O'quvchi",
       nickname: nick,
       pin: pin,
@@ -1792,11 +2122,17 @@ const DataStore = {
           id: 'ev-' + Date.now(),
           eventName: "Kelajak ijodkori saralash bonusi",
           coinsAwarded: parseInt(creatorData.initialCoins) || 10,
-          date: new Date().toISOString().split('T')[0],
+          date: nowIso.split('T')[0],
+          seasonId: this.getSeasonForDate(nowIso).id,
+          seasonName: this.getSeasonForDate(nowIso).name,
           note: "Tizimda o'zini ro'yxatdan o'tkazgani va ijodiy portfoliosi uchun"
         }
       ],
-      createdAt: new Date().toISOString().split('T')[0]
+      invitationsHistory: [],
+      createdAt: nowIso.split('T')[0],
+      updatedAt: nowIso,
+      lastActiveAt: nowIso,
+      isBlacklisted: false
     };
 
     creators.unshift(newCreator);
@@ -1860,6 +2196,8 @@ const DataStore = {
       }
     }
 
+    target.updatedAt = new Date().toISOString();
+    target.lastActiveAt = target.updatedAt;
     creators[index] = target;
     this.saveCreators(creators);
     try {
@@ -1871,10 +2209,61 @@ const DataStore = {
   },
 
   deleteCreator(id) {
-    let creators = this.getCreators();
-    creators = creators.filter(c => c.id !== id);
-    this.saveCreators(creators);
+    if (!id) return false;
+    this.markCreatorIdDeleted(id);
+    const all = this.getAllCreatorsNormalized().filter(c => c.id !== id);
+    localStorage.setItem(STORAGE_KEY_CREATORS, JSON.stringify(all));
+    try {
+      if (typeof CloudSync !== 'undefined') {
+        if (CloudSync.db) {
+          CloudSync.db.ref('creators/' + id).remove();
+        }
+        fetch(`${FIREBASE_DB_URL}/creators/${id}.json`, { method: 'DELETE' }).catch(() => {});
+      }
+    } catch (e) {}
+    CloudSync.push();
     return true;
+  },
+
+  deleteStaffMember(id) {
+    if (!id) return false;
+    let staffList = this.getStaffList().filter(s => s && s.id !== id);
+    localStorage.setItem(STORAGE_KEY_STAFF, JSON.stringify(staffList));
+    try {
+      if (typeof CloudSync !== 'undefined') {
+        if (CloudSync.db) {
+          CloudSync.db.ref('staff/' + id).remove();
+        }
+        fetch(`${FIREBASE_DB_URL}/staff/${id}.json`, { method: 'DELETE' }).catch(() => {});
+      }
+    } catch (e) {}
+    CloudSync.push();
+    return true;
+  },
+
+  recordStudentInvitation(creatorId, inviteInfo = {}) {
+    const creators = this.getCreators();
+    const creator = creators.find(c => c.id === creatorId);
+    if (!creator) return null;
+    const nowIso = new Date().toISOString();
+    const season = this.getSeasonForDate(nowIso);
+    if (!Array.isArray(creator.invitationsHistory)) {
+      creator.invitationsHistory = [];
+    }
+    const item = {
+      id: 'inv-' + Date.now(),
+      title: (inviteInfo.title || "Madaniy tadbir va bayramga taklif").trim(),
+      staffName: (inviteInfo.staffName || "Madaniyat xodimi").trim(),
+      staffOrg: (inviteInfo.staffOrg || "Madaniyat markazi").trim(),
+      districtLabel: inviteInfo.districtLabel || creator.districtLabel || '',
+      date: nowIso.split('T')[0],
+      seasonId: season.id,
+      seasonName: season.name
+    };
+    creator.invitationsHistory.unshift(item);
+    creator.updatedAt = nowIso;
+    this.saveCreators(creators);
+    return item;
   },
 
   clearDemoCreators() {
@@ -1897,28 +2286,42 @@ const DataStore = {
       return { success: false, message: "Tanga miqdori musbat son bo'lishi kerak!" };
     }
 
+    const nowIso = new Date().toISOString();
+    const season = this.getSeasonForDate(nowIso);
+
     creator.coins = (creator.coins || 0) + coinsNum;
     creator.eventsCount = (creator.eventsCount || 0) + 1;
     
     if (!creator.eventsHistory) creator.eventsHistory = [];
     creator.eventsHistory.unshift({
-      id: 'ev-' + Date.now(),
+      id: 'ev-' + Date.now() + '-' + Math.random().toString(36).slice(2, 5),
       eventName: eventName.trim() || "Madaniy tadbir",
       coinsAwarded: coinsNum,
-      date: new Date().toISOString().split('T')[0],
+      date: nowIso.split('T')[0],
+      timestamp: nowIso,
+      seasonId: season.id,
+      seasonName: season.name,
       note: (note || '').trim() || "Faol ijodiy chiqish uchun"
     });
+    creator.updatedAt = nowIso;
 
     this.saveCreators(creators);
     return { success: true, creator };
   },
 
-  // 4. MUDDATLI IJODIY CHELLENJLAR (VIDEO VAZIFALAR)
+  // 4. MUDDATLI IJODIY CHELLENJLAR (FAQAT RESPUBLIKA TOMONIDAN QO'YILADI VA BARCHA EKRANLARDA KO'RINADI)
   getChallenges() {
     this.init();
     try {
       const data = JSON.parse(localStorage.getItem(STORAGE_KEY_CHALLENGES));
-      return Array.isArray(data) ? data : INITIAL_CHALLENGES;
+      const list = Array.isArray(data) ? data : INITIAL_CHALLENGES;
+      return list.map(ch => ({
+        ...ch,
+        scope: 'republic',
+        isRepublic: true,
+        district: 'all',
+        districtLabel: '🌍 Respublika Umumiy Vazifasi (Barça tumanlar)'
+      }));
     } catch (e) {
       return INITIAL_CHALLENGES;
     }
@@ -1926,24 +2329,20 @@ const DataStore = {
 
   addChallenge(challengeData) {
     const challenges = this.getChallenges();
-    const isRepublic = challengeData.scope === 'republic' || challengeData.isRepublic === true || challengeData.district === 'all';
-    const normDist = isRepublic
-      ? { id: 'all', label: 'Respublika Umumiy Vazifasi (Barça tumanlar)', regionId: 'all', regionLabel: 'Özbekiston Respublikasi' }
-      : this.normalizeDistrict(challengeData.districtLabel || challengeData.district || '');
     const nowIso = new Date().toISOString();
     const newChallenge = {
       id: 'chl-' + Date.now(),
       title: challengeData.title.trim(),
       description: challengeData.description.trim(),
       awardCoins: parseInt(challengeData.awardCoins || challengeData.coins) || 50,
-      deadline: challengeData.deadline, // e.g. "2026-11-04"
+      deadline: challengeData.deadline,
       startDate: challengeData.startDate || nowIso.split('T')[0],
-      scope: isRepublic ? 'republic' : 'district',
-      isRepublic: isRepublic,
-      district: isRepublic ? 'all' : (normDist.id || ''),
-      districtLabel: isRepublic ? 'Respublika Umumiy Vazifasi (Barça tumanlar)' : (normDist.label || ''),
-      regionId: normDist.regionId || 'buxoro_vil',
-      regionLabel: normDist.regionLabel || 'Buxoro viloyati',
+      scope: 'republic',
+      isRepublic: true,
+      district: 'all',
+      districtLabel: '🌍 Respublika Umumiy Vazifasi (Barça tumanlar)',
+      regionId: 'all',
+      regionLabel: 'Özbekiston Respublikasi',
       status: 'active',
       createdAt: nowIso.split('T')[0],
       updatedAt: nowIso
@@ -2011,7 +2410,180 @@ const DataStore = {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   },
 
-  // 5. CHELLENJGA VIDEO ROLIK TOPSHIRISH VA BAHOLASH
+  // 5. CHELLENJGA VIDEO ROLIK TOPSHIRISH VA BAHOLASH (JAMOAVIY KOLLABORATSIYA — @NICKNAME BILAN)
+  cleanNickname(raw) {
+    return String(raw || '').trim().replace(/^@+/, '').toLowerCase();
+  },
+
+  normalizeNickname(raw) {
+    return this.cleanNickname(raw);
+  },
+
+  resolveSubmissionCollaborators(subOrParticipants, primaryCreatorId, primaryCreatorName) {
+    const creators = this.getCreators() || [];
+    const matchedMap = new Map(); // creator.id -> creator summary
+    const unmatchedNicks = [];
+
+    const addCreatorObj = (c) => {
+      if (!c || !c.id) return;
+      if (!matchedMap.has(c.id)) {
+        const cleanNick = this.cleanNickname(c.nickname) || this.cleanNickname(c.fullName).replace(/[^a-z0-9]/g, '');
+        matchedMap.set(c.id, {
+          id: c.id,
+          fullName: c.fullName || "O'quvchi",
+          nickname: cleanNick,
+          school: c.school || '',
+          district: c.district || '',
+          districtLabel: c.districtLabel || ''
+        });
+      }
+    };
+
+    const isSubObj = subOrParticipants && typeof subOrParticipants === 'object';
+    const rawParticipants = isSubObj ? (subOrParticipants.participants || '') : String(subOrParticipants || '');
+    const pId = primaryCreatorId || (isSubObj ? subOrParticipants.creatorId : '') || '';
+    const pName = primaryCreatorName || (isSubObj ? subOrParticipants.creatorName : '') || '';
+    const pSubNick = isSubObj ? this.cleanNickname(subOrParticipants.creatorNickname || '') : '';
+
+    // 1. Asosiy yuklagan o'quvchini ANIQ ID bo'yicha qo'shamiz
+    let primaryCreatorObj = null;
+    if (pId) {
+      primaryCreatorObj = creators.find(c => c && String(c.id) === String(pId)) || null;
+      if (primaryCreatorObj) {
+        addCreatorObj(primaryCreatorObj);
+      } else if (pName) {
+        // Agar o'quvchi bazada topilmasa ham uning o'z ID sini saqlab qolamiz (boshqa odamga o'tib ketmasligi uchun!)
+        const fallbackNick = pSubNick || this.cleanNickname(pName).replace(/[^a-z0-9]/g, '');
+        matchedMap.set(String(pId), {
+          id: String(pId),
+          fullName: pName,
+          nickname: fallbackNick,
+          school: isSubObj ? (subOrParticipants.creatorSchool || '') : '',
+          district: isSubObj ? (subOrParticipants.district || '') : '',
+          districtLabel: isSubObj ? (subOrParticipants.districtLabel || '') : ''
+        });
+      }
+    } else if (pName) {
+      const lowName = String(pName).trim().toLowerCase();
+      const byName = creators.find(c => c && c.fullName && c.fullName.trim().toLowerCase() === lowName);
+      if (byName) {
+        primaryCreatorObj = byName;
+        addCreatorObj(byName);
+      }
+    }
+
+    const primaryCleanNick = primaryCreatorObj
+      ? (this.cleanNickname(primaryCreatorObj.nickname) || pSubNick)
+      : pSubNick;
+    const primaryCleanName = String((primaryCreatorObj && primaryCreatorObj.fullName) || pName || '').trim().toLowerCase();
+
+    // 2. Agar sub obyektida oldindan saqlangan collaboratorIds bo'lsa (faqat aniq ID bo'yicha)
+    if (isSubObj && Array.isArray(subOrParticipants.collaboratorIds)) {
+      subOrParticipants.collaboratorIds.forEach(cid => {
+        const found = creators.find(c => c && String(c.id) === String(cid));
+        if (found) addCreatorObj(found);
+      });
+    }
+
+    // 3. Matndan @nickname larni qidiramiz (asosiy muallifning o'z nikini boshqa adash akkauntga ulab yubormaymiz!)
+    const atMatches = String(rawParticipants).match(/@([a-zA-Z0-9_.\-]+)/g) || [];
+    atMatches.forEach(token => {
+      const nick = this.cleanNickname(token);
+      if (!nick || nick === 'ijodkor') return;
+      // Agar bu nik asosiy yuklovchining o'z niki bo'lsa va asosiy yuklovchi allaqachon qo'shilgan bo'lsa, boshqa akkauntni qidirmaymiz
+      if (primaryCleanNick && nick === primaryCleanNick && matchedMap.size > 0) {
+        return;
+      }
+      const found = creators.find(c =>
+        c &&
+        (!pId || String(c.id) !== String(pId)) &&
+        c.nickname &&
+        this.cleanNickname(c.nickname) === nick
+      );
+      if (found) {
+        addCreatorObj(found);
+      } else if ((!primaryCleanNick || nick !== primaryCleanNick) && !unmatchedNicks.includes('@' + nick)) {
+        unmatchedNicks.push('@' + nick);
+      }
+    });
+
+    // 4. Vergul bilan ajratilgan qo'shimcha nikneym/ismlarni tekshiramiz (faqat asosiy muallifdan BOSHQA hamkorlar uchun)
+    String(rawParticipants)
+      .split(/[,;\n]+/)
+      .map(s => s.trim())
+      .filter(Boolean)
+      .forEach(part => {
+        const rawBeforeParen = part.split('(')[0].trim();
+        const cleanedPart = this.cleanNickname(rawBeforeParen);
+        if (!cleanedPart || cleanedPart === 'ijodkor') return;
+        if (primaryCleanNick && cleanedPart === primaryCleanNick && matchedMap.size > 0) return;
+        const lowFull = rawBeforeParen.replace(/^@+/, '').trim().toLowerCase();
+        if (primaryCleanName && lowFull === primaryCleanName && matchedMap.size > 0) return;
+
+        const byNick = creators.find(c =>
+          c &&
+          (!pId || String(c.id) !== String(pId)) &&
+          c.nickname &&
+          this.cleanNickname(c.nickname) === cleanedPart
+        );
+        if (byNick) {
+          addCreatorObj(byNick);
+        }
+      });
+
+    const collaborators = Array.from(matchedMap.values());
+    const collaboratorIds = collaborators.map(c => c.id);
+    const collaboratorNicknames = [
+      ...collaborators.map(c => '@' + c.nickname),
+      ...unmatchedNicks
+    ];
+
+    return {
+      collaborators,
+      collaboratorIds,
+      collaboratorNicknames
+    };
+  },
+
+  // O'quvchi ushbu video-chellenj muallifi yoki kollaboratsiya ishtirokchisi ekanligini ANIQ tekshirish
+  // (Boshqa akkaunt egasiga yutgan odamning tabriknomasi hech qachon chiqmasligi uchun!)
+  isCreatorInSubmission(sub, creatorOrUser) {
+    if (!sub || !creatorOrUser) return false;
+    if (creatorOrUser.role && creatorOrUser.role !== 'student') return false;
+
+    const cid = String(creatorOrUser.creatorId || creatorOrUser.id || '').trim();
+    const cNick = this.cleanNickname(creatorOrUser.nickname || '');
+    const subCreatorId = String(sub.creatorId || '').trim();
+
+    // 1. Agar videorolikning aniq muallif ID si (sub.creatorId) va joriy o'quvchi ID si (cid) mavjud bo'lsa:
+    if (cid && subCreatorId) {
+      if (subCreatorId === cid) return true;
+      // Agar joriy o'quvchi muallif bo'lmasa, faqat kollaboratsiya ro'yxatiga (@nickname bilan) qo'shilgan bo'lsagina true qaytaradi
+      const resolved = this.resolveSubmissionCollaborators(sub, sub.creatorId, sub.creatorName);
+      if (resolved.collaboratorIds.some(id => String(id) === cid)) return true;
+
+      // Agar u kollaboratsiyada @nickname sifatida yozilgan bo'lsa-yu, lekin bu nik asosiy muallifning niki bo'lmasa:
+      const subCleanNick = this.cleanNickname(sub.creatorNickname || '');
+      if (cNick && cNick !== 'ijodkor' && cNick !== subCleanNick) {
+        if (resolved.unmatchedNicks && resolved.unmatchedNicks.includes('@' + cNick)) return true;
+        if (resolved.collaboratorNicknames.some(n => this.cleanNickname(n) === cNick) &&
+            resolved.collaborators.some(c => String(c.id) === cid)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // 2. Faqatgina eski yoki ID siz (qo'lda kiritilgan) rolik bo'lsagina nik yoki to'liq ism bo'yicha tekshiriladi
+    const resolved = this.resolveSubmissionCollaborators(sub, sub.creatorId, sub.creatorName);
+    if (cid && resolved.collaboratorIds.some(id => String(id) === cid)) return true;
+    if (cNick && cNick !== 'ijodkor' && resolved.collaboratorNicknames.some(n => this.cleanNickname(n) === cNick)) return true;
+    const cName = String(creatorOrUser.fullName || creatorOrUser.name || '').trim().toLowerCase();
+    if (!subCreatorId && cName && sub.creatorName && String(sub.creatorName).trim().toLowerCase() === cName) return true;
+
+    return false;
+  },
+
   getChallengeSubmissions() {
     this.init();
     try {
@@ -2037,12 +2609,29 @@ const DataStore = {
     const normDist = this.normalizeDistrict(subData.district || subData.creatorDistrict || '', subData.regionLabel || subData.regionId || '');
     const nowIso = new Date().toISOString();
 
+    const collabInfo = this.resolveSubmissionCollaborators(
+      subData.participants || '',
+      subData.creatorId || '',
+      subData.creatorName || ''
+    );
+    const primaryCreator = subData.creatorId ? this.getCreatorById(subData.creatorId) : (collabInfo.collaborators[0] || null);
+    const creatorNick = primaryCreator && primaryCreator.nickname
+      ? '@' + this.cleanNickname(primaryCreator.nickname)
+      : (subData.creatorNickname ? '@' + this.cleanNickname(subData.creatorNickname) : '');
+
+    // Agar participants ichida yuklovchining o'z @nickname'i yozilmagan bo'lsa, uni ham qo'shib qo'yamiz
+    let finalParticipantsText = (subData.participants || '').trim();
+    if (creatorNick && !finalParticipantsText.toLowerCase().includes(creatorNick.toLowerCase())) {
+      finalParticipantsText = creatorNick + (finalParticipantsText ? ', ' + finalParticipantsText : '');
+    }
+
     const newSub = {
       id: 'sub-' + Date.now(),
       challengeId: subData.challengeId,
       challengeTitle: subData.challengeTitle,
-      creatorId: subData.creatorId || '',
+      creatorId: subData.creatorId || (collabInfo.collaboratorIds[0] || ''),
       creatorName: subData.creatorName.trim(),
+      creatorNickname: creatorNick,
       creatorSchool: subData.creatorSchool.trim(),
       district: normDist.id || 'jondor',
       districtLabel: normDist.label || (subData.creatorDistrict || 'Jondor tumani'),
@@ -2052,9 +2641,16 @@ const DataStore = {
       creatorPhone: subData.creatorPhone || '',
       videoUrl: rawV,
       videoType: (rawV.includes('t.me') || rawV.includes('telegram')) ? 'telegram' : 'youtube',
-      participants: (subData.participants || '').trim(), // Rolikda kimlar qatnashgani!
+      participants: finalParticipantsText, // Rolikda kimlar qatnashgani (@nickname bilan)
+      collaboratorIds: collabInfo.collaboratorIds,
+      collaborators: collabInfo.collaborators,
+      collaboratorNicknames: collabInfo.collaboratorNicknames,
       note: (subData.note || '').trim(),
       submittedAt: nowIso.split('T')[0],
+      submittedTimestamp: nowIso,
+      stageUpdatedAt: nowIso,
+      seasonId: this.getSeasonForDate(nowIso).id,
+      seasonName: this.getSeasonForDate(nowIso).name,
       updatedAt: nowIso,
       status: 'pending', // 'pending' yoki 'approved'
       coinsAwarded: 0,
@@ -2078,7 +2674,7 @@ const DataStore = {
     return newSub;
   },
 
-  // Admin chellenj videosini ko'rib chiqib tanga taqdim etishi
+  // Admin chellenj videosini ko'rib chiqib tanga taqdim etishi (Kollaboratsiyadagi HAR BIR o'quvchiga va'da qilingan tanga beriladi!)
   approveChallengeSubmission(submissionId, coinsAmount, adminNote) {
     const submissions = this.getChallengeSubmissions();
     const sub = submissions.find(s => s.id === submissionId);
@@ -2087,10 +2683,22 @@ const DataStore = {
     const chl = this.getChallenges().find(c => c.id === sub.challengeId);
     const coinsNum = parseInt(coinsAmount) || (chl ? chl.awardCoins : 50) || 50;
     const alreadyApproved = sub.status === 'approved';
+
+    const collabInfo = this.resolveSubmissionCollaborators(sub, sub.creatorId, sub.creatorName);
+    sub.collaboratorIds = collabInfo.collaboratorIds;
+    sub.collaborators = collabInfo.collaborators;
+    sub.collaboratorNicknames = collabInfo.collaboratorNicknames;
+
     sub.status = 'approved';
     sub.coinsAwarded = coinsNum;
     sub.adminNote = (adminNote || '').trim() || "Chellenj video vazifasi a'lo darajada bajarildi!";
-    sub.updatedAt = new Date().toISOString();
+    const nowIso = new Date().toISOString();
+    sub.updatedAt = nowIso;
+    sub.stageUpdatedAt = nowIso;
+    if (!sub.seasonId) {
+      sub.seasonId = this.getSeasonForDate(nowIso).id;
+      sub.seasonName = this.getSeasonForDate(nowIso).name;
+    }
 
     localStorage.setItem(STORAGE_KEY_CHALLENGE_SUBMISSIONS, JSON.stringify(submissions));
     try {
@@ -2099,21 +2707,24 @@ const DataStore = {
       }
     } catch (e) {}
 
-    // Agar o'quvchi bazada bo'lsa tangasini oshirish
-    let targetCreatorId = sub.creatorId;
-    if (!targetCreatorId || !this.getCreatorById(targetCreatorId)) {
-      const found = this.getCreators().find(c => c && c.fullName && sub.creatorName && c.fullName.toLowerCase().trim() === sub.creatorName.toLowerCase().trim());
-      if (found) targetCreatorId = found.id;
-    }
-    if (targetCreatorId && !alreadyApproved) {
-      this.awardCoins(targetCreatorId, `Chellenj: ${sub.challengeTitle}`, coinsNum, `Qatnashuvchilar: ${sub.participants}`);
+    // Kollaboratsiyada qatnashgan BARCHA o'quvchilarning har biriga va'da qilingan tangani beramiz!
+    if (!alreadyApproved && collabInfo.collaboratorIds.length > 0) {
+      const collabLabel = collabInfo.collaborators.map(c => `@${c.nickname} (${c.fullName})`).join(', ');
+      collabInfo.collaboratorIds.forEach(cid => {
+        this.awardCoins(
+          cid,
+          `🤝 Chellenj: ${sub.challengeTitle}`,
+          coinsNum,
+          `Jamoaviy kollaboratsiya ishtirokchisi: ${collabLabel || sub.participants}`
+        );
+      });
     }
 
     CloudSync.push();
-    return { success: true, submission: sub };
+    return { success: true, submission: sub, rewardedCount: collabInfo.collaboratorIds.length };
   },
 
-  // 1-BOSQICH: TUMAN ADMINI ENG YAXSHI VIDEONI TANLAB VILOYAT KOORDINATORIGA YUBORADI (+5 QO'SHIMCHA TANGA)
+  // 1-BOSQICH: TUMAN ADMINI ENG YAXSHI VIDEONI TANLAB VILOYAT KOORDINATORIGA YUBORADI (HAR BIR ISHTIROKCHIGA +5 QO'SHIMCHA TANGA)
   promoteSubmissionToRegion(submissionId) {
     const submissions = this.getChallengeSubmissions();
     const sub = submissions.find(s => s && s.id === submissionId);
@@ -2125,36 +2736,43 @@ const DataStore = {
     const chl = this.getChallenges().find(c => c && c.id === sub.challengeId);
     const baseCoins = parseInt(sub.coinsAwarded) || (chl ? parseInt(chl.awardCoins) : 50) || 50;
 
-    let targetCreatorId = sub.creatorId;
-    if (!targetCreatorId || !this.getCreatorById(targetCreatorId)) {
-      const found = this.getCreators().find(c => c && c.fullName && sub.creatorName && c.fullName.toLowerCase().trim() === sub.creatorName.toLowerCase().trim());
-      if (found) targetCreatorId = found.id;
-    }
+    const collabInfo = this.resolveSubmissionCollaborators(sub, sub.creatorId, sub.creatorName);
+    sub.collaboratorIds = collabInfo.collaboratorIds;
+    sub.collaborators = collabInfo.collaborators;
+    sub.collaboratorNicknames = collabInfo.collaboratorNicknames;
+    const collabLabel = collabInfo.collaborators.map(c => `@${c.nickname} (${c.fullName})`).join(', ');
 
-    // Agar hali oddiy tangasi berilmagan bo'lsa, avval va'da qilingan asosiy tangani beramiz
+    // Agar hali oddiy tangasi berilmagan bo'lsa, avval va'da qilingan asosiy tangani har bir ishtirokchiga beramiz
     if (sub.status !== 'approved') {
       sub.status = 'approved';
       sub.coinsAwarded = baseCoins;
-      if (targetCreatorId) {
-        this.awardCoins(targetCreatorId, `Chellenj: ${sub.challengeTitle}`, baseCoins, `Asosiy chellenj tangasi (${sub.districtLabel || 'Tuman'})`);
-      }
+      collabInfo.collaboratorIds.forEach(cid => {
+        this.awardCoins(
+          cid,
+          `🤝 Chellenj: ${sub.challengeTitle}`,
+          baseCoins,
+          `Asosiy chellenj tangasi (${sub.districtLabel || 'Tuman'}) — Kollaboratsiya: ${collabLabel || sub.participants}`
+        );
+      });
     }
 
-    // Qo'shimcha +5 tanga (Tuman bosqichidan Viloyatga chiqqani uchun)
+    // Qo'shimcha +5 tanga (Tuman bosqichidan Viloyatga chiqqani uchun — har bir ishtirokchiga!)
+    const nowIso = new Date().toISOString();
     sub.promotedToRegion = true;
-    sub.promotedToRegionAt = new Date().toISOString().split('T')[0];
+    sub.promotedToRegionAt = nowIso.split('T')[0];
     sub.districtBonusCoins = 5;
     sub.coinsAwarded = (parseInt(sub.coinsAwarded) || baseCoins) + 5;
-    sub.updatedAt = new Date().toISOString();
+    sub.updatedAt = nowIso;
+    sub.stageUpdatedAt = nowIso;
 
-    if (targetCreatorId) {
+    collabInfo.collaboratorIds.forEach(cid => {
       this.awardCoins(
-        targetCreatorId,
+        cid,
         `🏅 Tuman Bosqichi G'olibi (Viloyatga yo'llanma): ${sub.challengeTitle}`,
         5,
-        `${sub.districtLabel || 'Tuman'} koordinatori tomonidan eng yaxshi videorolik sifatida Viloyat koordinatoriga yuborildi (+5 qo'shimcha tanga)`
+        `${sub.districtLabel || 'Tuman'} koordinatori tomonidan eng yaxshi videorolik sifatida Viloyat bosqichiga yuborildi (+5 bonus tanga). Kollaboratsiya: ${collabLabel || sub.participants}`
       );
-    }
+    });
 
     localStorage.setItem(STORAGE_KEY_CHALLENGE_SUBMISSIONS, JSON.stringify(submissions));
     try {
@@ -2163,10 +2781,10 @@ const DataStore = {
       }
     } catch (e) {}
     CloudSync.push();
-    return { success: true, submission: sub };
+    return { success: true, submission: sub, rewardedCount: collabInfo.collaboratorIds.length };
   },
 
-  // 2-BOSQICH: VILOYAT KOORDINATORI ENG YAXSHI VIDEONI TANLAB RESPUBLIKA KOORDINATORIGA YUBORADI (+10 QO'SHIMCHA TANGA)
+  // 2-BOSQICH: VILOYAT KOORDINATORI ENG YAXSHI VIDEONI TANLAB RESPUBLIKA KOORDINATORIGA YUBORADI (HAR BIR ISHTIROKCHIGA +10 QO'SHIMCHA TANGA)
   promoteSubmissionToRepublic(submissionId) {
     const submissions = this.getChallengeSubmissions();
     const sub = submissions.find(s => s && s.id === submissionId);
@@ -2175,27 +2793,29 @@ const DataStore = {
       return { success: false, message: "Ushbu videorolik allaqachon Respublika bosqichiga yuborilgan va +10 tanga berilgan!" };
     }
 
-    let targetCreatorId = sub.creatorId;
-    if (!targetCreatorId || !this.getCreatorById(targetCreatorId)) {
-      const found = this.getCreators().find(c => c && c.fullName && sub.creatorName && c.fullName.toLowerCase().trim() === sub.creatorName.toLowerCase().trim());
-      if (found) targetCreatorId = found.id;
-    }
+    const collabInfo = this.resolveSubmissionCollaborators(sub, sub.creatorId, sub.creatorName);
+    sub.collaboratorIds = collabInfo.collaboratorIds;
+    sub.collaborators = collabInfo.collaborators;
+    sub.collaboratorNicknames = collabInfo.collaboratorNicknames;
+    const collabLabel = collabInfo.collaborators.map(c => `@${c.nickname} (${c.fullName})`).join(', ');
 
+    const nowIso = new Date().toISOString();
     sub.promotedToRegion = true;
     sub.promotedToRepublic = true;
-    sub.promotedToRepublicAt = new Date().toISOString().split('T')[0];
+    sub.promotedToRepublicAt = nowIso.split('T')[0];
     sub.regionBonusCoins = 10;
     sub.coinsAwarded = (parseInt(sub.coinsAwarded) || 50) + 10;
-    sub.updatedAt = new Date().toISOString();
+    sub.updatedAt = nowIso;
+    sub.stageUpdatedAt = nowIso;
 
-    if (targetCreatorId) {
+    collabInfo.collaboratorIds.forEach(cid => {
       this.awardCoins(
-        targetCreatorId,
+        cid,
         `🌟 Viloyat Bosqichi G'olibi (Respublikaga yo'llanma): ${sub.challengeTitle}`,
         10,
-        `${sub.regionLabel || 'Viloyat'} koordinatori tomonidan eng yaxshi videorolik sifatida Respublika koordinatoriga yuborildi (+10 qo'shimcha tanga)`
+        `${sub.regionLabel || 'Viloyat'} koordinatori tomonidan eng yaxshi videorolik sifatida Respublika bosqichiga yuborildi (+10 bonus tanga). Kollaboratsiya: ${collabLabel || sub.participants}`
       );
-    }
+    });
 
     localStorage.setItem(STORAGE_KEY_CHALLENGE_SUBMISSIONS, JSON.stringify(submissions));
     try {
@@ -2204,10 +2824,10 @@ const DataStore = {
       }
     } catch (e) {}
     CloudSync.push();
-    return { success: true, submission: sub };
+    return { success: true, submission: sub, rewardedCount: collabInfo.collaboratorIds.length };
   },
 
-  // 3-BOSQICH: RESPUBLIKA KOORDINATORI 1-O'RIN G'OLIBI DEB TANLAYDI (+15 QO'SHIMCHA TANGA)
+  // 3-BOSQICH: RESPUBLIKA KOORDINATORI 1-O'RIN G'OLIBI DEB TANLAYDI (HAR BIR ISHTIROKCHIGA +15 QO'SHIMCHA TANGA)
   awardRepublicSubmissionWinner(submissionId) {
     const submissions = this.getChallengeSubmissions();
     const sub = submissions.find(s => s && s.id === submissionId);
@@ -2216,28 +2836,30 @@ const DataStore = {
       return { success: false, message: "Ushbu videorolikka allaqachon Respublika 1-o'rin (+15 tanga) mukofoti berilgan!" };
     }
 
-    let targetCreatorId = sub.creatorId;
-    if (!targetCreatorId || !this.getCreatorById(targetCreatorId)) {
-      const found = this.getCreators().find(c => c && c.fullName && sub.creatorName && c.fullName.toLowerCase().trim() === sub.creatorName.toLowerCase().trim());
-      if (found) targetCreatorId = found.id;
-    }
+    const collabInfo = this.resolveSubmissionCollaborators(sub, sub.creatorId, sub.creatorName);
+    sub.collaboratorIds = collabInfo.collaboratorIds;
+    sub.collaborators = collabInfo.collaborators;
+    sub.collaboratorNicknames = collabInfo.collaboratorNicknames;
+    const collabLabel = collabInfo.collaborators.map(c => `@${c.nickname} (${c.fullName})`).join(', ');
 
+    const nowIso = new Date().toISOString();
     sub.promotedToRegion = true;
     sub.promotedToRepublic = true;
     sub.isRepublicWinner = true;
-    sub.republicWinnerAt = new Date().toISOString().split('T')[0];
+    sub.republicWinnerAt = nowIso.split('T')[0];
     sub.republicBonusCoins = 15;
     sub.coinsAwarded = (parseInt(sub.coinsAwarded) || 50) + 15;
-    sub.updatedAt = new Date().toISOString();
+    sub.updatedAt = nowIso;
+    sub.stageUpdatedAt = nowIso;
 
-    if (targetCreatorId) {
+    collabInfo.collaboratorIds.forEach(cid => {
       this.awardCoins(
-        targetCreatorId,
-        `🏆 Respublika 1-O'rin G'olibi: ${sub.challengeTitle}`,
+        cid,
+        `🏆 Respublika 1-O'rin Mutlaq G'olibi: ${sub.challengeTitle}`,
         15,
-        `Respublika Bosh Koordinatori tomonidan 1-o'rin g'olibi sifatida tanlandi (+15 qo'shimcha tanga)`
+        `Respublika Bosh Koordinatori tomonidan 1-o'rin mutlaq g'olibi sifatida tanlandi (+15 bonus tanga). Kollaboratsiya: ${collabLabel || sub.participants}`
       );
-    }
+    });
 
     localStorage.setItem(STORAGE_KEY_CHALLENGE_SUBMISSIONS, JSON.stringify(submissions));
     try {
@@ -2246,18 +2868,28 @@ const DataStore = {
       }
     } catch (e) {}
     CloudSync.push();
-    return { success: true, submission: sub };
+    return { success: true, submission: sub, rewardedCount: collabInfo.collaboratorIds.length };
   },
 
-  // 6. TANLOVLAR
+  // 6. TANLOVLAR (TUMAN KOORDINATORI KIRITADI -> MADANIYAT XODIMI '+' TUGMASI ORQALI O'QUVCHI TANLAYDI -> O'QUVCHI SERTIFIKAT RASMINI JOYLAYDI -> ADMIN TANGA BERADI)
   getContests() {
     this.init();
     try {
       const data = JSON.parse(localStorage.getItem(STORAGE_KEY_CONTESTS));
-      return Array.isArray(data) ? data : INITIAL_CONTESTS;
+      const list = Array.isArray(data) ? data : INITIAL_CONTESTS;
+      return list.map(c => ({
+        ...c,
+        selectedStudents: Array.isArray(c.selectedStudents) ? c.selectedStudents : [],
+        certificateProofs: Array.isArray(c.certificateProofs) ? c.certificateProofs : []
+      }));
     } catch (e) {
       return INITIAL_CONTESTS;
     }
+  },
+
+  saveContests(contests) {
+    localStorage.setItem(STORAGE_KEY_CONTESTS, JSON.stringify(contests));
+    CloudSync.push();
   },
 
   addContest(contestData) {
@@ -2273,6 +2905,10 @@ const DataStore = {
       description: (contestData.description || '').trim() || "Madaniy tadbirda faol ishtirok eting.",
       district: normDist.id || '',
       districtLabel: normDist.label || '',
+      regionId: normDist.regionId || 'buxoro_vil',
+      regionLabel: normDist.regionLabel || 'Buxoro viloyati',
+      selectedStudents: [],
+      certificateProofs: [],
       status: 'active',
       createdAt: nowIso.split('T')[0],
       updatedAt: nowIso
@@ -2286,6 +2922,283 @@ const DataStore = {
     } catch (e) {}
     CloudSync.push();
     return newContest;
+  },
+
+  // Madaniyat xodimi tanlov ichidagi "+" tugmasini bosib o'quvchi tanlashi (yoki ro'yxatdan chiqarishi)
+  toggleSelectStudentForContest(contestId, creatorId, staffInfo = {}) {
+    const contests = this.getContests();
+    const idx = contests.findIndex(c => c && c.id === contestId);
+    if (idx === -1) return { success: false, message: "Tanlov topilmadi!" };
+
+    const contest = contests[idx];
+    if (!Array.isArray(contest.selectedStudents)) {
+      contest.selectedStudents = [];
+    }
+
+    const creator = this.getCreatorById(creatorId);
+    if (!creator) return { success: false, message: "O'quvchi topilmadi!" };
+
+    const existingIdx = contest.selectedStudents.findIndex(s => s && s.creatorId === creator.id);
+    const nowIso = new Date().toISOString();
+    let action = 'added';
+
+    if (existingIdx >= 0) {
+      contest.selectedStudents.splice(existingIdx, 1);
+      action = 'removed';
+    } else {
+      const nick = this.cleanNickname(creator.nickname) || this.cleanNickname(creator.fullName).replace(/[^a-z0-9]/g, '');
+      const selectedEntry = {
+        creatorId: creator.id,
+        fullName: creator.fullName,
+        nickname: nick ? '@' + nick : '',
+        school: creator.school || '',
+        phone: creator.phone || '',
+        avatarUrl: creator.avatarUrl || '',
+        district: creator.district || contest.district || '',
+        districtLabel: creator.districtLabel || contest.districtLabel || '',
+        selectedByStaffName: (staffInfo.staffName || "Madaniyat xodimi").trim(),
+        selectedByStaffOrg: (staffInfo.staffOrg || "Madaniyat bo'limi").trim(),
+        selectedByStaffPhone: (staffInfo.staffPhone || '').trim(),
+        selectedAt: nowIso.split('T')[0],
+        selectedTimestamp: nowIso
+      };
+      contest.selectedStudents.push(selectedEntry);
+
+      // O'quvchining "Yutuqlarim" bo'limiga ham rasmiy taklifnoma sifatida yozib qo'yamiz
+      this.recordStudentInvitation(creator.id, {
+        title: `🎯 Tanlovga tanlandingiz: "${contest.title}" (Sana: ${contest.eventDate}, Manzil: ${contest.location})`,
+        eventName: `🎯 Tanlovga tanlandingiz: "${contest.title}" (Sana: ${contest.eventDate}, Manzil: ${contest.location})`,
+        staffName: selectedEntry.selectedByStaffName,
+        staffOrg: selectedEntry.selectedByStaffOrg,
+        staffPosition: selectedEntry.selectedByStaffOrg,
+        districtLabel: contest.districtLabel
+      });
+    }
+
+    contest.updatedAt = nowIso;
+    contests[idx] = contest;
+    localStorage.setItem(STORAGE_KEY_CONTESTS, JSON.stringify(contests));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastContest) {
+        CloudSync.broadcastContest(contest);
+      }
+    } catch (e) {}
+    CloudSync.push();
+    return { success: true, action, selected: action === 'added', studentName: creator.fullName, contest, creator };
+  },
+
+  // Madaniyat xodimi o'quvchilarning jonli ijrolarini ko'rib, bir nechta o'quvchini bitta-bitta belgilab (select qilib),
+  // oxirida "Ishonchingiz komilmi?" tasdig'idan o'tkazib saqlashi va chaqiruv xabarnomasini yuborishi
+  saveSelectedStudentsForContest(contestId, creatorIdsArray = [], staffInfo = {}) {
+    const contests = this.getContests();
+    const idx = contests.findIndex(c => c && c.id === contestId);
+    if (idx === -1) return { success: false, message: "Tanlov topilmadi!" };
+
+    const contest = contests[idx];
+    const prevSelected = Array.isArray(contest.selectedStudents) ? contest.selectedStudents : [];
+    const prevIds = new Set(prevSelected.map(s => s && String(s.creatorId)));
+    const targetIds = Array.from(new Set((creatorIdsArray || []).map(id => String(id)).filter(Boolean)));
+    const nowIso = new Date().toISOString();
+
+    const staffName = (staffInfo.fullName || staffInfo.staffName || "Madaniyat xodimi").trim();
+    const staffOrg = (staffInfo.organization || staffInfo.staffOrg || "Madaniyat bo'limi").trim();
+    const staffPhone = (staffInfo.phone || staffInfo.staffPhone || '').trim();
+
+    const newSelectedStudents = [];
+    let newlyInvitedCount = 0;
+
+    targetIds.forEach(cid => {
+      const existing = prevSelected.find(s => s && String(s.creatorId) === cid);
+      const creator = this.getCreatorById(cid);
+      if (existing && !creator) {
+        newSelectedStudents.push(existing);
+        return;
+      }
+      if (!creator) return;
+
+      const nick = this.cleanNickname(creator.nickname) || this.cleanNickname(creator.fullName).replace(/[^a-z0-9]/g, '');
+      const selectedEntry = existing ? {
+        ...existing,
+        fullName: creator.fullName,
+        nickname: nick ? '@' + nick : (existing.nickname || ''),
+        school: creator.school || existing.school || '',
+        phone: creator.phone || existing.phone || '',
+        avatarUrl: creator.avatarUrl || existing.avatarUrl || ''
+      } : {
+        creatorId: creator.id,
+        fullName: creator.fullName,
+        nickname: nick ? '@' + nick : '',
+        school: creator.school || '',
+        phone: creator.phone || '',
+        avatarUrl: creator.avatarUrl || '',
+        district: creator.district || contest.district || '',
+        districtLabel: creator.districtLabel || contest.districtLabel || '',
+        selectedByStaffName: staffName,
+        selectedByStaffOrg: staffOrg,
+        selectedByStaffPhone: staffPhone,
+        selectedAt: nowIso.split('T')[0],
+        selectedTimestamp: nowIso
+      };
+
+      newSelectedStudents.push(selectedEntry);
+
+      if (!prevIds.has(String(creator.id))) {
+        newlyInvitedCount++;
+        this.recordStudentInvitation(creator.id, {
+          title: `🎯 Tadbirga chaqirildingiz: "${contest.title}" (Sana: ${contest.eventDate}, Manzil: ${contest.location})`,
+          eventName: `🎯 Tadbirga chaqirildingiz: "${contest.title}" (Sana: ${contest.eventDate}, Manzil: ${contest.location})`,
+          staffName: staffName,
+          staffOrg: staffOrg,
+          staffPosition: staffOrg,
+          districtLabel: contest.districtLabel
+        });
+      }
+    });
+
+    contest.selectedStudents = newSelectedStudents;
+    contest.updatedAt = nowIso;
+    contests[idx] = contest;
+    localStorage.setItem(STORAGE_KEY_CONTESTS, JSON.stringify(contests));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastContest) {
+        CloudSync.broadcastContest(contest);
+      }
+    } catch (e) {}
+    CloudSync.push();
+    return {
+      success: true,
+      contest,
+      totalSelected: newSelectedStudents.length,
+      newlyInvitedCount
+    };
+  },
+
+  // O'quvchi ushbu tanlovga madaniyat xodimi tomonidan tanlanganmi?
+  getStudentContestSelectionInfo(contest, creatorOrUser) {
+    if (!contest || !creatorOrUser || !Array.isArray(contest.selectedStudents)) return null;
+    const cid = creatorOrUser.creatorId || creatorOrUser.id || '';
+    const cNick = this.cleanNickname(creatorOrUser.nickname || '');
+    const cName = String(creatorOrUser.fullName || creatorOrUser.name || '').trim().toLowerCase();
+
+    return contest.selectedStudents.find(s => {
+      if (!s) return false;
+      if (cid && s.creatorId === cid) return true;
+      if (cNick && s.nickname && this.cleanNickname(s.nickname) === cNick) return true;
+      if (cName && s.fullName && String(s.fullName).trim().toLowerCase() === cName) return true;
+      return false;
+    }) || null;
+  },
+
+  isStudentSelectedInContest(contest, creatorOrUser) {
+    return Boolean(this.getStudentContestSelectionInfo(contest, creatorOrUser));
+  },
+
+  // Tanlangan (chaqirilgan) o'quvchi tadbirga borib, madaniyat xodimi bilan "Kelajak ijodkori" sertifikatini ushlab tushgan rasmini joylashi
+  submitContestCertificateProof(contestId, proofData) {
+    const contests = this.getContests();
+    const idx = contests.findIndex(c => c && c.id === contestId);
+    if (idx === -1) return { success: false, message: "Tanlov topilmadi!" };
+
+    const contest = contests[idx];
+    if (!Array.isArray(contest.certificateProofs)) {
+      contest.certificateProofs = [];
+    }
+
+    const nowIso = new Date().toISOString();
+    const newProof = {
+      id: 'prf-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+      contestId: contest.id,
+      contestTitle: contest.title,
+      creatorId: proofData.creatorId || '',
+      creatorName: (proofData.creatorName || "O'quvchi").trim(),
+      creatorNickname: (proofData.creatorNickname || '').trim(),
+      creatorSchool: (proofData.creatorSchool || '').trim(),
+      creatorPhone: (proofData.creatorPhone || '').trim(),
+      district: proofData.district || contest.district || '',
+      districtLabel: proofData.districtLabel || contest.districtLabel || '',
+      staffName: (proofData.staffName || "Madaniyat xodimi").trim(),
+      photoUrl: proofData.photoUrl || '',
+      comment: (proofData.comment || "Madaniyat xodimi bilan «Kelajak ijodkori» sertifikatini oldik!").trim(),
+      uploadedAt: nowIso.split('T')[0],
+      submittedAt: nowIso.split('T')[0],
+      uploadedTimestamp: nowIso,
+      status: 'pending', // 'pending' | 'approved'
+      coinsAwarded: 0,
+      awardedCoins: 0,
+      adminNote: ''
+    };
+
+    // Agar shu o'quvchi avval pending rasm yuklagan bo'lsa, yangisiga almashtiramiz yoki ustiga qo'shamiz
+    const existingPendingIdx = contest.certificateProofs.findIndex(
+      p => p && p.creatorId === newProof.creatorId && p.status === 'pending'
+    );
+    if (existingPendingIdx >= 0) {
+      contest.certificateProofs[existingPendingIdx] = newProof;
+    } else {
+      contest.certificateProofs.unshift(newProof);
+    }
+
+    contest.updatedAt = nowIso;
+    contests[idx] = contest;
+    localStorage.setItem(STORAGE_KEY_CONTESTS, JSON.stringify(contests));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastContest) {
+        CloudSync.broadcastContest(contest);
+      }
+    } catch (e) {}
+    CloudSync.push();
+    return { success: true, contest, proof: newProof };
+  },
+
+  // Madaniyat xodimi (yoki Admin) o'quvchi joylagan sertifikat rasmining haqiqiyligini o'z oynasidan tasdiqlab,
+  // "Qabul qilish"ni bosganda o'sha qatnashgan o'quvchiga va'da qilingan tanga borishi
+  approveContestCertificateProof(contestId, proofId, coinsAmount, adminNote = '', approverName = '') {
+    const contests = this.getContests();
+    const idx = contests.findIndex(c => c && c.id === contestId);
+    if (idx === -1) return { success: false, message: "Tanlov topilmadi!" };
+
+    const contest = contests[idx];
+    if (!Array.isArray(contest.certificateProofs)) {
+      contest.certificateProofs = [];
+    }
+
+    const pIdx = contest.certificateProofs.findIndex(p => p && p.id === proofId);
+    if (pIdx === -1) return { success: false, message: "Sertifikat rasmi topilmadi!" };
+
+    const proof = contest.certificateProofs[pIdx];
+    const alreadyApproved = proof.status === 'approved';
+    const coinsNum = parseInt(coinsAmount) || parseInt(contest.awardCoins) || 50;
+    const nowIso = new Date().toISOString();
+
+    proof.status = 'approved';
+    proof.coinsAwarded = coinsNum;
+    proof.awardedCoins = coinsNum;
+    proof.approvedAt = nowIso.split('T')[0];
+    proof.approvedTimestamp = nowIso;
+    proof.approvedBy = (approverName || "Madaniyat xodimi").trim();
+    proof.adminNote = (adminNote || '').trim() || "Madaniyat xodimi tomonidan sertifikat rasmi haqiqiyligi tasdiqlandi va qabul qilindi!";
+
+    contest.certificateProofs[pIdx] = proof;
+    contest.updatedAt = nowIso;
+    contests[idx] = contest;
+    localStorage.setItem(STORAGE_KEY_CONTESTS, JSON.stringify(contests));
+    try {
+      if (typeof CloudSync !== 'undefined' && CloudSync.broadcastContest) {
+        CloudSync.broadcastContest(contest);
+      }
+    } catch (e) {}
+
+    if (!alreadyApproved && proof.creatorId) {
+      this.awardCoins(
+        proof.creatorId,
+        `🏅 Tanlovda ishtirok va «Kelajak ijodkori» sertifikati: ${contest.title}`,
+        coinsNum,
+        `Madaniyat xodimi (${proof.approvedBy}) tomonidan sertifikat rasmi haqiqiyligi tasdiqlandi (+${coinsNum} 🪙)`
+      );
+    }
+
+    CloudSync.push();
+    return { success: true, contest, proof, coins: coinsNum, coinsAwarded: coinsNum };
   },
 
   deleteContest(id) {
@@ -2581,7 +3494,10 @@ const DataStore = {
       inbox = [];
     }
 
-    const normDist = this.normalizeDistrict(item.districtLabel || item.district || '');
+    const normDist = this.normalizeDistrict(
+      item.districtLabel || item.district || '',
+      item.regionLabel || item.regionId || ''
+    );
 
     const newItem = {
       id: 'inbox-' + Date.now() + '-' + Math.random().toString(36).substring(2, 5),
@@ -2592,6 +3508,8 @@ const DataStore = {
       organization: item.organization || '',
       district: normDist.id || '',
       districtLabel: normDist.label || '',
+      regionId: normDist.regionId || '',
+      regionLabel: normDist.regionLabel || '',
       code: item.code || 'Xabar',
       timestamp: item.createdAt || new Date().toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' }),
       date: new Date().toISOString().split('T')[0],
@@ -2635,7 +3553,30 @@ const DataStore = {
     this.init();
     try {
       const data = JSON.parse(localStorage.getItem(STORAGE_KEY_PROPOSALS));
-      return Array.isArray(data) ? data : [];
+      if (!Array.isArray(data)) return [];
+      const staffList = this.getStaffList();
+      return data.filter(Boolean).map(p => {
+        if (!p.district && !p.districtLabel) {
+          const matchedStaff = staffList.find(s =>
+            s && (
+              (p.staffId && s.id === p.staffId) ||
+              (p.staffPhone && this.phonesMatch(s.phone, p.staffPhone)) ||
+              (p.staffName && (s.fullName || '').trim().toLowerCase() === (p.staffName || '').trim().toLowerCase())
+            )
+          );
+          if (matchedStaff && (matchedStaff.district || matchedStaff.districtLabel)) {
+            const norm = this.normalizeDistrict(matchedStaff.districtLabel || matchedStaff.district, matchedStaff.regionLabel || matchedStaff.regionId);
+            return {
+              ...p,
+              district: norm.id,
+              districtLabel: norm.label,
+              regionId: norm.regionId,
+              regionLabel: norm.regionLabel
+            };
+          }
+        }
+        return p;
+      });
     } catch (e) {
       return [];
     }
@@ -2650,7 +3591,10 @@ const DataStore = {
     const nowIso = new Date().toISOString();
     const dateStr = nowIso.split('T')[0];
 
-    const normDist = this.normalizeDistrict(proposalData.districtLabel || proposalData.district || '');
+    const normDist = this.normalizeDistrict(
+      proposalData.districtLabel || proposalData.district || '',
+      proposalData.regionLabel || proposalData.regionId || ''
+    );
 
     const newProposal = {
       id: 'prp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
@@ -2661,6 +3605,8 @@ const DataStore = {
       staffPhone: (proposalData.staffPhone || '').trim(),
       district: normDist.id || '',
       districtLabel: normDist.label || '',
+      regionId: normDist.regionId || 'buxoro_vil',
+      regionLabel: normDist.regionLabel || 'Buxoro viloyati',
       category: catId,
       categoryId: catId,
       categoryLabel: proposalData.categoryLabel || 'Madaniy Tadbir',

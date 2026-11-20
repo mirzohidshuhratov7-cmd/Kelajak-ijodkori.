@@ -358,6 +358,9 @@ const Auth = {
 
   // 3. O'QUVCHI SIFATIDA KIRISH
   loginStudent(studentData) {
+    if (studentData && studentData.id && typeof DataStore.touchCreatorOnline === 'function') {
+      DataStore.touchCreatorOnline(studentData.id);
+    }
     const normDist = DataStore.normalizeDistrict(
       studentData.districtLabel || studentData.district || 'jondor',
       studentData.regionLabel || studentData.regionId || studentData.region || ''
@@ -391,6 +394,25 @@ const Auth = {
 
     const creator = DataStore.findCreatorByCredentials(identifier, pin);
     if (!creator) {
+      // Qora ro'yxatga tushgan-tushmaganini tekshiramiz
+      if (typeof DataStore.getBlacklistedCreators === 'function') {
+        const cleanId = identifier.trim().toLowerCase();
+        const cleanNick = cleanId.replace(/^@/, '');
+        const cleanPin = pin.trim();
+        const blacklistedMatch = DataStore.getBlacklistedCreators().find(c =>
+          c && (c.pin || '').trim() === cleanPin && (
+            (c.nickname && c.nickname.trim().toLowerCase().replace(/^@/, '') === cleanNick) ||
+            (c.fullName && c.fullName.trim().toLowerCase() === cleanId) ||
+            DataStore.phonesMatch(c.phone, cleanId)
+          )
+        );
+        if (blacklistedMatch) {
+          return {
+            success: false,
+            message: "⛔ Siz 1 oy (30 kun) davomida online bo'lmaganingiz sababli profilingiz avtomatik ravishda Qora ro'yxatga o'tkazilgan va faol ro'yxatdan chiqarilgan!"
+          };
+        }
+      }
       return {
         success: false,
         message: "Ism/nik yoki profil kodi noto'g'ri kiritildi! Kodni unutgan bo'lsangiz, 'Profil kodi esimdan chiqdi' tugmasidan foydalaning."
