@@ -229,30 +229,23 @@ const App = {
 
   formatPhoneValue(val) {
     if (!val) return '';
-    const hasPlus = val.trim().startsWith('+');
     let digits = val.replace(/\D/g, '');
-    if (!digits) return hasPlus ? '+' : '';
+    if (!digits) return val.trim().startsWith('+') ? '+' : '';
 
-    // Agar + bilan boshlangan bo'lsa yoki 998 bilan boshlanib 9 tadan ko'p raqam terilgan bo'lsa -> +998 XX XXX XX XX
-    if (hasPlus || (digits.startsWith('998') && digits.length > 9)) {
-      if (!digits.startsWith('998')) {
-        digits = '998' + digits;
-      }
+    if (digits.startsWith('998')) {
       digits = digits.slice(0, 12);
-      let out = '+' + digits.slice(0, 3);
-      if (digits.length > 3) out += ' ' + digits.slice(3, 5);
-      if (digits.length > 5) out += ' ' + digits.slice(5, 8);
-      if (digits.length > 8) out += ' ' + digits.slice(8, 10);
-      if (digits.length > 10) out += ' ' + digits.slice(10, 12);
-      return out;
+    } else if (digits.length <= 9) {
+      digits = '998' + digits;
+    } else {
+      digits = digits.slice(0, 12);
     }
 
-    // Oddiy 9 xonali format: XX XXX XX XX (masalan: 99 674 14 40)
-    digits = digits.slice(0, 9);
-    let out = digits.slice(0, 2);
-    if (digits.length > 2) out += ' ' + digits.slice(2, 5);
-    if (digits.length > 5) out += ' ' + digits.slice(5, 7);
-    if (digits.length > 7) out += ' ' + digits.slice(7, 9);
+    let out = '+998';
+    const sub = digits.startsWith('998') ? digits.slice(3) : digits;
+    if (sub.length > 0) out += ' ' + sub.slice(0, 2);
+    if (sub.length > 2) out += ' ' + sub.slice(2, 5);
+    if (sub.length > 5) out += ' ' + sub.slice(5, 7);
+    if (sub.length > 7) out += ' ' + sub.slice(7, 9);
     return out;
   },
 
@@ -267,12 +260,18 @@ const App = {
       'admin-phone-input',
       'admin-reg-phone',
       'reg-admin-reg-phone',
-      'rep-admin-reg-phone'
+      'rep-admin-reg-phone',
+      'rep-self-edit-phone'
     ];
 
     phoneInputIds.forEach(id => {
       const el = document.getElementById(id);
       if (!el) return;
+      el.addEventListener('focus', (e) => {
+        if (!e.target.value) {
+          e.target.value = '+998 ';
+        }
+      });
       el.addEventListener('input', (e) => {
         const formatted = this.formatPhoneValue(e.target.value);
         if (e.target.value !== formatted) {
@@ -392,13 +391,15 @@ const App = {
       appView.classList.add('flex');
     }
 
-    // Default ko'rinishlarni tiklash ("Xodimlar" tugmasi va bo'limi odatiy holatda yashirin — faqat Madaniyat xodimi sifatida kirilganda ochiladi)
-    [navCreators, navChallenges, navContests, navLeaderboard, navAchievements].forEach(el => {
+    // Default ko'rinishlarni tiklash ("Xodimlar" va "Yutuqlarim" tugmasi odatiy holatda yashirin — faqat o'quvchi profiliga kirilganda Yutuqlarim ochiladi)
+    [navCreators, navChallenges, navContests, navLeaderboard].forEach(el => {
       if (el) el.classList.remove('hidden');
     });
-    [mobileCreators, mobileChallenges, mobileContests, mobileLeaderboard, mobileAchievements].forEach(el => {
+    [mobileCreators, mobileChallenges, mobileContests, mobileLeaderboard].forEach(el => {
       if (el) el.classList.remove('hidden');
     });
+    if (navAchievements) navAchievements.classList.add('hidden');
+    if (mobileAchievements) mobileAchievements.classList.add('hidden');
     if (navStaff) navStaff.classList.add('hidden');
     if (mobileStaff) mobileStaff.classList.add('hidden');
     if (adminNavBtn) adminNavBtn.classList.add('hidden');
@@ -468,6 +469,8 @@ const App = {
       
       if (navStaff) navStaff.classList.add('hidden');
       if (mobileStaff) mobileStaff.classList.add('hidden');
+      if (navAchievements) navAchievements.classList.add('hidden');
+      if (mobileAchievements) mobileAchievements.classList.add('hidden');
       if (adminNavBtn) adminNavBtn.classList.remove('hidden');
       if (mobileAdminNav) mobileAdminNav.classList.remove('hidden');
       if (editProfileBtn) editProfileBtn.classList.add('hidden');
@@ -482,7 +485,7 @@ const App = {
         );
         document.getElementById('admin-inbox-badge').textContent = inboxItems.length;
       }
-      if (this.state.currentTab === 'staff' || this.state.currentTab === 'region_admin' || this.state.currentTab === 'republic_admin') {
+      if (this.state.currentTab === 'staff' || this.state.currentTab === 'region_admin' || this.state.currentTab === 'republic_admin' || this.state.currentTab === 'achievements') {
         this.switchTab('admin');
       }
     } else if (Auth.isStaff()) {
@@ -491,6 +494,11 @@ const App = {
       
       if (navStaff) navStaff.classList.remove('hidden');
       if (mobileStaff) mobileStaff.classList.remove('hidden');
+      if (navAchievements) navAchievements.classList.add('hidden');
+      if (mobileAchievements) mobileAchievements.classList.add('hidden');
+      if (this.state.currentTab === 'achievements') {
+        this.switchTab('staff');
+      }
       if (staffProposalBtn) {
         staffProposalBtn.classList.remove('hidden');
         staffProposalBtn.classList.add('inline-flex');
@@ -509,6 +517,8 @@ const App = {
       profileBadge.innerHTML = `<i class="fa-solid fa-user-graduate text-emerald-600 text-xs"></i> <span class="truncate">${creator.fullName.split(' ')[0]}</span> <span class="shrink-0">(🪙 ${creator.coins || 10})</span>`;
       profileBadge.className = "flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-[11px] font-bold text-emerald-950 shrink-0 max-w-[165px]";
       
+      if (navAchievements) navAchievements.classList.remove('hidden');
+      if (mobileAchievements) mobileAchievements.classList.remove('hidden');
       if (navStaff) navStaff.classList.add('hidden');
       if (mobileStaff) mobileStaff.classList.add('hidden');
       if (this.state.currentTab === 'staff') {
@@ -735,6 +745,20 @@ const App = {
         tabName = 'region_admin';
       } else if (Auth.isAdmin()) {
         tabName = 'admin';
+      } else {
+        tabName = 'creators';
+      }
+    }
+
+    if (tabName === 'achievements' && !Auth.isStudent()) {
+      if (Auth.isRepublicAdmin()) {
+        tabName = 'republic_admin';
+      } else if (Auth.isRegionAdmin()) {
+        tabName = 'region_admin';
+      } else if (Auth.isAdmin()) {
+        tabName = 'admin';
+      } else if (Auth.isStaff()) {
+        tabName = 'staff';
       } else {
         tabName = 'creators';
       }
@@ -985,12 +1009,9 @@ const App = {
 
     greetingBox.className = "p-4 rounded-2xl border-2 border-emerald-400 bg-gradient-to-br from-emerald-50 to-teal-50 text-xs text-slate-900 shadow-sm space-y-1.5";
     greetingBox.innerHTML = `
-      <div class="flex items-center justify-between gap-2 text-emerald-800 font-black text-sm">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-user-shield text-emerald-600 text-base"></i>
-          <span>Assalomu alaykum, ${coordName}!</span>
-        </div>
-        <span class="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-black tracking-wider">Kod: ${coordPin}</span>
+      <div class="flex items-center gap-2 text-emerald-800 font-black text-sm">
+        <i class="fa-solid fa-user-shield text-emerald-600 text-base"></i>
+        <span>Assalomu alaykum, ${coordName}!</span>
       </div>
       <p class="text-xs text-slate-700 leading-relaxed font-medium">
         Sizligingizni aniqlaşimiz uçun <strong class="text-purple-800">${regCoordinatorLabel} koordinatori</strong> tomonidan taqdim etilgan <strong>beshtalik kodni</strong> tering:
@@ -1066,12 +1087,9 @@ const App = {
 
     greetingBox.className = "p-4 rounded-2xl border-2 border-purple-400 bg-gradient-to-br from-purple-50 to-indigo-50 text-xs text-slate-900 shadow-sm space-y-1.5";
     greetingBox.innerHTML = `
-      <div class="flex items-center justify-between gap-2 text-purple-900 font-black text-sm">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-user-check text-purple-600 text-base"></i>
-          <span>Assalomu alaykum, ${coordName}!</span>
-        </div>
-        <span class="px-2 py-0.5 rounded-lg bg-purple-100 text-purple-800 border border-purple-300 text-[11px] font-black tracking-wider">Kod: ${coordPin}</span>
+      <div class="flex items-center gap-2 text-purple-900 font-black text-sm">
+        <i class="fa-solid fa-user-check text-purple-600 text-base"></i>
+        <span>Assalomu alaykum, ${coordName}!</span>
       </div>
       <p class="text-xs text-slate-700 leading-relaxed font-medium">
         Siz ekanligingizni aniqlaşimiz uçun <strong class="text-rose-700">admin (Respublika koordinatori)</strong> tomonidan berilgan <strong>beshtalik kodni</strong> bu yerga tering:
@@ -1113,9 +1131,7 @@ const App = {
     if (pinInput) pinInput.value = '';
     const repAdmin = DataStore.getRepublicAdmin();
     const nameDisp = document.getElementById('rep-login-admin-name-display');
-    const pinHint = document.getElementById('rep-login-pin-hint-badge');
     if (nameDisp) nameDisp.textContent = repAdmin.fullName || 'Respublika Boş Koordinatori';
-    if (pinHint) pinHint.textContent = `Kod: ${repAdmin.pin || '12345'}`;
     this.openModal('modal-republic-admin-login');
     setTimeout(() => {
       if (pinInput) pinInput.focus();
@@ -1433,9 +1449,11 @@ const App = {
 
   async handleStaffLogin(e) {
     if (e) e.preventDefault();
+    const regSelect = document.getElementById('staff-login-region');
     const distInput = document.getElementById('staff-login-district');
     const idInput = document.getElementById('staff-login-identifier');
     const pinInput = document.getElementById('staff-login-pin');
+    const regionVal = regSelect ? regSelect.value.trim() : 'Buxoro viloyati';
     const districtVal = distInput ? distInput.value.trim() : '';
     const identifier = idInput ? idInput.value.trim() : '';
     const pin = pinInput ? pinInput.value.trim() : '';
@@ -1453,10 +1471,10 @@ const App = {
       return;
     }
 
-    let res = Auth.loginStaffByCredentials(identifier, pin, districtVal);
+    let res = Auth.loginStaffByCredentials(identifier, pin, districtVal, regionVal);
     if (!res.success && typeof CloudSync !== 'undefined' && CloudSync.pullFromRest) {
       await CloudSync.pullFromRest();
-      res = Auth.loginStaffByCredentials(identifier, pin, districtVal);
+      res = Auth.loginStaffByCredentials(identifier, pin, districtVal, regionVal);
     }
 
     if (res.success) {
@@ -1543,11 +1561,10 @@ const App = {
 
     if (infoBox) {
       infoBox.innerHTML = `
-        <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
           <span class="font-black text-emerald-900 text-sm">
             <i class="fa-solid fa-paper-plane text-emerald-600 mr-1"></i> ${pendingStaff.districtLabel} Adminiga SMS / Xabar Yuborildi!
           </span>
-          <span class="px-2.5 py-0.5 rounded-lg bg-amber-200 text-amber-950 font-black text-xs tracking-wider">Kod: ${code5}</span>
         </div>
         <p class="text-xs text-slate-700 leading-relaxed mt-1">
           <strong>"${pendingStaff.fullName}"</strong> (${pendingStaff.phone}) ro'yxatdan o'tganligi haqida <strong>${pendingStaff.districtLabel} koordinatori (${adminName})</strong> xonasiga 5 xonali kod yuborildi.<br>
@@ -1560,7 +1577,7 @@ const App = {
     }
 
     this.renderRoleUI();
-    this.showToast(`📲 ${pendingStaff.districtLabel} adminiga (${adminName}) 5 xonali tasdiq kodi (${code5}) yuborildi!`, "success");
+    this.showToast(`📲 ${pendingStaff.districtLabel} adminiga (${adminName}) 5 xonali tasdiq kodi yuborildi!`, "success");
   },
 
   backToStaffRegStep1() {
@@ -1647,7 +1664,7 @@ const App = {
 
     const hint = document.getElementById('staff-forgot-sms-hint');
     if (hint) {
-      hint.innerHTML = `<strong>${staff.phone}</strong> raqamiga 4 talik tasdiqlash kodi yuborildi:<br><span class="inline-block mt-1 px-3 py-1 bg-white border border-blue-300 rounded-lg text-blue-950 font-black tracking-widest text-base shadow-sm">${code}</span>`;
+      hint.innerHTML = `<strong>${staff.phone}</strong> raqamingizga 4 talik tasdiqlash kodi SMS orqali yuborildi. Iltimos, SMS orqali kelgan kodni kiriting:`;
     }
 
     const step1 = document.getElementById('staff-forgot-step1');
@@ -1655,7 +1672,7 @@ const App = {
     if (step1) step1.classList.add('hidden');
     if (step2) step2.classList.remove('hidden');
 
-    this.showToast(`Tasdiqlash kodi: ${code}`, "info");
+    this.showToast(`📲 ${staff.phone} raqamingizga 4 talik tasdiqlash kodi yuborildi.`, "info");
   },
 
   handleStaffForgotVerifyAndReset(e) {
@@ -1953,7 +1970,7 @@ const App = {
 
     const hintEl = document.getElementById('student-reg-sms-hint');
     if (hintEl) {
-      hintEl.innerHTML = `<strong>${phoneInput}</strong> raqamiga 4 talik tasdiqlash kodi yuborildi:<br><span class="inline-block mt-1 px-3 py-1 bg-white border border-emerald-300 rounded-lg text-emerald-950 font-black tracking-widest text-base shadow-sm">${code}</span>`;
+      hintEl.innerHTML = `<strong>${phoneInput}</strong> raqamingizga 4 talik tasdiqlash kodi yuborildi. Iltimos, SMS orqali kelgan kodni kiriting:`;
     }
 
     const codeInput = document.getElementById('std-reg-verify-code');
@@ -1962,7 +1979,7 @@ const App = {
       codeInput.focus();
     }
 
-    this.showToast(`📲 ${phoneInput} raqamiga 4 talik tasdiqlash kodi yuborildi: ${code}`, "info");
+    this.showToast(`📲 ${phoneInput} raqamingizga 4 talik tasdiqlash kodi yuborildi.`, "info");
   },
 
   handleStudentRegisterVerifyAndSubmit(e) {
@@ -2032,7 +2049,7 @@ const App = {
 
     const hintEl = document.getElementById('student-reg-sms-hint');
     if (hintEl) {
-      hintEl.innerHTML = `<strong>${this.state.studentRegSession.phone}</strong> raqamiga yangi 4 talik tasdiqlash kodi yuborildi:<br><span class="inline-block mt-1 px-3 py-1 bg-white border border-emerald-300 rounded-lg text-emerald-950 font-black tracking-widest text-base shadow-sm">${code}</span>`;
+      hintEl.innerHTML = `<strong>${this.state.studentRegSession.phone}</strong> raqamingizga yangi 4 talik tasdiqlash kodi yuborildi. Iltimos, SMS orqali kelgan kodni kiriting:`;
     }
 
     const codeInput = document.getElementById('std-reg-verify-code');
@@ -2041,7 +2058,7 @@ const App = {
       codeInput.focus();
     }
 
-    this.showToast(`📲 Yangi 4 talik tasdiqlash kodi yuborildi: ${code}`, "info");
+    this.showToast(`📲 Yangi 4 talik tasdiqlash kodi yuborildi.`, "info");
   },
 
   backToStudentRegStep1() {
@@ -2084,7 +2101,7 @@ const App = {
 
     const hint = document.getElementById('student-forgot-sms-hint');
     if (hint) {
-      hint.innerHTML = `<strong>${creator.phone}</strong> raqamiga 4 talik tasdiqlash kodi yuborildi:<br><span class="inline-block mt-1 px-3 py-1 bg-white border border-emerald-300 rounded-lg text-emerald-950 font-black tracking-widest text-base shadow-sm">${code}</span>`;
+      hint.innerHTML = `<strong>${creator.phone}</strong> raqamingizga 4 talik tasdiqlash kodi yuborildi. Iltimos, SMS orqali kelgan kodni kiriting:`;
     }
 
     const step1 = document.getElementById('student-forgot-step1');
@@ -2092,7 +2109,7 @@ const App = {
     if (step1) step1.classList.add('hidden');
     if (step2) step2.classList.remove('hidden');
 
-    this.showToast(`Tasdiqlash kodi: ${code}`, "info");
+    this.showToast(`📲 ${creator.phone} raqamingizga 4 talik tasdiqlash kodi yuborildi.`, "info");
   },
 
   handleStudentForgotVerifyAndReset(e) {
@@ -2282,7 +2299,7 @@ const App = {
 
             <div class="mt-5 pt-4 border-t border-slate-100 space-y-3">
               ${submitButton}
-              ${isRepAdmin ? `
+              ${(isRepAdmin || (isAdmin && !isRepScope)) ? `
                 <div class="flex items-center justify-between pt-1">
                   <button onclick="App.handleArchiveChallenge('${chl.id}')" class="text-xs text-amber-700 hover:text-amber-900 font-bold">
                     <i class="fa-solid fa-box-archive mr-1"></i> Arxivga o'tkazish
@@ -2693,11 +2710,11 @@ const App = {
   },
 
   handleDeleteChallenge(id) {
-    if (!Auth.isRepublicAdmin()) return;
-    if (confirm("Ushbu chellenjni o'chirmoqchimisiz?")) {
+    if (!Auth.isRepublicAdmin() && !Auth.isAdmin()) return;
+    if (confirm("Ushbu videorolik/chellenjni va unda qatnashgan barcha o'quvchilarning natijalarini butunlay o'chirib tashlamoqchimisiz?")) {
       DataStore.deleteChallenge(id);
       this.refreshAllUI();
-      this.showToast("Chellenj o'chirildi.", "info");
+      this.showToast("Videorolik va unga qatnashgan barcha o'quvchilarning natijalari to'liq o'chirildi.", "info");
     }
   },
 
@@ -3593,33 +3610,84 @@ const App = {
         <div class="space-y-2.5">
           ${proofsList.map(proof => {
             const isApproved = proof.status === 'approved';
+            const isStaffVerified = proof.status === 'staff_verified';
             const awardedVal = proof.awardedCoins || proof.coinsAwarded || c.awardCoins;
+            const staffNameWhoVerified = proof.verifiedByStaffName || 'Madaniyat xodimi';
+
+            let statusBadgeHtml = '';
+            if (isApproved) {
+              statusBadgeHtml = `
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white font-black text-[10px]">
+                  ✅ Tasdiqlandi va Admin tomonidan tanga taqdim etildi (+${awardedVal} 🪙)
+                </span>
+              `;
+            } else if (isStaffVerified) {
+              statusBadgeHtml = `
+                <span class="px-2.5 py-0.5 rounded-full bg-amber-300 text-amber-950 font-black text-[10px] border border-amber-400">
+                  🟡 ${staffNameWhoVerified} tasdiqladi (Admin tanga berishi kutilmoqda)
+                </span>
+              `;
+            } else {
+              statusBadgeHtml = `
+                <span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-950 font-black text-[10px] border border-amber-200">
+                  ⏳ Madaniyat xodimi tasdig'i kutilmoqda
+                </span>
+              `;
+            }
+
+            let actionButtonHtml = '';
+            if (!isApproved) {
+              if (isStaffVerified) {
+                if (isAdmin) {
+                  actionButtonHtml = `
+                    <div class="pt-1.5">
+                      <button type="button" onclick="App.handleAdminAwardContestProofCoins('${c.id}', '${proof.id}', ${Number(c.awardCoins) || 50})" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-coins text-amber-950"></i> 🪙 Tanga Taqdim Etish (+${c.awardCoins} 🪙)
+                      </button>
+                    </div>
+                  `;
+                } else if (isStaff) {
+                  actionButtonHtml = `
+                    <div class="pt-1 text-[11px] font-bold text-teal-800 flex items-center gap-1">
+                      <i class="fa-solid fa-circle-check text-emerald-600"></i> Rasm haqiqiyligini tasdiqladingiz. Admin tanga berishi kutilmoqda.
+                    </div>
+                  `;
+                }
+              } else {
+                // Hali madaniyat xodimi tasdiqlamagan
+                if (isStaff) {
+                  actionButtonHtml = `
+                    <div class="pt-1.5">
+                      <button type="button" onclick="App.handleStaffVerifyCertificateProof('${c.id}', '${proof.id}')" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-black text-xs shadow-md transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-check-double text-amber-300"></i> Rasm Haqiqiyligini Tasdiqlash (Adminga yuborish)
+                      </button>
+                    </div>
+                  `;
+                } else if (isAdmin) {
+                  actionButtonHtml = `
+                    <div class="pt-1.5 flex flex-wrap items-center gap-2">
+                      <span class="text-[11px] text-amber-800 font-semibold">Madaniyat xodimi hali rasmni tasdiqlamagan.</span>
+                      <button type="button" onclick="App.handleAdminAwardContestProofCoins('${c.id}', '${proof.id}', ${Number(c.awardCoins) || 50})" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-sm transition flex items-center gap-1">
+                        <i class="fa-solid fa-coins"></i> To'g'ridan-to'g'ri tanga berish (+${c.awardCoins} 🪙)
+                      </button>
+                    </div>
+                  `;
+                }
+              }
+            }
+
             return `
-              <div class="p-3 rounded-2xl ${isApproved ? 'bg-emerald-50/70 border border-emerald-300' : 'bg-amber-50/60 border border-amber-200'} space-y-2">
+              <div class="p-3 rounded-2xl ${isApproved ? 'bg-emerald-50/70 border border-emerald-300' : (isStaffVerified ? 'bg-amber-50/90 border border-amber-300' : 'bg-slate-50 border border-slate-200')} space-y-2">
                 <div class="flex flex-col sm:flex-row items-start gap-3">
                   <img src="${proof.photoUrl}" alt="${proof.creatorName} sertifikat rasmi" onclick="window.open(this.src, '_blank')" class="w-full sm:w-28 h-36 sm:h-24 object-cover rounded-xl border-2 border-white shadow cursor-pointer shrink-0" title="Kattalashtirib ko'rish uchun bosing" />
                   <div class="flex-1 min-w-0 space-y-1">
                     <div class="flex items-center justify-between gap-2 flex-wrap">
                       <span class="font-black text-slate-900 text-xs">${proof.creatorName} <span class="text-indigo-600">@${DataStore.normalizeNickname(proof.creatorNickname || proof.creatorName)}</span></span>
-                      ${isApproved ? `
-                        <span class="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white font-black text-[10px]">
-                          ✅ Tasdiqlandi va Qabul qilindi (+${awardedVal} 🪙)
-                        </span>
-                      ` : `
-                        <span class="px-2.5 py-0.5 rounded-full bg-amber-200 text-amber-950 font-black text-[10px]">
-                          ⏳ Madaniyat xodimi tasdig'i kutilmoqda
-                        </span>
-                      `}
+                      ${statusBadgeHtml}
                     </div>
                     <p class="text-[11px] text-slate-600 font-semibold">🏫 ${proof.creatorSchool || ''} • 📅 Joylandi: ${proof.submittedAt || proof.uploadedAt || ''}</p>
                     ${proof.comment ? `<p class="text-xs text-slate-700 bg-white/80 p-2 rounded-xl border border-slate-200/70">"${proof.comment}"</p>` : ''}
-                    ${(isStaff || isAdmin) && !isApproved ? `
-                      <div class="pt-1.5">
-                        <button type="button" onclick="App.handleApproveContestCertificateProof('${c.id}', '${proof.id}', ${Number(c.awardCoins) || 50})" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md transition flex items-center justify-center gap-1.5">
-                          <i class="fa-solid fa-circle-check text-amber-300"></i> Rasm Haqiqiyligini Tasdiqlash va Qabul Qilish (+${c.awardCoins} 🪙 Tanga Berish)
-                        </button>
-                      </div>
-                    ` : ''}
+                    ${actionButtonHtml}
                   </div>
                 </div>
               </div>
@@ -3640,9 +3708,14 @@ const App = {
               <span class="font-black text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-xl text-xs flex items-center gap-1">
                 🪙 +${c.awardCoins} tanga
               </span>
-              ${(isStaff || isAdmin) ? `
+              ${isStaff ? `
                 <button type="button" onclick="App.openSelectStudentsForContestModal('${c.id}')" class="w-9 h-9 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-base shadow-md transition flex items-center justify-center" title="Tanlovga o'quvchi tanlash (+)">
                   <i class="fa-solid fa-plus"></i>
+                </button>
+              ` : ''}
+              ${isAdmin ? `
+                <button type="button" onclick="App.handleDeleteContest('${c.id}')" class="w-9 h-9 rounded-xl bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white border border-rose-200 font-black text-sm shadow-sm transition flex items-center justify-center" title="Tadbir e'lonini o'chirish">
+                  <i class="fa-solid fa-trash"></i>
                 </button>
               ` : ''}
             </div>
@@ -3667,14 +3740,19 @@ const App = {
             ${c.description}
           </p>
 
-          ${(isStaff || isAdmin) ? `
+          ${isStaff ? `
             <div class="mt-3">
               <button type="button" onclick="App.openSelectStudentsForContestModal('${c.id}')" class="w-full py-2.5 px-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs shadow-md transition flex items-center justify-center gap-2">
                 <span class="w-6 h-6 rounded-lg bg-white/20 flex items-center justify-center font-black text-sm">+</span>
                 <span>Madaniyat xodimi: O'quvchi tanlash (${selectedList.length} nafar tanlangan)</span>
               </button>
             </div>
-          ` : ''}
+          ` : (isAdmin ? `
+            <div class="mt-3 p-2.5 rounded-2xl bg-blue-50 border border-blue-200 text-xs text-blue-900 font-bold flex items-center justify-between">
+              <span><i class="fa-solid fa-users text-blue-600 mr-1"></i> Madaniyat xodimi tanlagan o'quvchilar:</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-blue-600 text-white font-black text-xs">${selectedList.length} nafar</span>
+            </div>
+          ` : '')}
 
           ${selectedStudentsHtml}
           ${studentSelectedCalloutHtml}
@@ -3683,7 +3761,7 @@ const App = {
 
         <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
           <span class="text-[10px] text-slate-400">${c.districtLabel || userDist.districtLabel || 'Tuman'} Koordinatori tomonidan e'lon qilingan</span>
-          ${isAdmin ? `
+          ${(isAdmin || Auth.isRepublicAdmin()) ? `
             <button onclick="App.handleDeleteContest('${c.id}')" class="text-xs text-red-500 hover:text-red-700 font-bold flex items-center gap-1">
               <i class="fa-solid fa-trash"></i> O'chirish
             </button>
@@ -3702,7 +3780,17 @@ const App = {
     if (!grid) return;
 
     const userDist = this.getActiveDistrictInfo();
-    const activeFilterDist = userDist.district || (this.state.selectedDistrict !== 'all' ? this.state.selectedDistrict : '');
+    const currentUser = Auth.getCurrentUser();
+    let activeFilterDist = userDist.district || (this.state.selectedDistrict !== 'all' ? this.state.selectedDistrict : '');
+
+    // Agar o'quvchi kirgan bo'lsa, uning o'z tumani bo'yicha qat'iy cheklash (masalan, Jondor o'quvchisiga faqat Jondor tanlovlari ko'rinsin)
+    if (Auth.isStudent()) {
+      const creator = DataStore.getCreatorById(currentUser.creatorId || currentUser.id) || currentUser;
+      const sDist = (creator && (creator.district || creator.districtLabel)) || userDist.district || '';
+      if (sDist) {
+        activeFilterDist = sDist;
+      }
+    }
 
     let contests = DataStore.getContests();
     if (activeFilterDist) {
@@ -3792,8 +3880,8 @@ const App = {
   },
 
   openSelectStudentsForContestModal(contestId) {
-    if (!Auth.isStaff() && !Auth.isAdmin()) {
-      this.showToast("O'quvchilarni tanlovga faqat Madaniyat xodimi yoki Tuman koordinatori tanlay oladi!", "warning");
+    if (!Auth.isStaff()) {
+      this.showToast("O'quvchilarni tadbirga faqat Madaniyat xodimlari tanlay oladi!", "warning");
       return;
     }
     const contest = DataStore.getContests().find(c => c.id === contestId);
@@ -4003,7 +4091,7 @@ const App = {
   },
 
   confirmAndSaveContestSelectedStudents() {
-    if (!Auth.isStaff() && !Auth.isAdmin()) return;
+    if (!Auth.isStaff()) return;
     const contestId = this.state.activeContestForSelection || document.getElementById('contest-select-target-id')?.value;
     if (!contestId) return;
 
@@ -4011,7 +4099,7 @@ const App = {
     const user = Auth.getCurrentUser() || {};
 
     const res = DataStore.saveSelectedStudentsForContest(contestId, selectedIds, {
-      fullName: user.fullName || (Auth.isAdmin() ? `${user.districtLabel || 'Tuman'} Koordinatori` : 'Madaniyat xodimi'),
+      fullName: user.fullName || 'Madaniyat xodimi',
       organization: user.organization || user.position || "Madaniyat bo'limi",
       phone: user.phone || ''
     });
@@ -4140,31 +4228,60 @@ const App = {
     if (res.success) {
       this.closeModal('modal-contest-upload-proof');
       this.refreshAllUI();
-      this.showToast("📸 Sertifikat rasmingiz muvaffaqiyatli joylandi! Madaniyat xodimi rasm haqiqiyligini tasdiqlab qabul qilgach tangalar hisobingizga o'tadi.", "success");
+      this.showToast("📸 Sertifikat rasmingiz muvaffaqiyatli joylandi! Madaniyat xodimi rasm haqiqiyligini tasdiqlab adminga yuboradi, so'ngra admin tanga taqdim etadi.", "success");
+    } else {
+      this.showToast(res.message || "Xatolik yuz berdi!", "error");
+    }
+  },
+
+  // 1-BOSQICH: Madaniyat xodimi rasm haqiqiyligini tasdiqlaydi (adminga bildirishnoma boradi)
+  handleStaffVerifyCertificateProof(contestId, proofId) {
+    if (!Auth.isStaff()) {
+      this.showToast("Rasm haqiqiyligini faqat Madaniyat xodimi tasdiqlay oladi!", "warning");
+      return;
+    }
+    const user = Auth.getCurrentUser() || {};
+    const res = DataStore.verifyContestCertificateProofByStaff(contestId, proofId, {
+      fullName: user.fullName || "Madaniyat xodimi",
+      organization: user.organization || user.position || "Madaniyat bo'limi",
+      phone: user.phone || ''
+    });
+    if (res.success) {
+      this.refreshAllUI();
+      this.showToast(`✅ ${res.proof.creatorName} joylagan sertifikat rasmi haqiqiyligi tasdiqlandi va Tuman adminiga xabar yuborildi! Admin tanga taqdim etishi kutilmoqda.`, "success");
+    } else {
+      this.showToast(res.message || "Xatolik yuz berdi!", "error");
+    }
+  },
+
+  // 2-BOSQICH: Admin (Tuman koordinatori) sertifikat rasmini ko'rib, tanga taqdim etish tugmasini bosadi va tanga beradi
+  handleAdminAwardContestProofCoins(contestId, proofId, defaultCoins = 50) {
+    if (!Auth.isAdmin()) {
+      this.showToast("Tanga taqdim etish huquqiga faqat Tuman koordinatori (Admin) ega!", "warning");
+      return;
+    }
+    const user = Auth.getCurrentUser() || {};
+    const approverName = user.fullName || `${user.districtLabel || 'Tuman'} koordinatori`;
+    const res = DataStore.approveContestCertificateProof(
+      contestId,
+      proofId,
+      defaultCoins,
+      `Tuman admini (${approverName}) tomonidan sertifikat rasmi tasdiqlanib, +${defaultCoins} tanga taqdim etildi!`,
+      approverName
+    );
+    if (res.success) {
+      this.refreshAllUI();
+      this.showToast(`🪙 ${res.proof.creatorName} hisobiga +${res.coins} tanga muvaffaqiyatli taqdim etildi!`, "success");
     } else {
       this.showToast(res.message || "Xatolik yuz berdi!", "error");
     }
   },
 
   handleApproveContestCertificateProof(contestId, proofId, defaultCoins = 50) {
-    if (!Auth.isStaff() && !Auth.isAdmin()) {
-      this.showToast("Rasm haqiqiyligini faqat Madaniyat xodimi (yoki Tuman koordinatori) tasdiqlay oladi!", "warning");
-      return;
-    }
-    const user = Auth.getCurrentUser() || {};
-    const approverName = user.fullName || (Auth.isStaff() ? 'Madaniyat xodimi' : 'Tuman koordinatori');
-    const res = DataStore.approveContestCertificateProof(
-      contestId,
-      proofId,
-      defaultCoins,
-      `${approverName} tomonidan sertifikat rasmi haqiqiyligi tasdiqlandi va qabul qilindi!`,
-      approverName
-    );
-    if (res.success) {
-      this.refreshAllUI();
-      this.showToast(`✅ ${res.proof.creatorName} joylagan sertifikat rasmi haqiqiyligi tasdiqlandi va hisobiga +${res.coins} 🪙 tanga yuborildi!`, "success");
-    } else {
-      this.showToast(res.message || "Xatolik yuz berdi!", "error");
+    if (Auth.isAdmin()) {
+      this.handleAdminAwardContestProofCoins(contestId, proofId, defaultCoins);
+    } else if (Auth.isStaff()) {
+      this.handleStaffVerifyCertificateProof(contestId, proofId);
     }
   },
 
@@ -4199,7 +4316,7 @@ const App = {
   },
 
   handleDeleteContest(id) {
-    if (!Auth.isAdmin()) return;
+    if (!Auth.isAdmin() && !Auth.isRepublicAdmin()) return;
     if (confirm("Ushbu tanlov e'lonini ro'yxatdan o'chirmoqchimisiz?")) {
       DataStore.deleteContest(id);
       this.renderContests();
@@ -4342,7 +4459,7 @@ const App = {
     }
 
     if (noMsg) noMsg.classList.add('hidden');
-    const isStaffOrAdmin = Auth.isStaff();
+    const isStaffOrAdmin = Auth.isStaff() || Auth.isAdmin() || Auth.isRegionAdmin() || Auth.isRepublicAdmin();
     const isAdmin = Auth.isAdmin();
     const currentUser = Auth.getCurrentUser();
 
@@ -4363,16 +4480,34 @@ const App = {
           </div>
         `;
       } else if (Auth.isStudent()) {
-        phoneBlock = `
-          <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs gap-2">
-            <span class="text-slate-400 text-[11px] flex items-center gap-1 truncate">
-              <i class="fa-solid fa-lock text-slate-400"></i> Telefon yopiq
-            </span>
-            <button onclick="App.openStudentComplaintModal('${creator.id}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-bold transition flex items-center gap-1 shrink-0" title="Tanga taqdim etilmagani bo'yicha adminga shikoyat">
-              <i class="fa-solid fa-triangle-exclamation text-rose-600"></i> Adminga Shikoyat
-            </button>
-          </div>
-        `;
+        const isMyCard = Boolean(
+          currentUser && (
+            String(currentUser.creatorId) === String(creator.id) ||
+            String(currentUser.id) === String(creator.id) ||
+            (currentUser.fullName && creator.fullName && currentUser.fullName.trim().toLowerCase() === creator.fullName.trim().toLowerCase())
+          )
+        );
+        if (isMyCard) {
+          phoneBlock = `
+            <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs gap-2">
+              <span class="text-emerald-700 font-bold text-[11px] flex items-center gap-1 truncate">
+                <i class="fa-solid fa-user-graduate text-emerald-600"></i> Mening Profilim
+              </span>
+              <button onclick="App.openStudentComplaintModal('${creator.id}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-bold transition flex items-center gap-1 shrink-0" title="Tanga taqdim etilmagani bo'yicha adminga shikoyat">
+                <i class="fa-solid fa-triangle-exclamation text-rose-600"></i> Adminga Shikoyat
+              </button>
+            </div>
+          `;
+        } else {
+          phoneBlock = `
+            <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span class="text-slate-400 text-[11px] flex items-center gap-1">
+                <i class="fa-solid fa-lock text-slate-400"></i> Telefon yopiq
+              </span>
+              <span class="text-slate-400 text-[10px]">Faqat xodim va admin uchun</span>
+            </div>
+          `;
+        }
       } else {
         phoneBlock = `
           <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
@@ -4601,6 +4736,100 @@ const App = {
           ` : ''}
         </div>
       `;
+    }
+
+    const invitationsPodiumContainer = document.getElementById('invitations-podium-container');
+    if (invitationsPodiumContainer) {
+      let invList = DataStore.getInvitationsLeaderboard();
+      if (activeFilterDist) {
+        invList = invList.filter(c => DataStore.districtsMatch(c.district || c.districtLabel, activeFilterDist));
+      }
+      if (invList.length === 0) {
+        invitationsPodiumContainer.innerHTML = `
+          <div class="col-span-full py-8 text-center text-slate-400 text-xs bg-white rounded-2xl border border-slate-200">
+            Hozircha tadbirlarga chaqirilgan o'quvchilar shakllanmagan.
+          </div>
+        `;
+      } else if (invList.length >= 3) {
+        const first = invList[0];
+        const second = invList[1];
+        const third = invList[2];
+        const count1 = DataStore.getCreatorInvitationsCount(first);
+        const count2 = DataStore.getCreatorInvitationsCount(second);
+        const count3 = DataStore.getCreatorInvitationsCount(third);
+
+        invitationsPodiumContainer.innerHTML = `
+          <div class="podium-card podium-2 p-5 rounded-3xl text-center flex flex-col justify-between order-2 md:order-1 h-[285px] bg-gradient-to-b from-purple-50/50 to-white border-2 border-purple-200">
+            <div>
+              <div class="w-10 h-10 rounded-full bg-purple-200 text-purple-900 flex items-center justify-center font-black mx-auto mb-2 text-sm border-2 border-white shadow-sm">
+                2
+              </div>
+              <img src="${second.avatarUrl}" class="w-16 h-16 rounded-full mx-auto object-cover border-2 border-purple-300 shadow-sm mb-2" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'">
+              <h4 class="font-bold text-slate-900 text-sm truncate">${second.fullName}</h4>
+              <span class="text-[11px] font-bold text-purple-800 block truncate">🏛️ ${second.regionLabel || 'Buxoro viloyati'} • 📍 ${second.districtLabel}</span>
+              <span class="text-[10px] text-slate-500 block truncate">${second.school}</span>
+            </div>
+            <div class="mt-2 bg-purple-100/70 py-2 rounded-2xl border border-purple-200">
+              <span class="text-sm font-black text-purple-950">🎭 ${count2} ta tadbir</span>
+              <span class="text-[10px] text-purple-800 block font-semibold">Tadbirlarga chaqiruv</span>
+            </div>
+          </div>
+
+          <div class="podium-card podium-1 p-6 rounded-3xl text-center flex flex-col justify-between order-1 md:order-2 h-[325px] bg-gradient-to-b from-purple-100/60 via-amber-50 to-white border-2 border-purple-400 shadow-lg shadow-purple-500/10">
+            <div>
+              <div class="w-12 h-12 rounded-full bg-purple-600 text-white flex items-center justify-center font-black mx-auto mb-2 text-lg border-2 border-white shadow-md">
+                <i class="fa-solid fa-crown text-amber-300"></i>
+              </div>
+              <img src="${first.avatarUrl}" class="w-20 h-20 rounded-full mx-auto object-cover border-4 border-purple-500 shadow-md mb-2" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'">
+              <h4 class="font-black text-slate-900 text-base truncate">${first.fullName}</h4>
+              <span class="text-xs font-extrabold text-purple-900 block truncate">🏛️ ${first.regionLabel || 'Buxoro viloyati'} • 📍 ${first.districtLabel}</span>
+              <span class="text-[11px] text-purple-800 font-medium block truncate">${first.school}</span>
+            </div>
+            <div class="mt-2 bg-purple-600 text-white py-2.5 rounded-2xl shadow-sm">
+              <span class="text-base font-black">🎭 ${count1} TA TADBIR</span>
+              <span class="text-[11px] text-purple-200 block font-semibold">1-o'rin • Eng Ko'p Chaqirilgan</span>
+            </div>
+          </div>
+
+          <div class="podium-card podium-3 p-5 rounded-3xl text-center flex flex-col justify-between order-3 md:order-3 h-[265px] bg-gradient-to-b from-purple-50/40 to-white border-2 border-purple-200">
+            <div>
+              <div class="w-9 h-9 rounded-full bg-purple-300 text-purple-950 flex items-center justify-center font-black mx-auto mb-2 text-xs border-2 border-white shadow-sm">
+                3
+              </div>
+              <img src="${third.avatarUrl}" class="w-14 h-14 rounded-full mx-auto object-cover border-2 border-purple-300 shadow-sm mb-2" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'">
+              <h4 class="font-bold text-slate-900 text-sm truncate">${third.fullName}</h4>
+              <span class="text-[11px] font-bold text-purple-800 block truncate">🏛️ ${third.regionLabel || 'Buxoro viloyati'} • 📍 ${third.districtLabel}</span>
+              <span class="text-[10px] text-slate-500 block truncate">${third.school}</span>
+            </div>
+            <div class="mt-2 bg-purple-100/50 py-2 rounded-2xl border border-purple-200">
+              <span class="text-sm font-black text-purple-950">🎭 ${count3} ta tadbir</span>
+              <span class="text-[10px] text-purple-800 block font-semibold">Tadbirlarga chaqiruv</span>
+            </div>
+          </div>
+        `;
+      } else {
+        const first = invList[0];
+        const count1 = DataStore.getCreatorInvitationsCount(first);
+        invitationsPodiumContainer.innerHTML = `
+          <div class="col-span-full flex justify-center py-4">
+            <div class="podium-card podium-1 p-6 rounded-3xl text-center flex flex-col justify-between w-72 h-[325px] bg-gradient-to-b from-purple-100/60 via-amber-50 to-white border-2 border-purple-400 shadow-lg">
+              <div>
+                <div class="w-12 h-12 rounded-full bg-purple-600 text-white flex items-center justify-center font-black mx-auto mb-2 text-lg border-2 border-white shadow-md">
+                  <i class="fa-solid fa-crown text-amber-300"></i>
+                </div>
+                <img src="${first.avatarUrl}" class="w-20 h-20 rounded-full mx-auto object-cover border-4 border-purple-500 shadow-md mb-2" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'">
+                <h4 class="font-black text-slate-900 text-base truncate">${first.fullName}</h4>
+                <span class="text-xs font-extrabold text-purple-900 block truncate">🏛️ ${first.regionLabel || 'Buxoro viloyati'} • 📍 ${first.districtLabel}</span>
+                <span class="text-[11px] text-purple-800 font-medium block truncate">${first.school}</span>
+              </div>
+              <div class="mt-2 bg-purple-600 text-white py-2.5 rounded-2xl shadow-sm">
+                <span class="text-base font-black">🎭 ${count1} TA TADBIR</span>
+                <span class="text-[11px] text-purple-200 block font-semibold">1-o'rin • Eng Ko'p Chaqirilgan</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }
     }
 
     tableBody.innerHTML = leaderboard.map((creator, index) => {
@@ -5135,12 +5364,15 @@ const App = {
       const user = Auth.getCurrentUser();
       const userDist = this.getActiveDistrictInfo();
       const allCreators = DataStore.getCreators();
-      const creator = (targetCreatorId ? DataStore.getCreatorById(targetCreatorId) : null) ||
-                      (user && user.role === 'student' ? (
-                        DataStore.getCreatorById(user.creatorId || user.id) ||
-                        allCreators.find(c => c && user.fullName && c.fullName && c.fullName.toLowerCase().trim() === user.fullName.toLowerCase().trim()) ||
-                        user
-                      ) : null);
+      let creator = null;
+      if (user && user.role === 'student') {
+        // O'quvchi faqat o'zining nomidan shikoyat qila oladi, boshqa o'quvchi nomidan emas!
+        creator = DataStore.getCreatorById(user.creatorId || user.id) ||
+                  allCreators.find(c => c && user.fullName && c.fullName && c.fullName.toLowerCase().trim() === user.fullName.toLowerCase().trim()) ||
+                  user;
+      } else if (targetCreatorId) {
+        creator = DataStore.getCreatorById(targetCreatorId);
+      }
 
       const distLabel = (creator && creator.districtLabel) || userDist.districtLabel || 'Jondor tumani';
       const normDist = DataStore.normalizeDistrict(distLabel, userDist.regionLabel || 'Buxoro viloyati');
@@ -5162,8 +5394,26 @@ const App = {
       const descInput = document.getElementById('cmp-description');
       const coinsInput = document.getElementById('cmp-requested-coins');
 
-      if (nameInput) nameInput.value = creator ? (creator.fullName || '') : '';
-      if (schoolInput) schoolInput.value = creator ? `${normDist.label || distLabel}${creator.school ? ', ' + creator.school : ''}` : (normDist.label || distLabel);
+      if (nameInput) {
+        nameInput.value = creator ? (creator.fullName || '') : '';
+        if (user && user.role === 'student') {
+          nameInput.readOnly = true;
+          nameInput.classList.add('bg-slate-100', 'cursor-not-allowed');
+        } else {
+          nameInput.readOnly = false;
+          nameInput.classList.remove('bg-slate-100', 'cursor-not-allowed');
+        }
+      }
+      if (schoolInput) {
+        schoolInput.value = creator ? `${normDist.label || distLabel}${creator.school ? ', ' + creator.school : ''}` : (normDist.label || distLabel);
+        if (user && user.role === 'student') {
+          schoolInput.readOnly = true;
+          schoolInput.classList.add('bg-slate-100', 'cursor-not-allowed');
+        } else {
+          schoolInput.readOnly = false;
+          schoolInput.classList.remove('bg-slate-100', 'cursor-not-allowed');
+        }
+      }
       if (eventInput) eventInput.value = '';
       if (descInput) descInput.value = '';
       if (coinsInput) coinsInput.value = '30';
@@ -6025,6 +6275,100 @@ const App = {
         `).join('');
       }
     }
+
+    // 6. VILOYATDAGI BARCHA MADANIYAT XODIMLARI RO'YXATI
+    const regStaffTableBody = document.getElementById('region-staff-table-body');
+    const regStaffCountBadge = document.getElementById('region-staff-count-badge');
+    if (regStaffTableBody) {
+      const regionStaffList = allStaff.filter(s =>
+        DataStore.regionsMatch(s.regionId || s.regionLabel, activeRegionId) ||
+        regDistIds.some(dId => DataStore.districtsMatch(s.district || s.districtLabel, dId))
+      );
+      if (regStaffCountBadge) {
+        regStaffCountBadge.textContent = `${regionStaffList.length} nafar xodim`;
+      }
+      if (regionStaffList.length === 0) {
+        regStaffTableBody.innerHTML = `
+          <tr>
+            <td colspan="5" class="px-5 py-6 text-center text-slate-400 text-xs">
+              ${activeRegionLabel} bo'yicha hozircha ro'yxatdan o'tgan madaniyat xodimlari yo'q.
+            </td>
+          </tr>
+        `;
+      } else {
+        regStaffTableBody.innerHTML = regionStaffList.map(s => `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="px-4 py-3 font-bold text-slate-900">
+              ${s.fullName}
+              <span class="block text-[10px] text-purple-700 font-semibold">📍 ${s.districtLabel || ''}</span>
+            </td>
+            <td class="px-4 py-3 text-xs text-slate-600">${s.position || 'Madaniyat xodimi'}</td>
+            <td class="px-4 py-3 text-xs text-slate-600">${s.organization || "Madaniyat bo'limi"}</td>
+            <td class="px-4 py-3">
+              <a href="tel:${s.phone}" class="font-black text-blue-700 hover:underline text-xs flex items-center gap-1">
+                <i class="fa-solid fa-phone text-blue-500 text-[10px]"></i> ${s.phone}
+              </a>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <a href="tel:${s.phone}" class="px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold transition inline-flex items-center gap-1">
+                <i class="fa-solid fa-phone"></i> Aloqa
+              </a>
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    // 7. VILOYATDAGI BARCHA RO'YXATDAN O'TGAN O'QUVCHILAR RO'YXATI VA TELEFON RAQAMLARI
+    const regStudentsTableBody = document.getElementById('region-students-table-body');
+    const regStudentsCountBadge = document.getElementById('region-students-count-badge');
+    if (regStudentsTableBody) {
+      const allCreators = DataStore.getCreators();
+      const regionStudentsList = allCreators.filter(c =>
+        DataStore.regionsMatch(c.regionId || c.regionLabel, activeRegionId) ||
+        regDistIds.some(dId => DataStore.districtsMatch(c.district || c.districtLabel, dId))
+      );
+      if (regStudentsCountBadge) {
+        regStudentsCountBadge.textContent = `${regionStudentsList.length} nafar o'quvchi`;
+      }
+      if (regionStudentsList.length === 0) {
+        regStudentsTableBody.innerHTML = `
+          <tr>
+            <td colspan="7" class="px-5 py-6 text-center text-slate-400 text-xs">
+              ${activeRegionLabel} bo'yicha hozircha ro'yxatdan o'tgan o'quvchilar mavjud emas.
+            </td>
+          </tr>
+        `;
+      } else {
+        regStudentsTableBody.innerHTML = regionStudentsList.map((c, idx) => `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="px-5 py-3 font-bold text-slate-500">${idx + 1}</td>
+            <td class="px-5 py-3 font-bold text-slate-900">
+              <div class="flex items-center gap-2">
+                <img src="${c.avatarUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'}" class="w-7 h-7 rounded-full object-cover border border-slate-200" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80'">
+                <span>${c.fullName}</span>
+                <span class="text-[10px] text-slate-400">(@${c.nickname || 'ijodkor'})</span>
+              </div>
+            </td>
+            <td class="px-5 py-3 text-xs text-purple-900 font-bold">📍 ${c.districtLabel || ''}</td>
+            <td class="px-5 py-3 text-xs text-slate-700">🏫 ${c.school || ''}</td>
+            <td class="px-5 py-3 text-xs font-black text-blue-700 whitespace-nowrap">
+              <a href="tel:${c.phone || ''}" class="hover:underline flex items-center gap-1">
+                <i class="fa-solid fa-phone text-blue-500 text-[10px]"></i> ${c.phone || '-'}
+              </a>
+            </td>
+            <td class="px-5 py-3 text-center whitespace-nowrap">
+              <span class="px-2.5 py-1 rounded-xl bg-amber-100 text-amber-950 font-black text-xs">🪙 ${c.coins || 0}</span>
+            </td>
+            <td class="px-5 py-3 text-right whitespace-nowrap">
+              <a href="tel:${c.phone || ''}" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition inline-flex items-center gap-1">
+                <i class="fa-solid fa-phone"></i> Aloqa
+              </a>
+            </td>
+          </tr>
+        `).join('');
+      }
+    }
   },
 
   handleSubmitRegionReport(e) {
@@ -6567,7 +6911,7 @@ const App = {
       if (fullLeaderboard.length === 0) {
         repAllStudentsBody.innerHTML = `
           <tr>
-            <td colspan="6" class="px-5 py-6 text-center text-slate-400 text-xs">
+            <td colspan="7" class="px-5 py-6 text-center text-slate-400 text-xs">
               Hozircha respublika bo'yicha ro'yxatdan o'tgan o'quvchilar mavjud emas.
             </td>
           </tr>
@@ -6589,6 +6933,11 @@ const App = {
                 </div>
               </td>
               <td class="px-4 py-3 whitespace-nowrap">
+                <a href="tel:${c.phone || ''}" class="text-xs font-black text-blue-700 hover:underline inline-flex items-center gap-1">
+                  <i class="fa-solid fa-phone text-blue-500 text-[10px]"></i> ${c.phone || '-'}
+                </a>
+              </td>
+              <td class="px-4 py-3 whitespace-nowrap">
                 <span class="px-2.5 py-1 rounded-lg bg-purple-100 text-purple-900 font-black text-xs inline-flex items-center gap-1">
                   🏛️ ${c.regionLabel || 'Buxoro viloyati'}
                 </span>
@@ -6605,6 +6954,47 @@ const App = {
             </tr>
           `;
         }).join('');
+      }
+    }
+
+    // RESPUBLIKA BO'YICHA BARCHA MADANIYAT XODIMLARI RO'YXATI
+    const repStaffTableBody = document.getElementById('republic-staff-table-body');
+    const repStaffCountBadge = document.getElementById('republic-staff-count-badge');
+    if (repStaffTableBody) {
+      const allStaff = DataStore.getStaffList();
+      if (repStaffCountBadge) {
+        repStaffCountBadge.textContent = `${allStaff.length} nafar xodim`;
+      }
+      if (allStaff.length === 0) {
+        repStaffTableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-5 py-6 text-center text-slate-400 text-xs">
+              Respublika bo'yicha hozircha ro'yxatdan o'tgan madaniyat xodimlari yo'q.
+            </td>
+          </tr>
+        `;
+      } else {
+        repStaffTableBody.innerHTML = allStaff.map((s, idx) => `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="px-4 py-3 font-bold text-slate-900">
+              <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-200 text-slate-800 text-[10px] font-black mr-1">${idx + 1}</span>
+              ${s.fullName}
+            </td>
+            <td class="px-4 py-3 text-xs font-bold text-purple-800">${s.regionLabel || 'Buxoro viloyati'}</td>
+            <td class="px-4 py-3 text-xs font-semibold text-emerald-800">📍 ${s.districtLabel || 'Tuman'}</td>
+            <td class="px-4 py-3 text-xs text-slate-600">${s.organization || 'Madaniyat markazi'} • ${s.position || 'Madaniyat xodimi'}</td>
+            <td class="px-4 py-3">
+              <a href="tel:${s.phone}" class="font-black text-blue-700 hover:underline text-xs flex items-center gap-1">
+                <i class="fa-solid fa-phone text-blue-500 text-[10px]"></i> ${s.phone}
+              </a>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <a href="tel:${s.phone}" class="px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold transition inline-flex items-center gap-1">
+                <i class="fa-solid fa-phone"></i> Aloqa
+              </a>
+            </td>
+          </tr>
+        `).join('');
       }
     }
   },
@@ -7135,6 +7525,34 @@ const App = {
     }
   },
 
+  handleResetToFreshState() {
+    if (!Auth.isAdmin() && !Auth.isRepublicAdmin() && !Auth.isRegionAdmin()) {
+      this.showToast("Bu amal faqat Adminlar uchun ruxsat etilgan!", "error");
+      return;
+    }
+    const confirmed = confirm(
+      "DIQQAT! Saytni butunlay yangi holatga keltirmoqchimisiz?\n\n" +
+      "1. Barcha o'quvchilar ro'yxati tozalanadi (0 nafar o'quvchi)\n" +
+      "2. Barcha tanlov va tadbirlar tozalanadi (0 ta tadbir)\n" +
+      "3. Barcha video-chellenjlar va topshirilgan videolar tozalanadi\n" +
+      "4. Barcha madaniyat xodimlari va ularning takliflari tozalanadi\n" +
+      "5. Barcha shikoyatlar, xabarlar va mavsum hisobotlari tozalanadi\n" +
+      "6. Tashriflar soni 0 ga tushiriladi\n" +
+      "7. Bulutli server (Google Firebase) ham tozalanadi\n\n" +
+      "(Eslatma: Tuman, viloyat va respublika adminlarining parollari saqlab qolinadi)\n\n" +
+      "Haqiqatan ham saytni to'liq yangi holatga keltirishni tasdiqlaysizmi?"
+    );
+    if (!confirmed) return;
+
+    DataStore.resetToFreshState(true);
+    Auth.logout();
+    this.refreshAllUI();
+    this.showToast("Sayt to'liq yangi holatga keltirildi!", "success");
+    setTimeout(() => {
+      window.location.reload();
+    }, 1200);
+  },
+
   // ================= 16. VIDEO VA DETALLAR =================
 
   openVideoModal(creatorId) {
@@ -7217,7 +7635,7 @@ const App = {
     if (!creator) return;
 
     const content = document.getElementById('creator-detail-content');
-    const isStaffOrAdmin = Auth.isStaff();
+    const isStaffOrAdmin = Auth.isStaff() || Auth.isAdmin() || Auth.isRegionAdmin() || Auth.isRepublicAdmin();
     const currentUser = Auth.getCurrentUser();
     const isMyProfile = (currentUser.role === 'student' && currentUser.creatorId === creator.id) || Auth.isAdmin();
 

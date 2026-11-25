@@ -521,9 +521,25 @@
 
         <div>
           <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <i class="fa-solid fa-crown text-amber-500"></i> <span data-i18n="top_creators">Peshqadamlar Shohsupasi (Top-3)</span>
+            <i class="fa-solid fa-crown text-amber-500"></i> <span data-i18n="top_creators">Peshqadamlar Shohsupasi (🪙 Tangalar Bo'yicha Top-3)</span>
           </h3>
           <div id="podium-container" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+            <!-- JS to'ldiradi -->
+          </div>
+        </div>
+
+        <!-- 2-SHOH SUPPA: TADBIRLARGA ENG KO'P CHAQIRILGANLAR SHOHSUPASI (CHAQIRUVLAR SONI BILAN BELLASHUV) -->
+        <div class="mt-8 pt-6 border-t border-slate-200">
+          <div class="mb-4">
+            <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-purple-100 text-purple-900 text-xs font-black uppercase tracking-wider mb-1">
+              <i class="fa-solid fa-masks-theater text-purple-600"></i> Bellashuv Shohsupasi
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-crown text-purple-600"></i> <span>Tadbirlarga Eng Ko'p Chaqirilganlar Shohsupasi (Top-3)</span>
+            </h3>
+            <p class="text-xs text-slate-500">Madaniyat xodimlari tomonidan tadbir va bayramlarga eng ko'p chaqirilgan o'quvchilar soni bo'yicha bellashuv</p>
+          </div>
+          <div id="invitations-podium-container" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
             <!-- JS to'ldiradi -->
           </div>
         </div>
@@ -811,6 +827,9 @@
                 <i class="fa-solid fa-upload"></i> Zaxiradan Tiklash
                 <input type="file" accept=".json" onchange="App.handleImportBackupFile(event)" class="hidden">
               </label>
+              <button onclick="App.handleResetToFreshState()" class="px-4 py-2 bg-rose-950/80 hover:bg-rose-900 text-rose-200 rounded-xl text-xs font-bold border border-rose-700/80 transition flex items-center gap-1.5" title="Saytni butunlay yangi holatga keltirish (barcha ma'lumotlarni tozalash)">
+                <i class="fa-solid fa-broom text-rose-400"></i> Saytni Yangi Holatga Keltirish
+              </button>
             </div>
           </div>
 
@@ -1275,6 +1294,80 @@
           </div>
         </div>
 
+        <!-- VILOYATDAGI MADANIYAT XODIMLARI RO'YXATI -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-slate-100 flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <span class="inline-block px-3 py-1 rounded-full bg-purple-100 text-purple-900 text-[11px] font-black uppercase tracking-wider mb-1">
+                <i class="fa-solid fa-id-badge text-purple-600 mr-1"></i> Viloyat Xodimlari Xonasi
+              </span>
+              <h3 class="font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-users text-purple-600"></i> Viloyatdagi Ro'yxatdan O'tgan Barcha Madaniyat Xodimlari
+              </h3>
+              <p class="text-xs text-slate-500">Viloyatingiz tumanlarida faoliyat yuritayotgan madaniyat xodimlari, muassasalari va aloqa raqamlari</p>
+            </div>
+            <span id="region-staff-count-badge" class="px-3 py-1 bg-purple-50 border border-purple-200 text-purple-800 rounded-xl text-xs font-black">
+              0 nafar xodim
+            </span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-700">
+              <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="px-5 py-3">№</th>
+                  <th class="px-5 py-3">Madaniyat Xodimi (F.I.Sh.)</th>
+                  <th class="px-5 py-3">Tumani (Shahri)</th>
+                  <th class="px-5 py-3">Muassasasi / Ish Joyi</th>
+                  <th class="px-5 py-3">Lavozimi</th>
+                  <th class="px-5 py-3">Telefon Raqami</th>
+                  <th class="px-5 py-3 text-right">Aloqa</th>
+                </tr>
+              </thead>
+              <tbody id="region-staff-table-body" class="divide-y divide-slate-100">
+                <!-- JS to'ldiradi -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- VILOYATDAGI BARCHA O'QUVCHILAR RO'YXATI VA TELEFON RAQAMLARI -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-slate-100 flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <span class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 text-[11px] font-black uppercase tracking-wider mb-1">
+                <i class="fa-solid fa-graduation-cap text-emerald-700 mr-1"></i> Viloyat O'quvchilari
+              </span>
+              <h3 class="font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-users text-emerald-700"></i> Viloyatdagi Barcha Ro'yxatdan O'tgan O'quvchilar va Ularning Telefon Raqamlari
+              </h3>
+              <p class="text-xs text-slate-500">Viloyat koordinatori o'z viloyatidagi barcha tuman o'quvchilari va ularning aloqa telefon raqamlarini to'liq ko'radi</p>
+            </div>
+            <span id="region-students-count-badge" class="px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-black">
+              0 nafar o'quvchi
+            </span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-700">
+              <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="px-5 py-3">№</th>
+                  <th class="px-5 py-3">O'quvchi (F.I.Sh.)</th>
+                  <th class="px-5 py-3">Tumani (Shahri)</th>
+                  <th class="px-5 py-3">Maktabi</th>
+                  <th class="px-5 py-3">Telefon Raqami</th>
+                  <th class="px-5 py-3 text-center">Tangalari</th>
+                  <th class="px-5 py-3 text-right">Aloqa</th>
+                </tr>
+              </thead>
+              <tbody id="region-students-table-body" class="divide-y divide-slate-100">
+                <!-- JS to'ldiradi -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </section>
 
       <!-- 8-BO'LIM: RESPUBLIKA KOORDINATORI PANELI (Tab: republic_admin) -->
@@ -1323,7 +1416,7 @@
             </div>
             <div>
               <label class="block text-xs font-black text-slate-800 mb-1">Telefon Raqami *</label>
-              <input type="tel" id="rep-self-edit-phone" required placeholder="+998 99 674 14 40" class="w-full px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 bg-white border border-rose-300 rounded-xl focus:ring-2 focus:ring-rose-600 focus:outline-none">
+              <input type="tel" id="rep-self-edit-phone" required placeholder="+998 00 000 00 00" class="w-full px-3.5 py-2.5 text-xs sm:text-sm font-bold text-slate-900 bg-white border border-rose-300 rounded-xl focus:ring-2 focus:ring-rose-600 focus:outline-none">
             </div>
             <div>
               <label class="block text-xs font-black text-slate-800 mb-1">Respublika Admini Kirish Kodi (Parol) *</label>
@@ -1377,9 +1470,14 @@
                 Har bir viloyat koordinatorining F.I.Sh. va <b>5 xonali kirish kodini</b> kiriting. <b>Viloyat admini almashganda</b> uning ism-familiyasi va kodini shu yerdan <b>tahrirlab (almashtirib)</b> qo'yishingiz mumkin!
               </p>
             </div>
-            <button type="button" onclick="App.saveAllRegionCoordinatorsInRepublic()" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-700 hover:from-rose-500 hover:to-pink-600 text-white font-black text-xs shadow-md transition flex items-center gap-2 shrink-0">
-              <i class="fa-solid fa-floppy-disk"></i> Barcha Viloyat Koordinatorlarini Saqlash
-            </button>
+            <div class="flex items-center gap-2 flex-wrap">
+              <button type="button" onclick="App.handleResetToFreshState()" class="px-4 py-3 rounded-2xl bg-rose-950/90 hover:bg-rose-900 text-rose-200 border border-rose-600/70 font-black text-xs shadow-md transition flex items-center gap-2 shrink-0" title="Barcha ma'lumotlarni tozalab yangi holatga keltirish">
+                <i class="fa-solid fa-broom text-rose-400"></i> Saytni Yangi Holatga Keltirish
+              </button>
+              <button type="button" onclick="App.saveAllRegionCoordinatorsInRepublic()" class="px-5 py-3 rounded-2xl bg-gradient-to-r from-rose-600 to-pink-700 hover:from-rose-500 hover:to-pink-600 text-white font-black text-xs shadow-md transition flex items-center gap-2 shrink-0">
+                <i class="fa-solid fa-floppy-disk"></i> Barcha Viloyat Koordinatorlarini Saqlash
+              </button>
+            </div>
           </div>
 
           <div class="overflow-x-auto">
@@ -1496,6 +1594,7 @@
                 <tr>
                   <th class="px-4 py-3">O'rin</th>
                   <th class="px-4 py-3">O'quvchi (F.I.Sh.)</th>
+                  <th class="px-4 py-3">Telefon Raqami</th>
                   <th class="px-4 py-3">Viloyati</th>
                   <th class="px-4 py-3">Tumani / Shahri</th>
                   <th class="px-4 py-3">Maktabi</th>
@@ -1503,6 +1602,44 @@
                 </tr>
               </thead>
               <tbody id="republic-all-students-leaderboard-body" class="divide-y divide-slate-100">
+                <!-- JS to'ldiradi -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- RESPUBLIKA BO'YICHA BARCHA MADANIYAT XODIMLARI RO'YXATI -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-slate-100 flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <span class="inline-block px-3 py-1 rounded-full bg-rose-100 text-rose-900 text-[11px] font-black uppercase tracking-wider mb-1">
+                <i class="fa-solid fa-earth-asia text-rose-600 mr-1"></i> Respublika Xodimlari Xonasi
+              </span>
+              <h3 class="font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-id-badge text-rose-600"></i> O'zbekiston Respublikasi Bo'yicha Barcha Madaniyat Xodimlari
+              </h3>
+              <p class="text-xs text-slate-500">Respublikaning barcha viloyat va tumanlarida ro'yxatdan o'tgan madaniyat xodimlari ro'yxati va aloqa raqamlari</p>
+            </div>
+            <span id="republic-staff-count-badge" class="px-3 py-1 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs font-black">
+              0 nafar xodim
+            </span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-700">
+              <thead class="bg-slate-50 text-xs uppercase text-slate-500 font-semibold border-b border-slate-200">
+                <tr>
+                  <th class="px-4 py-3">№</th>
+                  <th class="px-4 py-3">Viloyat</th>
+                  <th class="px-4 py-3">Tuman (Shahar)</th>
+                  <th class="px-4 py-3">Madaniyat Xodimi (F.I.Sh.)</th>
+                  <th class="px-4 py-3">Muassasasi / Ish Joyi</th>
+                  <th class="px-4 py-3">Lavozimi</th>
+                  <th class="px-4 py-3">Telefon Raqami</th>
+                  <th class="px-4 py-3 text-right">Aloqa</th>
+                </tr>
+              </thead>
+              <tbody id="republic-staff-table-body" class="divide-y divide-slate-100">
                 <!-- JS to'ldiradi -->
               </tbody>
             </table>
@@ -1674,7 +1811,7 @@
           <label class="block text-xs font-bold text-slate-700 mb-1">
             <i class="fa-solid fa-phone text-emerald-600 mr-1"></i> Bosh Koordinator Telefon Raqami *
           </label>
-          <input type="tel" id="admin-phone-input" required placeholder="+998 99 674 14 40" class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:bg-white focus:outline-none">
+          <input type="tel" id="admin-phone-input" required placeholder="+998 00 000 00 00" class="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:bg-white focus:outline-none">
           <p class="text-[11px] text-slate-400 mt-1">Ushbu raqam sayt bosh sahifasi va pastki qismida avtomatik yangilanadi</p>
         </div>
 
@@ -1755,15 +1892,37 @@
             <span>Boshqa qurilma yoki telefondan o'z xodim profilingizga kiring:</span>
           </div>
 
-          <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">
-              Qaysi Tumanda Ishlaysiz? (Tuman / Shahar) *
-            </label>
-            <div class="relative">
-              <i class="fa-solid fa-location-dot absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-500 text-sm"></i>
-              <input list="tumanlar-datalist" id="staff-login-district" required placeholder="Masalan: Jondor tumani" class="w-full pl-10 pr-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">
+                1. Qaysi Viloyatda Ishlaysiz? *
+              </label>
+              <select id="staff-login-region" required onchange="App.filterDatalistByRegion(this.value, 'staff-login-district', true)" class="w-full px-3.5 py-2.5 text-xs sm:text-sm font-bold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+                <option value="Buxoro viloyati">Buxoro viloyati</option>
+                <option value="Toshkent shahri">Toshkent shahri</option>
+                <option value="Toshkent viloyati">Toshkent viloyati</option>
+                <option value="Samarqand viloyati">Samarqand viloyati</option>
+                <option value="Farg'ona viloyati">Farg'ona viloyati</option>
+                <option value="Andijon viloyati">Andijon viloyati</option>
+                <option value="Namangan viloyati">Namangan viloyati</option>
+                <option value="Xorazm viloyati">Xorazm viloyati</option>
+                <option value="Qashqadaryo viloyati">Qashqadaryo viloyati</option>
+                <option value="Surxondaryo viloyati">Surxondaryo viloyati</option>
+                <option value="Navoiy viloyati">Navoiy viloyati</option>
+                <option value="Jizzax viloyati">Jizzax viloyati</option>
+                <option value="Sirdaryo viloyati">Sirdaryo viloyati</option>
+                <option value="Qoraqalpog'iston Respublikasi">Qoraqalpog'iston Respublikasi</option>
+              </select>
             </div>
-            <p class="text-[11px] text-slate-400 mt-1">Siz faqat shu tumandagi o'quvchilar va videolarni ko'rasiz</p>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 mb-1">
+                2. Qaysi Tumanda Ishlaysiz? *
+              </label>
+              <div class="relative">
+                <i class="fa-solid fa-location-dot absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-500 text-sm"></i>
+                <input list="tumanlar-datalist" id="staff-login-district" required onfocus="App.filterDatalistByRegion(document.getElementById('staff-login-region')?.value, 'staff-login-district')" placeholder="Masalan: Jondor tumani" class="w-full pl-10 pr-4 py-2.5 text-sm font-semibold bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+              </div>
+            </div>
           </div>
 
           <div>
@@ -1772,7 +1931,7 @@
             </label>
             <div class="relative">
               <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-              <input type="text" id="staff-login-identifier" required placeholder="Masalan: Sardorbek Aliyev yoki 99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+              <input type="text" id="staff-login-identifier" required placeholder="Masalan: Sardorbek Aliyev yoki +998 00 000 00 00" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
             </div>
             <p class="text-[11px] text-slate-400 mt-1">Ro'yxatdan o'tgan to'liq ism yoki telefon raqamingiz</p>
           </div>
@@ -1863,7 +2022,7 @@
             <label class="block text-xs font-bold text-slate-700 mb-1">5. Telefon Raqamingiz *</label>
             <div class="relative">
               <i class="fa-solid fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-              <input type="tel" id="staff-phone" required placeholder="99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+              <input type="tel" id="staff-phone" required placeholder="+998 00 000 00 00" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
             </div>
           </div>
 
@@ -1922,7 +2081,7 @@
             <label class="block text-xs font-bold text-slate-700 mb-1">Ro'yxatdan O'tgan Telefon Raqamingiz *</label>
             <div class="relative">
               <i class="fa-solid fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-              <input type="tel" id="staff-forgot-phone" placeholder="99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+              <input type="tel" id="staff-forgot-phone" placeholder="+998 00 000 00 00" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
             </div>
           </div>
 
@@ -2017,7 +2176,7 @@
             </label>
             <div class="relative">
               <i class="fa-solid fa-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-              <input type="text" id="std-login-identifier" required placeholder="Masalan: Azizbek yoki @azizbek yoki 99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+              <input type="text" id="std-login-identifier" required placeholder="Masalan: Azizbek yoki @azizbek yoki +998 00 000 00 00" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
             </div>
             <p class="text-[11px] text-slate-400 mt-1">Ro'yxatdan o'tgan ism, taxallus (@nik) yoki telefon raqam</p>
           </div>
@@ -2152,7 +2311,7 @@
               <label class="block text-xs font-bold text-slate-700 mb-1">Telefon Raqamingiz (Tasdiqlash kodi borishi uchun) *</label>
               <div class="relative">
                 <i class="fa-solid fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-                <input type="tel" id="std-phone" required placeholder="99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+                <input type="tel" id="std-phone" required placeholder="+998 00 000 00 00" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
               </div>
               <p class="text-[11px] text-emerald-700 mt-1">
                 <i class="fa-solid fa-shield-halved mr-1"></i> Ushbu telefon raqam haqiqatan ham sizniki ekanligini tasdiqlash uchun 4 talik SMS kod yuboriladi.
@@ -2229,7 +2388,7 @@
             <label class="block text-xs font-bold text-slate-700 mb-1">Ro'yxatdan O'tgan Telefon Raqamingiz *</label>
             <div class="relative">
               <i class="fa-solid fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-              <input type="tel" id="std-forgot-phone" placeholder="99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+              <input type="tel" id="std-forgot-phone" placeholder="+998 00 000 00 00" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
             </div>
           </div>
 
@@ -2336,7 +2495,7 @@
             <label class="block text-xs font-bold text-slate-700 mb-1">Telefon Raqami (Yangi raqamga almashtirish) *</label>
             <div class="relative">
               <i class="fa-solid fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-              <input type="tel" id="edit-phone" placeholder="99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
+              <input type="tel" id="edit-phone" placeholder="+998 00 000 00 00" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-600 focus:bg-white focus:outline-none">
             </div>
           </div>
         </div>
@@ -2452,7 +2611,7 @@
           <label class="block text-xs font-bold text-slate-700 mb-1">Telefon Raqami (Yangi raqamga almashtirish) *</label>
           <div class="relative">
             <i class="fa-solid fa-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-            <input type="tel" id="edit-staff-phone" required placeholder="99 674 14 40" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
+            <input type="tel" id="edit-staff-phone" required placeholder="+998 00 000 00 00" class="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-600 focus:bg-white focus:outline-none">
           </div>
         </div>
 
@@ -3121,7 +3280,6 @@
           <div id="republic-coordinator-greeting-box" class="p-4 bg-gradient-to-br from-rose-50 to-amber-50 border-2 border-rose-300 rounded-2xl text-xs text-rose-950 space-y-1.5 shadow-xs">
             <div class="flex items-center justify-between gap-2 font-black text-sm text-rose-900">
               <span><i class="fa-solid fa-shield-halved text-rose-600 mr-1"></i> <span id="rep-login-admin-name-display">Respublika Boş Koordinatori</span></span>
-              <span id="rep-login-pin-hint-badge" class="px-2 py-0.5 rounded-lg bg-rose-100 text-rose-800 border border-rose-300 text-[11px] font-black tracking-wider shrink-0">Kod: 12345</span>
             </div>
             <p class="text-[11px] text-slate-700 leading-relaxed">
               Respublika koordinatori sifatida kirish uchun yagona maxfiy kodni tering. <span class="text-rose-800 font-bold">(Respublika admini ism-familiyasi va kodini faqat kirgandan so'ng Respublika admini bo'limidan tahrirlash mumkin)</span>
@@ -3484,10 +3642,10 @@
   <div id="toast-container"></div>
 
   <!-- SKRIPT FAYLLARI -->
-  <script src="js/i18n.js?v=20261117_6"></script>
-  <script src="js/data.js?v=20261117_6"></script>
-  <script src="js/auth.js?v=20261117_6"></script>
-  <script src="js/app.js?v=20261117_6"></script>
+  <script src="js/i18n.js?v=20261125_7"></script>
+  <script src="js/data.js?v=20261125_7"></script>
+  <script src="js/auth.js?v=20261125_7"></script>
+  <script src="js/app.js?v=20261125_7"></script>
   <script>
     // Agar GitHub'ga fayllar js/ papkasisiz to'g'ridan-to'g'ri yuklangan bo'lsa, avtomatik ulash
     window.addEventListener('DOMContentLoaded', function () {
@@ -3499,7 +3657,7 @@
             return;
           }
           var s = document.createElement('script');
-          s.src = files[idx] + '?v=20261117_6';
+          s.src = files[idx] + '?v=20261125_7';
           s.onload = function () { loadNext(idx + 1); };
           s.onerror = function () { loadNext(idx + 1); };
           document.body.appendChild(s);

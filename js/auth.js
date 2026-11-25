@@ -297,7 +297,7 @@ const Auth = {
   },
 
   // Madaniyat xodimi ismi yoki telefoni hamda profil kodi (parol) orqali kirish
-  loginStaffByCredentials(identifier, pin, districtInput) {
+  loginStaffByCredentials(identifier, pin, districtInput, regionInput = '') {
     if (!identifier || !identifier.trim()) {
       return { success: false, message: "Iltimos, ismingiz yoki telefon raqamingizni kiriting!" };
     }
@@ -315,7 +315,7 @@ const Auth = {
 
     // Agar kirish paytida tuman ko'rsatilgan bo'lsa yoki xodimda hali tuman bo'lmasa, tumanini yangilaymiz
     if (districtInput && districtInput.trim()) {
-      const normDist = DataStore.normalizeDistrict(districtInput);
+      const normDist = DataStore.normalizeDistrict(districtInput, regionInput);
       if (normDist.id && normDist.id !== 'all') {
         if (!staff.district) {
           staff = DataStore.updateStaffMember(staff.id, {
